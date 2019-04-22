@@ -1,6 +1,7 @@
 <?php
 /**
  * 数据库连接类，依赖 PDO_MYSQL 扩展
+ * version >= 5.7
  */
 
 namespace library;
@@ -351,12 +352,12 @@ class Mysql extends DataBase
     }
 
     /**
-     * 数组转 MY 形式数组(实质上是一个逗号序列，运用 not / contains 查询)
+     * 数组转逗号形式序列(实质上是一个逗号序列，运用 not / contains(find_in_set) 查询)
      * @param $arr
      * @param $type
      * @return mixed
      */
-    public function toMyArray($arr, $type)
+    public function arr2comma($arr, $type)
     {
         if ($type && is_array($arr)) {
             if ($arr) {
@@ -372,12 +373,12 @@ class Mysql extends DataBase
     }
 
     /**
-     * MY 形式数组 转 数组(实质上是一个逗号序列，运用 not / contains 查询)
+     * 逗号序列转回数组(实质上是一个逗号序列，运用 not / contains 查询)
      * @param $arr
      * @param $type
      * @return mixed
      */
-    public function toCArray($arr, $type)
+    public function comma2arr($arr, $type)
     {
         if ($type && is_string($arr)) {
             if ($arr) {
@@ -439,7 +440,7 @@ class Mysql extends DataBase
                             break;
                     }
                     if (strpos($v, ',,,,,') === 0) {
-                        $result[$k] = $this->toCArray($v, $ft);
+                        $result[$k] = $this->comma2arr($v, $ft);
                     }
                 }
             }
@@ -2273,7 +2274,7 @@ class Mysql extends DataBase
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                     //todo 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
                         $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
                     }
@@ -2315,7 +2316,7 @@ class Mysql extends DataBase
                     } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                         //todo 跟据表字段处理数据
                         if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                            $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                            $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                             if ($val === null) $value[] = 'NULL';
                         } else {
                             $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
@@ -2356,7 +2357,7 @@ class Mysql extends DataBase
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                     //todo 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
                         $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
                     }

@@ -1,6 +1,7 @@
 <?php
 /**
  * 数据库连接类，依赖 PDO_PGSQL 扩展
+ * version > 9.7
  */
 
 namespace library;
