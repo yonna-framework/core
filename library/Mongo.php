@@ -64,13 +64,6 @@ class Mongo
     private $error;
 
     /**
-     * 查询表达式
-     *
-     * @var string
-     */
-    private $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-
-    /**
      * 多重嵌套事务处理堆栈
      */
     private $_transTrace = 0;
@@ -159,7 +152,6 @@ class Mongo
     public function __destruct()
     {
         $this->managerFree();
-        $this->managerClose();
     }
 
     /**
@@ -178,7 +170,7 @@ class Mongo
     }
 
     /**
-     * 获取 PDO
+     * 获取 Manager
      */
     private function manager()
     {
@@ -205,14 +197,6 @@ class Mongo
     }
 
     /**
-     * 关闭 PDO连接
-     */
-    private function pdoClose()
-    {
-        $this->pdo = null;
-    }
-
-    /**
      * 数据库错误信息
      * @param $err
      * @return bool
@@ -229,18 +213,19 @@ class Mongo
      */
     public function getError()
     {
-        $error = $this->error;
-        if (!$error) {
-            if ($this->pdo) {
-                $errorInfo = $this->pdo->errorInfo();
-                $error = $errorInfo[1] . ':' . $errorInfo[2];
-            }
-            if ('' != $this->lastJs) {
-                $error .= "\n [ JS语句 ] : " . $this->lastJs;
-            }
-        }
-        return $error;
+        return $this->error;
     }
+
+    /**
+     * 返回 lastInsertId
+     *
+     * @return string
+     */
+    public function lastInsertId()
+    {
+        return $this->manager()->lastInsertId();
+    }
+
 
 }
 
