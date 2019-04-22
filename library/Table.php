@@ -35,9 +35,20 @@ class Table
         }
         if (!isset($GLOBALS['db'][$u]) || !$GLOBALS['db'][$u]) {
             $dbType = $link['type'] ? $link['type'] : 'Mysql';
-            $dbType = "\\library\\" . ucfirst(strtolower($dbType));
-            //D("SQL<{$dbType}> BUILD ({$conf})");
-            $GLOBALS['db'][$u] = new $dbType($link['host'], $link['port'], $link['user'], $link['pwd'], $link['name'], $link['charset']);
+            $dbType = ucfirst(strtolower($dbType));
+            $dbLib = "\\library\\" . $dbType;
+            switch ($dbType) {
+                case 'Sqlite':
+                    $GLOBALS['db'][$u] = new $dbLib($link['dir'], $link['name'], $link['charset']);
+                    break;
+                case 'Mongo':
+                case 'Mysql':
+                case 'Pgsql':
+                case 'Mssql':
+                default:
+                    $GLOBALS['db'][$u] = new $dbLib($link['host'], $link['port'], $link['user'], $link['pwd'], $link['name'], $link['charset']);
+                    break;
+            }
         }
         return $GLOBALS['db'][$u];
     }

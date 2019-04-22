@@ -1071,7 +1071,7 @@ class Sqlite extends DataBase
                 $table = $this->_options['alia'][$table];
                 $alia = true;
             }
-            $sql = "SELECT COLUMN_NAME AS `field`,DATA_TYPE AS fieldtype FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema ='{$this->settings["dbname"]}' AND table_name = '{$table}';";
+            $sql = "select sql from sqlite_master where tbl_name = '{$table}' and type='table';";
             $result = null;
             try {
                 $result = $this->redis()->get($sql);
