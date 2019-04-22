@@ -589,7 +589,7 @@ class Sqlite extends DataBase
     {
         $key = trim($key);
         if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
-            $key = '`' . $key . '`';
+            $key = "'" . $key . "'";
         }
         return $key;
     }
@@ -1087,8 +1087,21 @@ class Sqlite extends DataBase
                     }
                 }
             }
-            $ft = array();
+            $result = reset($result)['sql'];
+            $result = trim(str_replace(["CREATE TABLE {$table}", "create table {$table}"], '', $result));
+            $result = substr($result, 1, strlen($result) - 1);
+            $result = substr($result, 0, strlen($result) - 1);
+            $result = explode(',', $result);
+            $fields = array();
             foreach ($result as $v) {
+                $v = explode(' ', trim($v));
+                $fields[] = array(
+                    'field' => $v[0],
+                    'fieldtype' => strtolower($v[1]),
+                );
+            }
+            $ft = array();
+            foreach ($fields as $v) {
                 if ($alia && $originTable) {
                     $ft[$originTable . '_' . $v['field']] = $v['fieldtype'];
                 } else {

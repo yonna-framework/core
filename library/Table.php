@@ -29,6 +29,9 @@ class Table
     {
         $conf = $conf ? strtolower($conf) : 'default';
         $link = !empty(CONFIG['db'][$conf]) ? CONFIG['db'][$conf] : null;
+        if($link === null){
+            return null;
+        }
         $u = md5(var_export($link, true));
         if (!isset($GLOBALS['db'])) {
             $GLOBALS['db'] = array();
