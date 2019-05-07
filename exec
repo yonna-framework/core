@@ -59,11 +59,11 @@ class Commander
                 case 'dir':
                     system($command);
                     break;
-                case 'exit':
-                    exit;
                 case 'help':
                     $this->c($this->help);
                     break;
+                case 'exit':
+                    exit;
                 default:
                     $this->c("command is {$command}");
                     exit;
