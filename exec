@@ -10,10 +10,10 @@ class Commander
 
     private $head = '>hPHP: ';
     private $commands = [
-        array('key' => 'clear', 'desc' => 'clear shell'),
-        array('key' => 'cls', 'desc' => 'clear shell'),
-        array('key' => 'exit', 'desc' => 'exit'),
-        array('key' => 'help', 'desc' => 'get command list'),
+        array('key' => 'ls', 'params' => '', 'desc' => 'explore dir'),
+        array('key' => 'dir', 'params' => '', 'desc' => 'explore dir'),
+        array('key' => 'exit', 'params' => '', 'desc' => 'exit'),
+        array('key' => 'help', 'params' => '', 'desc' => 'get command list'),
     ];
     private $commandKeys = [];
     private $help = '';
@@ -32,16 +32,17 @@ class Commander
         $this->help .= " ┃ Command List:\n";
         $this->help .= " ┃\n";
         foreach ($this->commands as $c) {
-            $this->help .= " ┃    <{$c['key']}> {$c['desc']}\n";
+            $this->help .= " ┃     <{$c['key']}> {$c['params']}\n";
+            $this->help .= " ┃           {$c['desc']}\n";
         }
-        $this->help .= " ┃ (count:".count($this->commands).")\n";
-        $this->help .= " ┃ Thanks.";
+        $this->help .= " ┃\n ┃     (count:" . count($this->commands) . ")\n";
+        $this->help .= " ┃ Hope help you ~";
         $this->help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     }
 
     public function run()
     {
-        while (1) {
+        while (true) {
             fwrite(STDOUT, "{$this->head}");
             $command = fgets(STDIN);
             $command = str_replace(["\r", "\n"], '', $command);
@@ -54,12 +55,10 @@ class Commander
                 continue;
             }
             switch ($command) {
-                case 'clear':
-                    exec('clear');
-                    exit;
-                case 'cls':
-                    exec('cls');
-                    exit;
+                case 'ls':
+                case 'dir':
+                    system($command);
+                    break;
                 case 'exit':
                     exit;
                 case 'help':
