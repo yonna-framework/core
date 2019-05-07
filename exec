@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * h-php 的命令窗体
+ * Class Commander
+ */
+class Commander
+{
+
+    private $head = '>hPHP: ';
+    private $commands = [
+        array('key' => 'clear', 'desc' => 'clear shell'),
+        array('key' => 'cls', 'desc' => 'clear shell'),
+        array('key' => 'exit', 'desc' => 'exit'),
+        array('key' => 'help', 'desc' => 'get command list'),
+    ];
+    private $commandKeys = [];
+    private $help = '';
+
+    private function c($msg)
+    {
+        echo $this->head . $msg . "\n";
+    }
+
+    public function __construct()
+    {
+        // command keys
+        $this->commandKeys = array_column($this->commands, 'key');
+        // build help description
+        $this->help .= "\n ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $this->help .= " ┃ Command List:\n";
+        $this->help .= " ┃\n";
+        foreach ($this->commands as $c) {
+            $this->help .= " ┃    <{$c['key']}> {$c['desc']}\n";
+        }
+        $this->help .= " ┃ (count:".count($this->commands).")\n";
+        $this->help .= " ┃ Thanks.";
+        $this->help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    }
+
+    public function run()
+    {
+        while (1) {
+            fwrite(STDOUT, "{$this->head}");
+            $command = fgets(STDIN);
+            $command = str_replace(["\r", "\n"], '', $command);
+            if (empty($command)) {
+                $this->c("type your command please!");
+                continue;
+            }
+            if (!in_array($command, $this->commandKeys)) {
+                $this->c("not command named: {$command},type \"help\" to get the command list");
+                continue;
+            }
+            switch ($command) {
+                case 'clear':
+                    exec('clear');
+                    exit;
+                case 'cls':
+                    exec('cls');
+                    exit;
+                case 'exit':
+                    exit;
+                case 'help':
+                    $this->c($this->help);
+                    break;
+                default:
+                    $this->c("command is {$command}");
+                    exit;
+            }
+        }
+    }
+}
+
+(new Commander())->run();
