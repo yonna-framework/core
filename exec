@@ -10,29 +10,34 @@ class Commander
 
     private $head = '>hPHP: ';
     private $commands = [
-        array('key' => 'ls', 'params' => '', 'desc' => 'explore dir'),
-        array('key' => 'dir', 'params' => '', 'desc' => 'explore dir'),
-        array('key' => 'exit', 'params' => '', 'desc' => 'exit'),
-        array('key' => 'help', 'params' => '', 'desc' => 'get command list'),
+        array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
+        array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit hPHP'),
+        array('key' => ['-h', 'help'], 'options' => '', 'desc' => 'get command list'),
+        array('key' => ['swh'], 'options' => '-p [PORT]', 'desc' => 'start a swoole http server'),
+        array('key' => ['swws'], 'options' => '-p [PORT]', 'desc' => 'start a swoole websocket server'),
+        array('key' => ['swt'], 'options' => '-p [PORT]', 'desc' => 'start a swoole tcp server'),
+        array('key' => ['pkg'], 'options' => '-c [CONFIG PATH]', 'desc' => 'package project'),
     ];
     private $commandKeys = [];
     private $help = '';
 
     private function c($msg)
     {
-        echo $this->head . $msg . "\n";
+        echo $this->head . $msg;
     }
 
     public function __construct()
     {
         // command keys
-        $this->commandKeys = array_column($this->commands, 'key');
+        $this->commandKeys = [];
         // build help description
         $this->help .= "\n ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $this->help .= " ┃ Command List:\n";
         $this->help .= " ┃\n";
         foreach ($this->commands as $c) {
-            $this->help .= " ┃     <{$c['key']}> {$c['params']}\n";
+            $key = implode(' | ', $c['key']);
+            $this->commandKeys = array_merge($this->commandKeys, $c['key']);
+            $this->help .= " ┃     <{$key}> " . ($c['options'] ? "<options: {$c['options']}>" : '') . "\n";
             $this->help .= " ┃           {$c['desc']}\n";
         }
         $this->help .= " ┃\n ┃     (count:" . count($this->commands) . ")\n";
@@ -43,30 +48,63 @@ class Commander
     public function run()
     {
         while (true) {
-            fwrite(STDOUT, "{$this->head}");
-            $command = fgets(STDIN);
-            $command = str_replace(["\r", "\n"], '', $command);
-            if (empty($command)) {
+            fwrite(STDOUT, "\n{$this->head}");
+            $stdin = fgets(STDIN);
+            $stdin = str_replace(["\r", "\n"], '', $stdin);
+            if (empty($stdin)) {
                 $this->c("type your command please!");
                 continue;
             }
+            $stdin = explode(' ', $stdin);
+            $command = array_shift($stdin);
+            $options = trim(implode(' ', $stdin));
             if (!in_array($command, $this->commandKeys)) {
                 $this->c("not command named: {$command},type \"help\" to get the command list");
                 continue;
             }
             switch ($command) {
+                case 'swh':
+                    if (!$options) {
+                        $this->c('not port');
+                        break;
+                    }
+                    system("php hSwoole.http.php {$options}");
+                    break;
+                case 'swws':
+                    if (!$options) {
+                        $this->c('not port');
+                        break;
+                    }
+                    system("php hSwoole.websocket.php {$options}");
+                    break;
+                case 'swt':
+                    if (!$options) {
+                        $this->c('not port');
+                        break;
+                    }
+                    system("php hSwoole.tcp.php {$options}");
+                    break;
+                case 'pkg':
+                    if (!$options) {
+                        $this->c('not config path');
+                        break;
+                    }
+                    system("php hPackage.php {$options}");
+                    break;
                 case 'ls':
                 case 'dir':
-                    system($command);
+                    system('dir');
                     break;
+                case '-h':
                 case 'help':
                     $this->c($this->help);
                     break;
                 case 'exit':
+                case 'die':
                     exit;
                 default:
                     $this->c("command is {$command}");
-                    exit;
+                    break;
             }
         }
     }
