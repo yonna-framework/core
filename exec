@@ -8,8 +8,11 @@
 class Commander
 {
 
-    private $head = '>hPHP: ';
+    const HEAD = '>hPHP: ';
+    const CLS = "\e[H\e[J";
+
     private $commands = [
+        array('key' => ['cls', 'clear'], 'options' => '', 'desc' => 'clean screen'),
         array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
         array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit hPHP'),
         array('key' => ['-h', 'help'], 'options' => '', 'desc' => 'get command list'),
@@ -23,7 +26,7 @@ class Commander
 
     private function c($msg)
     {
-        echo $this->head . $msg;
+        echo self::HEAD . $msg;
     }
 
     public function __construct()
@@ -48,7 +51,7 @@ class Commander
     public function run()
     {
         while (true) {
-            fwrite(STDOUT, "\n{$this->head}");
+            fwrite(STDOUT, "\n" . self::HEAD);
             $stdin = fgets(STDIN);
             $stdin = str_replace(["\r", "\n"], '', $stdin);
             if (empty($stdin)) {
@@ -90,6 +93,10 @@ class Commander
                         break;
                     }
                     system("php hPackage.php {$options}");
+                    break;
+                case 'cls':
+                case 'clear':
+                    echo self::CLS;
                     break;
                 case 'ls':
                 case 'dir':
