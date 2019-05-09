@@ -2,3 +2,5 @@
 log/
 bak/
 uploads/
+vendor/
+composer.lock

@@ -1,0 +1,8 @@
+{
+    "name": "hunzsig-server/phpure-core",
+    "description": "core of phppure",
+    "license": "MIT",
+    "require": {
+        "php-amqplib/php-amqplib": "2.9.*"
+    }
+}
