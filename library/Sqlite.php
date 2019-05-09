@@ -1,6 +1,7 @@
 <?php
 /**
  * 数据库连接类，依赖 PDO_SQLITE 扩展
+ * version >= 3
  */
 
 namespace library;
@@ -137,14 +138,14 @@ class Sqlite extends DataBase
     /**
      * 构造方法
      *
-     * @param $path
+     * @param string $db_dir
      * @param string $db_name
      * @param string $charset
      */
-    public function __construct($path, $db_name, $charset = null)
+    public function __construct($db_dir, $db_name, $charset = null)
     {
         $this->settings = array(
-            'path' => $path,
+            'dbdir' => $db_dir,
             'dbname' => $db_name,
             'charset' => $charset ?: 'utf8',
         );
@@ -167,7 +168,7 @@ class Sqlite extends DataBase
     private function dsn()
     {
         if (!$this->dsn) {
-            $this->dsn = 'sqlite:' . $this->settings["path"];
+            $this->dsn = 'sqlite:' . $this->settings["dbdir"] . DIRECTORY_SEPARATOR . $this->settings["dbname"];
         }
         return $this->dsn;
     }
@@ -339,6 +340,51 @@ class Sqlite extends DataBase
     }
 
     /**
+     * 数组转逗号形式序列(实质上是一个逗号序列，运用 not / contains(find_in_set) 查询)
+     * @param $arr
+     * @param $type
+     * @return mixed
+     */
+    public function arr2comma($arr, $type)
+    {
+        if ($type && is_array($arr)) {
+            if ($arr) {
+                foreach ($arr as $ak => $a) {
+                    $arr[$ak] = $this->parseValueByFieldType($a, $type);
+                }
+                $arr = ',,,,,' . implode(',', $arr);
+            } else {
+                $arr = null;
+            }
+        }
+        return $arr;
+    }
+
+    /**
+     * 逗号序列转回数组(实质上是一个逗号序列，运用 not / contains 查询)
+     * @param $arr
+     * @param $type
+     * @return mixed
+     */
+    public function comma2arr($arr, $type)
+    {
+        if ($type && is_string($arr)) {
+            if ($arr) {
+                $arr = str_replace(',,,,,', '', $arr);
+                $arr = explode(',', $arr);
+                if ($this->isCrypto()) {
+                    foreach ($arr as $ak => $a) {
+                        $arr[$ak] = $this->deCrypto($a);
+                    }
+                }
+            } else {
+                $arr = array();
+            }
+        }
+        return $arr;
+    }
+
+    /**
      * 递归式格式化数据
      * @param $result
      * @return mixed
@@ -382,7 +428,7 @@ class Sqlite extends DataBase
                             break;
                     }
                     if (strpos($v, ',,,,,') === 0) {
-                        $result[$k] = $this->toCArray($v, $ft);
+                        $result[$k] = $this->comma2arr($v, $ft);
                     }
                 }
             }
@@ -543,7 +589,7 @@ class Sqlite extends DataBase
     {
         $key = trim($key);
         if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
-            $key = '`' . $key . '`';
+            $key = "'" . $key . "'";
         }
         return $key;
     }
@@ -947,88 +993,6 @@ class Sqlite extends DataBase
                             $value = implode(',', (array)$value);
                             $innerSql .= " not in ({$value})";
                             break;
-                        case self::any: // rename in
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $value = implode(',', (array)$value);
-                            $innerSql .= " in ({$value})";
-                            break;
-                        case self::contains: // rename find_in_set
-                            if ($v['value']) {
-                                $v['value'] = (array)$v['value'];
-                                foreach ($v['value'] as $vfisk => $vfis) {
-                                    if ($vfis) {
-                                        $vfis = $this->parseWhereByFieldType($vfis, $ft_type);
-                                        $vfis = $this->parseValue($vfis);
-                                        if ($vfisk === 0) {
-                                            $innerSql = " (find_in_set({$vfis},{$field})";
-                                        } else {
-                                            $innerSql .= " or find_in_set({$vfis},{$field})";
-                                        }
-                                    }
-                                }
-                                $innerSql .= ")";
-                            } else {
-                                $isContinue = true;
-                            }
-                            break;
-                        case self::notContains:
-                            if ($v['value']) {
-                                $v['value'] = (array)$v['value'];
-                                foreach ($v['value'] as $vfisk => $vfis) {
-                                    if ($vfis) {
-                                        $vfis = $this->parseWhereByFieldType($vfis, $ft_type);
-                                        $vfis = $this->parseValue($vfis);
-                                        if ($vfisk === 0) {
-                                            $innerSql = " (not find_in_set({$vfis},{$field})";
-                                        } else {
-                                            $innerSql .= " or not find_in_set({$vfis},{$field})";
-                                        }
-                                    }
-                                }
-                                $innerSql .= ")";
-                            } else {
-                                $isContinue = true;
-                            }
-                            break;
-                        case self::containsAnd: // rename find_in_set
-                            if ($v['value']) {
-                                $v['value'] = (array)$v['value'];
-                                foreach ($v['value'] as $vfisk => $vfis) {
-                                    if ($vfis) {
-                                        $vfis = $this->parseWhereByFieldType($vfis, $ft_type);
-                                        $vfis = $this->parseValue($vfis);
-                                        if ($vfisk === 0) {
-                                            $innerSql = " (find_in_set({$vfis},{$field})";
-                                        } else {
-                                            $innerSql .= " and find_in_set({$vfis},{$field})";
-                                        }
-                                    }
-                                }
-                                $innerSql .= ")";
-                            } else {
-                                $isContinue = true;
-                            }
-                            break;
-                        case self::notContainsAnd:
-                            if ($v['value']) {
-                                $v['value'] = (array)$v['value'];
-                                foreach ($v['value'] as $vfisk => $vfis) {
-                                    if ($vfis) {
-                                        $vfis = $this->parseWhereByFieldType($vfis, $ft_type);
-                                        $vfis = $this->parseValue($vfis);
-                                        if ($vfisk === 0) {
-                                            $innerSql = " (not find_in_set({$vfis},{$field})";
-                                        } else {
-                                            $innerSql .= " and not find_in_set({$vfis},{$field})";
-                                        }
-                                    }
-                                }
-                                $innerSql .= ")";
-                            } else {
-                                $isContinue = true;
-                            }
-                            break;
                         default:
                             $isContinue = true;
                             break;
@@ -1107,11 +1071,11 @@ class Sqlite extends DataBase
                 $table = $this->_options['alia'][$table];
                 $alia = true;
             }
-            $sql = "SELECT COLUMN_NAME AS `field`,DATA_TYPE AS fieldtype FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema ='{$this->settings["dbname"]}' AND table_name = '{$table}';";
+            $sql = "select sql from sqlite_master where tbl_name = '{$table}' and type='table';";
             $result = null;
             try {
                 $result = $this->redis()->get($sql);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
             if (!$result) {
                 $PDOStatement = $this->execute($sql);
@@ -1119,13 +1083,25 @@ class Sqlite extends DataBase
                     $result = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
                     try {
                         $this->redis()->set($sql, $result, 600);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                     }
-                } else {
                 }
             }
-            $ft = array();
+            $result = reset($result)['sql'];
+            $result = trim(str_replace(["CREATE TABLE {$table}", "create table {$table}"], '', $result));
+            $result = substr($result, 1, strlen($result) - 1);
+            $result = substr($result, 0, strlen($result) - 1);
+            $result = explode(',', $result);
+            $fields = array();
             foreach ($result as $v) {
+                $v = explode(' ', trim($v));
+                $fields[] = array(
+                    'field' => $v[0],
+                    'fieldtype' => strtolower($v[1]),
+                );
+            }
+            $ft = array();
+            foreach ($fields as $v) {
                 if ($alia && $originTable) {
                     $ft[$originTable . '_' . $v['field']] = $v['fieldtype'];
                 } else {
@@ -1729,9 +1705,6 @@ class Sqlite extends DataBase
                     case '!^':
                         $this->notIn($matchField, explode(',', $matchValue));
                         break;
-                    case '*':
-                        $this->any($matchField, explode(',', $matchValue));
-                        break;
                     default:
                         break;
                 }
@@ -2167,7 +2140,7 @@ class Sqlite extends DataBase
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                     //todo 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
                         $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
                     }
@@ -2209,7 +2182,7 @@ class Sqlite extends DataBase
                     } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                         //todo 跟据表字段处理数据
                         if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                            $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                            $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                             if ($val === null) $value[] = 'NULL';
                         } else {
                             $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
@@ -2250,7 +2223,7 @@ class Sqlite extends DataBase
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
                     //todo 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->toMyArray($val, $ft[$table . '_' . $key]);
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
                         $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
                     }

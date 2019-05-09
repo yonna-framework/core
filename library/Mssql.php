@@ -1,6 +1,7 @@
 <?php
 /**
  * 数据库连接类，依赖 PDO_SQLSRV 扩展
+ * version >= 2012
  */
 
 namespace library;
