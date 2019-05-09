@@ -1,8 +1,22 @@
 {
-    "name": "hunzsig-server/phpure-core",
-    "description": "core of phppure",
-    "license": "MIT",
-    "require": {
-        "php-amqplib/php-amqplib": "2.9.*"
+  "name": "hunzsig-server/phpure-core",
+  "description": "core of phppure",
+  "license": "MIT",
+  "version": "0.0.1",
+  "type": "library",
+  "keywords": [
+    "php",
+    "framework",
+    "swoole"
+  ],
+  "require": {
+    "php-amqplib/php-amqplib": "2.9.*"
+  },
+  "authors": [
+    {
+      "name": "hunzsig",
+      "email": "mzyhaohaoren@qq.com",
+      "homepage": "https://www.hunzsig.com"
     }
+  ]
 }
