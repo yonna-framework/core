@@ -11,7 +11,7 @@
   "require": {
     "filp/whoops": "2.3.1",
     "php-amqplib/php-amqplib": "2.9.2",
-    "symfony/var-dumper": "4.2.8",
+    "hunzsig-server/var-dumper": "dev-master",
     "vlucas/phpdotenv": "3.3.3",
     "whoops/soap": "1.0.0"
   },
