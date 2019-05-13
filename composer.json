@@ -9,10 +9,10 @@
     "swoole"
   ],
   "require": {
-    "php-amqplib/php-amqplib": "2.9.2",
-    "vlucas/phpdotenv": "3.3.3",
     "filp/whoops": "2.3.1",
+    "php-amqplib/php-amqplib": "2.9.2",
     "symfony/var-dumper": "4.2.8",
+    "vlucas/phpdotenv": "3.3.3",
     "whoops/soap": "1.0.0"
   },
   "autoload": {
