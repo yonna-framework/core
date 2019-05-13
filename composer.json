@@ -1,6 +1,6 @@
 {
   "name": "hunzsig-server/phpure-core",
-  "description": "core of phppure",
+  "description": "Phppure Core",
   "license": "MIT",
   "type": "library",
   "keywords": [
