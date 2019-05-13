@@ -1,3 +1,6 @@
+[![Total Downloads](https://img.shields.io/packagist/dm/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
+[![Latest Version](http://img.shields.io/packagist/v/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
+
 ## 如何开始
 ### 你可以通过git下载：`git clone git@github.com:hunzsig/h-assets.git`
 ### 也可以通过composer：`composer install`
