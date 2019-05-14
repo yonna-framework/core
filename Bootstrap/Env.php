@@ -7,16 +7,19 @@ namespace PhpureCore\Bootstrap;
 
 use Dotenv\Dotenv;
 use Exception;
+use PhpureCore\Cargo;
 use Whoops\Handler\PrettyPageHandler as WhoopsHandlerPrettyPageHandler;
 use Whoops\Run as WhoopsRun;
 
 class Env
 {
 
+    private $cargo = null;
     private $creator = null;
 
-    public function __construct(Creator $creator)
+    public function __construct(Cargo $cargo, Creator $creator)
     {
+        $this->cargo = $cargo;
         $this->creator = $creator;
         return $this;
     }
@@ -42,7 +45,6 @@ class Env
      */
     private function checkEnvFile()
     {
-        var_dump($this->creator->getRoot());
         if (!is_file($this->creator->getRoot() . '/.env')) {
             throw new Exception("Need file .env");
         }
@@ -55,23 +57,18 @@ class Env
      */
     public function init()
     {
-        $this->checkEnvFile();
         // env
         if ($this->creator->isEnv()) {
+            $this->checkEnvFile();
             $Dotenv = Dotenv::create($this->creator->getRoot());
             $Dotenv->load();
         }
-        dump($_ENV);
-        $this->checkPHPVersion($_ENV['MINIMUM_PHP_VERSION'] ?? $this->creator->getMinimumPhpVersion());
-
-        define('IS_WINDOW', strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false);
-        define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
-        define('URL_SEPARATOR', $_ENV['URL_SEPARATOR'] ?? '/');
+        $minimum_php_version = $_ENV['MINIMUM_PHP_VERSION'] ?? $this->creator->getMinimumPhpVersion();
+        $this->checkPHPVersion($minimum_php_version);
         define('____', 'PureStream');
         define('_____', null);
         define('______', null);
         define('_______', null);
-        define("APP_NAME", $_ENV['APP_NAME'] ?? 'PHPure-Project');
         define("TIMEZONE", $_ENV['TIMEZONE'] ?? $this->creator->getTimezone() ?? 'PRC');
         // whoops
         if ($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug()) {
@@ -83,8 +80,17 @@ class Env
         }
         // 设置时区
         date_default_timezone_set(TIMEZONE);
-        // 加载静态库
-        $this->requireDir(PATH_STATIC);
+        // cargo
+        $this->cargo->setRoot($this->creator->getRoot());
+        $this->cargo->setDebug($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug());
+        $this->cargo->setEnv($this->creator->isEnv());
+        $this->cargo->setMinimumPhpVersion($minimum_php_version);
+        $this->cargo->setIsWindow(strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false);
+        $this->cargo->setMemoryLimitOn(function_exists('memory_get_usage'));
+        $this->cargo->setUrlSeparator($_ENV['URL_SEPARATOR'] ?? '/');
+        $this->cargo->setAppName($_ENV['APP_NAME'] ?? 'PHPure-Project');
+        $this->cargo->setTimezone(TIMEZONE);
+        return $this->cargo;
     }
 
 }

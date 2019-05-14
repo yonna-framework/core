@@ -1,9 +1,19 @@
 <?php
 
-namespace PhpureCore\Foundation;
+namespace PhpureCore\Bootstrap;
+
+use PhpureCore\Cargo;
 
 class Foundation
 {
+
+    private $cargo = null;
+
+    public function __construct(Cargo $cargo)
+    {
+        $this->cargo = $cargo;
+        return $this;
+    }
 
     /**
      * @param $dir
@@ -27,4 +37,13 @@ class Foundation
         closedir($files);
     }
 
+    /**
+     * 初始化
+     */
+    public function init()
+    {
+        // cargo
+        // $this->cargo->setRoot($this->creator->getRoot());
+        return $this->cargo;
+    }
 }

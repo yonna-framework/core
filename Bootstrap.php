@@ -6,18 +6,23 @@
 namespace PhpureCore;
 
 use Exception;
-use PhpureCore\Bootstrap\{Creator, Env, Type};
+use PhpureCore\Bootstrap\{Creator, Env, Foundation, Type};
 
 class Bootstrap
 {
 
+    private $cargo = null;
     private $type = Type::AJAX_HTTP;
 
     public function __construct(Creator $creator)
     {
+        $this->cargo = (new Cargo());
         try {
-            // 检测 | 配置设定
-            (new Env($creator))->init();
+            // 环境初始化
+            $this->cargo = (new Env($this->cargo, $creator))->init();
+            // 基础功能
+            $this->cargo = (new Foundation($this->cargo))->init();
+
         } catch (Exception $e) {
             exit($e->getMessage());
         }
@@ -42,7 +47,8 @@ class Bootstrap
 
     public function io(): void
     {
-        switch ($this->getType()){
+        $this->cargo->setBootType($this->getType());
+        switch ($this->getType()) {
             case Type::AJAX_HTTP:
                 break;
             case Type::SWOOLE_HTTP:
