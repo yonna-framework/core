@@ -6,14 +6,15 @@
 namespace PhpureCore;
 
 use PhpureCore\Bootstrap\Creator;
+use PhpureCore\Bootstrap\Env;
 
 class Bootstrap
 {
 
     public function __construct(Creator $creator)
     {
-        // 检测PHP版本
-        if (version_compare(PHP_VERSION, '7.2', '<')) exit('PHP > 7.2 !');
+        // 检测
+        Env::check();
         // 配置设定
     }
 
