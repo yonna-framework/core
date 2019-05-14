@@ -10,22 +10,10 @@ use Exception;
 use Whoops\Handler\PrettyPageHandler as WhoopsHandlerPrettyPageHandler;
 use Whoops\Run as WhoopsRun;
 
-class Env extends AbstractClass
+class Env
 {
 
     private $creator = null;
-    private $fail = '';
-
-    protected function fail(string $msg)
-    {
-        $this->fail = $msg;
-        return false;
-    }
-
-    protected function getFail(): string
-    {
-        return $this->fail;
-    }
 
     public function __construct(Creator $creator)
     {
@@ -34,70 +22,69 @@ class Env extends AbstractClass
     }
 
     /**
-     * 环境初始化
-     */
-    private function init()
-    {
-        define('IS_WINDOW', strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false);
-        define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
-        define("DEFAULT_TIMEZONE", $this->creator->getTimezone() ?? 'PRC');
-        define('URL_SEPARATOR', '/');
-        define('____', 'PureStream');
-        define('_____', null);
-        define('______', null);
-        define('_______', null);
-        // whoops
-        if($this->creator->isDebug()){
-            $whoops = new WhoopsRun;
-            $handle = (new WhoopsHandlerPrettyPageHandler());
-            $handle->setPageTitle('PHPure#Core');
-            $whoops->pushHandler($handle);
-            $whoops->register();
-        }
-        // whoops
-        if($this->creator->isEnv()){
-            $Dotenv = Dotenv::create(__DIR__);
-            $Dotenv->load();
-        }
-    }
-
-    /**
      *  检测PHP版本
      * @param string $version
      * @return bool
+     * @throws Exception
      */
     private function checkPHPVersion($version = '7.2')
     {
         if (version_compare(PHP_VERSION, $version, '<')) {
-            return $this->fail("Need PHP >= {$version}");
+            throw new Exception("Need PHP >= {$version}");
         }
         return true;
     }
 
     /**
      *  检测ENV文件
-     * @param string $version
      * @return bool
+     * @throws Exception
      */
-    private function checkEnvFile($version = '7.2')
+    private function checkEnvFile()
     {
-        if (version_compare(PHP_VERSION, $version, '<')) {
-            return $this->fail("Need file .env");
+        var_dump($this->creator->getRoot());
+        if (!is_file($this->creator->getRoot() . '/.env')) {
+            throw new Exception("Need file .env");
         }
         return true;
     }
 
     /**
-     * 综合检查
+     * 环境初始化
      * @throws Exception
      */
-    public function check()
+    public function init()
     {
-        if (!$this->checkPHPVersion()) throw new Exception($this->getFail());
-        if (!$this->checkEnvFile()) throw new Exception($this->getFail());
+        $this->checkEnvFile();
+        // env
+        if ($this->creator->isEnv()) {
+            $Dotenv = Dotenv::create($this->creator->getRoot());
+            $Dotenv->load();
+        }
+        dump($_ENV);
+        $this->checkPHPVersion($_ENV['MINIMUM_PHP_VERSION'] ?? $this->creator->getMinimumPhpVersion());
 
-        $this->init();
+        define('IS_WINDOW', strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false);
+        define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
+        define('URL_SEPARATOR', $_ENV['URL_SEPARATOR'] ?? '/');
+        define('____', 'PureStream');
+        define('_____', null);
+        define('______', null);
+        define('_______', null);
+        define("APP_NAME", $_ENV['APP_NAME'] ?? 'PHPure-Project');
+        define("TIMEZONE", $_ENV['TIMEZONE'] ?? $this->creator->getTimezone() ?? 'PRC');
+        // whoops
+        if ($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug()) {
+            $whoops = new WhoopsRun;
+            $handle = (new WhoopsHandlerPrettyPageHandler());
+            $handle->setPageTitle('PHPure#Core');
+            $whoops->pushHandler($handle);
+            $whoops->register();
+        }
+        // 设置时区
+        date_default_timezone_set(TIMEZONE);
+        // 加载静态库
+        $this->requireDir(PATH_STATIC);
     }
-
 
 }

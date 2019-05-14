@@ -5,13 +5,14 @@
 
 namespace PhpureCore\Bootstrap;
 
-class Creator extends AbstractClass
+class Creator
 {
 
     private $root = '';
     private $debug = false;
     private $env = true;
     private $timezone = 'PRC';
+    private $minimum_php_version = '7.2';
 
     /**
      * @return string
@@ -77,5 +78,20 @@ class Creator extends AbstractClass
         $this->timezone = $timezone;
     }
 
+    /**
+     * @return string
+     */
+    public function getMinimumPhpVersion(): string
+    {
+        return $this->minimum_php_version;
+    }
+
+    /**
+     * @param string $minimum_php_version
+     */
+    public function setMinimumPhpVersion(string $minimum_php_version): void
+    {
+        $this->minimum_php_version = $minimum_php_version;
+    }
 
 }
