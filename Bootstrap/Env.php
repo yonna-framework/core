@@ -35,6 +35,7 @@ class Env
         if (version_compare(PHP_VERSION, $version, '<')) {
             throw new Exception("Need PHP >= {$version}");
         }
+        $this->cargo->setCurrentPhpVersion(PHP_VERSION);
         return true;
     }
 
@@ -78,14 +79,17 @@ class Env
             $whoops->pushHandler($handle);
             $whoops->register();
         }
-        // 设置时区
+        // system
+        $isWindows = strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false;
+        // timezone
         date_default_timezone_set(TIMEZONE);
         // cargo
         $this->cargo->setRoot($this->creator->getRoot());
         $this->cargo->setDebug($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug());
         $this->cargo->setEnv($this->creator->isEnv());
         $this->cargo->setMinimumPhpVersion($minimum_php_version);
-        $this->cargo->setIsWindow(strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false);
+        $this->cargo->setWindows($isWindows);
+        $this->cargo->setLinux(!$isWindows);
         $this->cargo->setMemoryLimitOn(function_exists('memory_get_usage'));
         $this->cargo->setUrlSeparator($_ENV['URL_SEPARATOR'] ?? '/');
         $this->cargo->setAppName($_ENV['APP_NAME'] ?? 'PHPure-Project');

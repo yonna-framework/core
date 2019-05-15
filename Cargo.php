@@ -5,180 +5,272 @@
 
 namespace PhpureCore;
 
+use PhpureCore\Config\Broadcast;
+
 class Cargo
 {
 
-    private $root = null;
-    private $debug = null;
-    private $env = null;
-    private $timezone = null;
-    private $minimum_php_version = null;
-    private $is_window = null;
-    private $memory_limit_on = null;
-    private $url_separator = null;
-    private $app_name = null;
-    private $boot_type = null;
+    private $root = '';
+    private $timezone = '';
+    private $current_php_version = '';
+    private $minimum_php_version = '';
+    private $url_separator = '';
+    private $app_name = '';
+    private $boot_type = '';
+
+    private $foundation_qty = 0;
+
+    private $windows = false;
+    private $linux = false;
+    private $debug = false;
+    private $env = false;
+    private $memory_limit_on = false;
+
+    private $config = array();
 
     /**
-     * @return null
+     * @param string $key
+     * @param array $config
+     * @return Cargo
      */
-    public function getRoot()
+    public function setConfig(string $key, array $config): Cargo
+    {
+        $this->config[$key] = $config;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoot(): string
     {
         return $this->root;
     }
 
     /**
-     * @param null $root
+     * @param string $root
+     * @return Cargo
      */
-    public function setRoot($root): void
+    public function setRoot(string $root): Cargo
     {
         $this->root = $root;
+        return $this;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getDebug()
-    {
-        return $this->debug;
-    }
-
-    /**
-     * @param null $debug
-     */
-    public function setDebug($debug): void
-    {
-        $this->debug = $debug;
-    }
-
-    /**
-     * @return null
-     */
-    public function getEnv()
-    {
-        return $this->env;
-    }
-
-    /**
-     * @param null $env
-     */
-    public function setEnv($env): void
-    {
-        $this->env = $env;
-    }
-
-    /**
-     * @return null
-     */
-    public function getTimezone()
+    public function getTimezone(): string
     {
         return $this->timezone;
     }
 
     /**
-     * @param null $timezone
+     * @param string $timezone
+     * @return Cargo
      */
-    public function setTimezone($timezone): void
+    public function setTimezone(string $timezone): Cargo
     {
         $this->timezone = $timezone;
+        return $this;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getMinimumPhpVersion()
+    public function getCurrentPhpVersion(): string
+    {
+        return $this->current_php_version;
+    }
+
+    /**
+     * @param string $current_php_version
+     * @return Cargo
+     */
+    public function setCurrentPhpVersion(string $current_php_version): Cargo
+    {
+        $this->current_php_version = $current_php_version;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMinimumPhpVersion(): string
     {
         return $this->minimum_php_version;
     }
 
     /**
-     * @param null $minimum_php_version
+     * @param string $minimum_php_version
+     * @return Cargo
      */
-    public function setMinimumPhpVersion($minimum_php_version): void
+    public function setMinimumPhpVersion(string $minimum_php_version): Cargo
     {
         $this->minimum_php_version = $minimum_php_version;
+        return $this;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getIsWindow()
-    {
-        return $this->is_window;
-    }
-
-    /**
-     * @param null $is_window
-     */
-    public function setIsWindow($is_window): void
-    {
-        $this->is_window = $is_window;
-    }
-
-    /**
-     * @return null
-     */
-    public function getMemoryLimitOn()
-    {
-        return $this->memory_limit_on;
-    }
-
-    /**
-     * @param null $memory_limit_on
-     */
-    public function setMemoryLimitOn($memory_limit_on): void
-    {
-        $this->memory_limit_on = $memory_limit_on;
-    }
-
-    /**
-     * @return null
-     */
-    public function getUrlSeparator()
+    public function getUrlSeparator(): string
     {
         return $this->url_separator;
     }
 
     /**
-     * @param null $url_separator
+     * @param string $url_separator
+     * @return Cargo
      */
-    public function setUrlSeparator($url_separator): void
+    public function setUrlSeparator(string $url_separator): Cargo
     {
         $this->url_separator = $url_separator;
+        return $this;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getAppName()
+    public function getAppName(): string
     {
         return $this->app_name;
     }
 
     /**
-     * @param null $app_name
+     * @param string $app_name
+     * @return Cargo
      */
-    public function setAppName($app_name): void
+    public function setAppName(string $app_name): Cargo
     {
         $this->app_name = $app_name;
+        return $this;
     }
 
     /**
-     * @return null
+     * @return string
      */
-    public function getBootType()
+    public function getBootType(): string
     {
         return $this->boot_type;
     }
 
     /**
-     * @param null $boot_type
+     * @param string $boot_type
+     * @return Cargo
      */
-    public function setBootType($boot_type): void
+    public function setBootType(string $boot_type): Cargo
     {
         $this->boot_type = $boot_type;
+        return $this;
     }
 
+    /**
+     * @return int
+     */
+    public function getFoundationQty(): int
+    {
+        return $this->foundation_qty;
+    }
 
+    /**
+     * @param int $foundation_qty
+     * @return Cargo
+     */
+    public function setFoundationQty(int $foundation_qty): Cargo
+    {
+        $this->foundation_qty = $foundation_qty;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWindows(): bool
+    {
+        return $this->windows;
+    }
+
+    /**
+     * @param bool $windows
+     * @return Cargo
+     */
+    public function setWindows(bool $windows): Cargo
+    {
+        $this->windows = $windows;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLinux(): bool
+    {
+        return $this->linux;
+    }
+
+    /**
+     * @param bool $linux
+     * @return Cargo
+     */
+    public function setLinux(bool $linux): Cargo
+    {
+        $this->linux = $linux;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @param bool $debug
+     * @return Cargo
+     */
+    public function setDebug(bool $debug): Cargo
+    {
+        $this->debug = $debug;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnv(): bool
+    {
+        return $this->env;
+    }
+
+    /**
+     * @param bool $env
+     * @return Cargo
+     */
+    public function setEnv(bool $env): Cargo
+    {
+        $this->env = $env;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMemoryLimitOn(): bool
+    {
+        return $this->memory_limit_on;
+    }
+
+    /**
+     * @param bool $memory_limit_on
+     * @return Cargo
+     */
+    public function setMemoryLimitOn(bool $memory_limit_on): Cargo
+    {
+        $this->memory_limit_on = $memory_limit_on;
+        return $this;
+    }
 
 }
