@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Database extends AbstractClass
+class Database extends Arrow
 {
 
 

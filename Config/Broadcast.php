@@ -3,16 +3,34 @@
 namespace PhpureCore\Config;
 
 use Closure;
+use Exception;
+use PhpureCore\Cargo;
 
-class Broadcast extends AbstractClass
+class Broadcast extends Arrow
 {
 
+    const name = 'broadcast';
+
+    public function __construct()
+    {
+        if (!isset(self::$stack[self::name])) {
+            self::$stack[self::name] = array();
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $scope
+     * @param Closure $call
+     */
     public static function scope(string $scope, Closure $call)
     {
-        if (!isset(self::$stack[$scope])) {
-            self::$stack[$scope] = array();
+        if (empty($scope)) throw new Exception('must scope');
+        if (empty($call)) throw new Exception('must call');
+        if (!isset(self::$stack[self::name][$scope])) {
+            self::$stack[self::name][$scope] = array();
         }
-        array_push(self::$stack[$scope], $call);
+        array_push(self::$stack[self::name][$scope], $call);
     }
 
 }

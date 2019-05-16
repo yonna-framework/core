@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Crontab extends AbstractClass
+class Crontab extends Arrow
 {
 
 

@@ -19,7 +19,7 @@ class Bootstrap
     {
         $this->cargo = (new Cargo());
         try {
-            // 环境初始化
+            // 环境
             $this->cargo = (new Env($this->cargo, $creator))->init();
             // 基础功能
             $this->cargo = (new Foundation($this->cargo))->init();

@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Middleware extends AbstractClass
+class Middleware extends Arrow
 {
 
 

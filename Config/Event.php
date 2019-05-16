@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Event extends AbstractClass
+class Event extends Arrow
 {
 
 

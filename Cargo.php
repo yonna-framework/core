@@ -30,13 +30,12 @@ class Cargo
     private $config = array();
 
     /**
-     * @param string $key
      * @param array $config
      * @return Cargo
      */
-    public function setConfig(string $key, array $config): Cargo
+    public function setConfig(array $config): Cargo
     {
-        $this->config[$key] = $config;
+        $this->config = $config;
         return $this;
     }
 

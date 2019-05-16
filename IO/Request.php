@@ -8,6 +8,10 @@ namespace PhpureCore\IO;
 use PhpureCore\Bootstrap\Type;
 use PhpureCore\Cargo;
 
+/**
+ * Class Request
+ * @package PhpureCore\IO
+ */
 class Request
 {
 
@@ -17,9 +21,7 @@ class Request
 
     public function __construct(Cargo $cargo)
     {
-        $this->method = $_SERVER['REQUEST_METHOD'];
         $this->cargo = $cargo;
-        $this->server = $_SERVER;
         return $this;
     }
 
@@ -30,6 +32,8 @@ class Request
     {
         switch ($this->cargo->getBootType()) {
             case Type::AJAX_HTTP:
+                $this->server = $_SERVER;
+                $this->method = $this->server['REQUEST_METHOD'];
                 break;
             case Type::SWOOLE_HTTP:
                 break;

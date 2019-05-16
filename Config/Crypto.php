@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Crypto extends AbstractClass
+class Crypto extends Arrow
 {
 
 

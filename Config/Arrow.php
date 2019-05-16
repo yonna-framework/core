@@ -4,7 +4,7 @@ namespace PhpureCore\Config;
 
 use Closure;
 
-class AbstractClass
+class Arrow
 {
 
     protected static $stack = array();
