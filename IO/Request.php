@@ -12,7 +12,6 @@ class Request
 {
 
     private $cargo = null;
-    private $env = null;
     private $server = null;
     private $method = null;
 
@@ -20,7 +19,6 @@ class Request
     {
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->cargo = $cargo;
-        $this->env = $_ENV;
         $this->server = $_SERVER;
         return $this;
     }

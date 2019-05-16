@@ -23,9 +23,10 @@ class Cargo
     private $windows = false;
     private $linux = false;
     private $debug = false;
-    private $env = false;
+    private $load_env = false;
     private $memory_limit_on = false;
 
+    private $env = array();
     private $config = array();
 
     /**
@@ -240,19 +241,33 @@ class Cargo
     /**
      * @return bool
      */
-    public function isEnv(): bool
+    public function isLoadEnv(): bool
+    {
+        return $this->load_env;
+    }
+
+    /**
+     * @param bool $load_env
+     */
+    public function setLoadEnv(bool $load_env): void
+    {
+        $this->load_env = $load_env;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEnv(): array
     {
         return $this->env;
     }
 
     /**
-     * @param bool $env
-     * @return Cargo
+     * @param array $env
      */
-    public function setEnv(bool $env): Cargo
+    public function setEnv(array $env): void
     {
         $this->env = $env;
-        return $this;
     }
 
     /**

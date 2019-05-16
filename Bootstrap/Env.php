@@ -72,7 +72,7 @@ class Env
         define('_______', null);
         define("TIMEZONE", $_ENV['TIMEZONE'] ?? $this->creator->getTimezone() ?? 'PRC');
         // whoops
-        if ($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug()) {
+        if ((isset($_ENV['IS_DEBUG']) && $_ENV['IS_DEBUG']) === 'true' || $this->creator->isDebug()) {
             $whoops = new WhoopsRun;
             $handle = (new WhoopsHandlerPrettyPageHandler());
             $handle->setPageTitle('PHPure#Core');
@@ -86,7 +86,9 @@ class Env
         // cargo
         $this->cargo->setRoot($this->creator->getRoot());
         $this->cargo->setDebug($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug());
-        $this->cargo->setEnv($this->creator->isEnv());
+        $this->cargo->setEnv($_ENV);
+        $this->cargo->setEnv($_ENV);
+        $this->cargo->setLoadEnv($this->creator->isEnv());
         $this->cargo->setMinimumPhpVersion($minimum_php_version);
         $this->cargo->setWindows($isWindows);
         $this->cargo->setLinux(!$isWindows);
