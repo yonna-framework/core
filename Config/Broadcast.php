@@ -4,10 +4,8 @@ namespace PhpureCore\Config;
 
 use Closure;
 
-class Broadcast
+class Broadcast extends AbstractClass
 {
-
-    private static $stack = array();
 
     public static function scope(string $scope, Closure $call)
     {
@@ -15,11 +13,6 @@ class Broadcast
             self::$stack[$scope] = array();
         }
         array_push(self::$stack[$scope], $call);
-    }
-
-    public static function fetch(): array
-    {
-        return self::$stack;
     }
 
 }

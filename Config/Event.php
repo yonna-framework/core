@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpureCore\Config;
 
-class Event{
+class Event extends AbstractClass
+{
 
 
 }

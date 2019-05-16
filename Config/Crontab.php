@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpureCore\Config;
 
-class Crontab{
+class Crontab extends AbstractClass
+{
 
 
 }

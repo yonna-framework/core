@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpureCore\Config;
 
-class Crypto{
+class Crypto extends AbstractClass
+{
 
 
 }

@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-class Log extends AbstractClass
+class Database extends AbstractClass
 {
 
 

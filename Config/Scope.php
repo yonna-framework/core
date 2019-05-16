@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpureCore\Config;
 
-class Scope{
+class Scope extends AbstractClass
+{
 
 
 }

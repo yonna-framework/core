@@ -1,7 +1,9 @@
 <?php
+
 namespace PhpureCore\Config;
 
-class Middleware{
+class Middleware extends AbstractClass
+{
 
 
 }
