@@ -10,24 +10,24 @@ use PhpureCore\Config\Broadcast;
 class Cargo
 {
 
-    private $root = '';
-    private $timezone = '';
-    private $current_php_version = '';
-    private $minimum_php_version = '';
-    private $url_separator = '';
-    private $app_name = '';
-    private $boot_type = '';
+    public $root = '';
+    public $timezone = '';
+    public $current_php_version = '';
+    public $minimum_php_version = '';
+    public $url_separator = '';
+    public $app_name = '';
+    public $boot_type = '';
 
-    private $foundation_qty = 0;
+    public $foundation_qty = 0;
 
-    private $windows = false;
-    private $linux = false;
-    private $debug = false;
-    private $load_env = false;
-    private $memory_limit_on = false;
+    public $windows = false;
+    public $linux = false;
+    public $debug = false;
+    public $load_env = false;
+    public $memory_limit_on = false;
 
-    private $env = array();
-    private $config = array();
+    public $env = array();
+    public $config = array();
 
     /**
      * @param array $config

@@ -11,6 +11,9 @@ use PhpureCore\IO\Request;
 class IO
 {
 
+    /**
+     * @var Request|null 
+     */
     private $request = null;
     private $is_crypto = false;
     private $crypto = null;
@@ -20,13 +23,13 @@ class IO
     {
         $this->request = $request;
         dd($this->request);
-        
+
         return $this;
     }
 
     protected function crypto()
     {
-        if (!$this->crypto && !empty(CONFIG['crypto'])) {
+        if (!$this->crypto && !empty($this->request->cargo->config)) {
             $this->crypto = new Crypto(CONFIG['crypto']);
         }
         return $this->crypto;

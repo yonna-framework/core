@@ -15,9 +15,9 @@ use PhpureCore\Cargo;
 class Request
 {
 
-    private $cargo = null;
-    private $server = null;
-    private $method = null;
+    public $cargo = null;
+    public $server = null;
+    public $method = null;
 
     public function __construct(Cargo $cargo)
     {
