@@ -17,13 +17,13 @@ class Cargo
     public $url_separator = '';
     public $app_name = '';
     public $boot_type = '';
+    public $env_name = '';
 
     public $foundation_qty = 0;
 
     public $windows = false;
     public $linux = false;
     public $debug = false;
-    public $load_env = false;
     public $memory_limit_on = false;
 
     public $env = array();
@@ -238,19 +238,19 @@ class Cargo
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isLoadEnv(): bool
+    public function getEnvName(): string
     {
-        return $this->load_env;
+        return $this->env_name;
     }
 
     /**
-     * @param bool $load_env
+     * @param string $env_name
      */
-    public function setLoadEnv(bool $load_env): void
+    public function setEnvName(string $env_name): void
     {
-        $this->load_env = $load_env;
+        $this->env_name = $env_name;
     }
 
     /**

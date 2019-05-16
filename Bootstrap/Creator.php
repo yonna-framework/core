@@ -10,7 +10,7 @@ class Creator
 
     private $root = '';
     private $debug = false;
-    private $env = true;
+    private $env = 'dev';
     private $timezone = 'PRC';
     private $minimum_php_version = '7.2';
 
@@ -47,17 +47,17 @@ class Creator
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isEnv(): bool
+    public function getEnv(): string
     {
         return $this->env;
     }
 
     /**
-     * @param bool $env
+     * @param string $env
      */
-    public function setEnv(bool $env): void
+    public function setEnv(string $env): void
     {
         $this->env = $env;
     }

@@ -46,8 +46,8 @@ class Env
      */
     private function checkEnvFile()
     {
-        if (!is_file($this->creator->getRoot() . '/.env')) {
-            throw new Exception("Need file .env");
+        if (!is_file($this->creator->getRoot() . DIRECTORY_SEPARATOR . '.env.' . $this->creator->getEnv())) {
+            throw new Exception('Need file .env.' . $this->creator->getEnv());
         }
         return true;
     }
@@ -59,20 +59,20 @@ class Env
     public function init()
     {
         // env
-        if ($this->creator->isEnv()) {
+        if ($this->creator->getEnv()) {
             $this->checkEnvFile();
-            $Dotenv = Dotenv::create($this->creator->getRoot());
+            $Dotenv = Dotenv::create($this->creator->getRoot(), '.env.' . $this->creator->getEnv());
             $Dotenv->load();
         }
-        $minimum_php_version = $_ENV['MINIMUM_PHP_VERSION'] ?? $this->creator->getMinimumPhpVersion();
+        $minimum_php_version = getenv('MINIMUM_PHP_VERSION') ?? $this->creator->getMinimumPhpVersion();
         $this->checkPHPVersion($minimum_php_version);
         define('____', 'PureStream');
         define('_____', null);
         define('______', null);
         define('_______', null);
-        define("TIMEZONE", $_ENV['TIMEZONE'] ?? $this->creator->getTimezone() ?? 'PRC');
+        define("TIMEZONE", getenv('TIMEZONE') ?? $this->creator->getTimezone() ?? 'PRC');
         // whoops
-        if ((isset($_ENV['IS_DEBUG']) && $_ENV['IS_DEBUG']) === 'true' || $this->creator->isDebug()) {
+        if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true') || $this->creator->isDebug()) {
             $whoops = new WhoopsRun;
             $handle = (new WhoopsHandlerPrettyPageHandler());
             $handle->setPageTitle('PHPure#Core');
@@ -85,16 +85,15 @@ class Env
         date_default_timezone_set(TIMEZONE);
         // cargo
         $this->cargo->setRoot($this->creator->getRoot());
-        $this->cargo->setDebug($_ENV['IS_DEBUG'] === 'true' || $this->creator->isDebug());
+        $this->cargo->setDebug(getenv('IS_DEBUG') === 'true' || $this->creator->isDebug());
         $this->cargo->setEnv($_ENV);
-        $this->cargo->setEnv($_ENV);
-        $this->cargo->setLoadEnv($this->creator->isEnv());
+        $this->cargo->setEnvName($this->creator->getEnv());
         $this->cargo->setMinimumPhpVersion($minimum_php_version);
         $this->cargo->setWindows($isWindows);
         $this->cargo->setLinux(!$isWindows);
         $this->cargo->setMemoryLimitOn(function_exists('memory_get_usage'));
-        $this->cargo->setUrlSeparator($_ENV['URL_SEPARATOR'] ?? '/');
-        $this->cargo->setAppName($_ENV['APP_NAME'] ?? 'PHPure-Project');
+        $this->cargo->setUrlSeparator(getenv('URL_SEPARATOR') ?? '/');
+        $this->cargo->setAppName(getenv('APP_NAME') ?? 'PHPure-Project');
         $this->cargo->setTimezone(TIMEZONE);
         return $this->cargo;
     }
