@@ -23,13 +23,10 @@ class Scope extends Arrow
      * @param string $method
      * @param string $key
      * @param Closure $call
-     * @throws \Exception
      */
     public static function add(string $method, string $key, Closure $call)
     {
-        if (empty($method)) throw new Exception('must method');
-        if (empty($key)) throw new Exception('must key');
-        if (empty($call)) throw new Exception('must call');
+        if (empty($method) || empty($key) || empty($call)) return;
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);

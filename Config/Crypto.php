@@ -25,8 +25,7 @@ class Crypto extends Arrow
      */
     public static function set(string $key, string $value)
     {
-        if (empty($key)) throw new Exception('must key');
-        if (empty($value)) throw new Exception('must value');
+        if (empty($key) || empty($value)) return;
         self::$stack[self::name][$key] = $value;
     }
 

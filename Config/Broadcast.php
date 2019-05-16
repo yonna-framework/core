@@ -25,8 +25,7 @@ class Broadcast extends Arrow
      */
     public static function scope(string $scope, Closure $call)
     {
-        if (empty($scope)) throw new Exception('must scope');
-        if (empty($call)) throw new Exception('must call');
+        if (empty($scope) || empty($call)) return;
         if (!isset(self::$stack[self::name][$scope])) {
             self::$stack[self::name][$scope] = array();
         }
