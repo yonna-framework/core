@@ -5,11 +5,13 @@
 
 namespace PhpureCore\Handle;
 
+use PhpureCore\Mapping;
+
 /**
  * Class HandleCode
  * @package PhpureCore\Handle
  */
-class HandleCode
+class HandleCode extends Mapping
 {
 
     const SUCCESS = 200;

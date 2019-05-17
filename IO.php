@@ -20,7 +20,6 @@ class IO
     public function __construct(Request $request)
     {
         $this->request = $request;
-        dd($this->request);
         return $this;
     }
 
@@ -33,11 +32,11 @@ class IO
     }
 
     /**
-     * 返回结果
+     * 执行并返回结果
      * @param $array
      * @return string
      */
-    private function result($array)
+    public function exec($array)
     {
         $array['stack'] = $this->stack;
         $result = json_encode($array);

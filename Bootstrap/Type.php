@@ -5,7 +5,9 @@
 
 namespace PhpureCore\Bootstrap;
 
-class Type
+use PhpureCore\Mapping;
+
+class Type extends Mapping
 {
 
     const AJAX_HTTP = 'AJAX_HTTP';
