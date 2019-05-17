@@ -30,6 +30,7 @@ class HandleCollector
 
     /**
      * @param string $response_data_type
+     * @return HandleCollector
      */
     public function setResponseDataType(string $response_data_type): self
     {
@@ -47,6 +48,7 @@ class HandleCollector
 
     /**
      * @param int $code
+     * @return HandleCollector
      */
     public function setCode(int $code): self
     {
@@ -64,6 +66,7 @@ class HandleCollector
 
     /**
      * @param string $message
+     * @return HandleCollector
      */
     public function setMessage(string $message): self
     {
@@ -81,6 +84,7 @@ class HandleCollector
 
     /**
      * @param array $data
+     * @return HandleCollector
      */
     public function setData(array $data): self
     {
@@ -98,6 +102,7 @@ class HandleCollector
 
     /**
      * @param array $extra
+     * @return HandleCollector
      */
     public function setExtra(array $extra): self
     {

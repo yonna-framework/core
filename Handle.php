@@ -16,10 +16,7 @@ class Handle
 {
 
     /**
-     * @param int $code
-     * @param string $message
-     * @param array $data
-     * @param array $extra
+     * @param HandleCollector $handleCollector
      */
     private static function handle(HandleCollector $handleCollector)
     {
@@ -30,7 +27,7 @@ class Handle
     {
         $collector = (new HandleCollector())
             ->setResponseDataType($type)
-            ->setCode(HandleCode::SUCCES)
+            ->setCode(HandleCode::SUCCESS)
             ->setMessage($message)
             ->setData($data);
         self::handle($collector);
