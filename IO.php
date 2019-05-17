@@ -15,8 +15,6 @@ class IO
      * @var Request|null 
      */
     private $request = null;
-    private $is_crypto = false;
-    private $crypto = null;
     private $stack = null;
 
     public function __construct(Request $request)

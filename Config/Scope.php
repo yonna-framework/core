@@ -4,6 +4,7 @@ namespace PhpureCore\Config;
 
 use Closure;
 use Exception;
+use PhpureCore\Handle;
 
 class Scope extends Arrow
 {
@@ -17,7 +18,7 @@ class Scope extends Arrow
         }
         return $this;
     }
-    
+
     /**
      * 通用添加方法
      * @param string $method
@@ -26,7 +27,9 @@ class Scope extends Arrow
      */
     public static function add(string $method, string $key, Closure $call)
     {
-        if (empty($method) || empty($key) || empty($call)) return;
+        if (empty($method)) Handle::exception('no method');
+        if (empty($key)) Handle::exception('no key');
+        if (empty($call)) Handle::exception('no call');
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -36,7 +39,7 @@ class Scope extends Arrow
         if (!isset(self::$stack[self::name][$method][$key])) {
             self::$stack[self::name][$method][$key] = array();
         }
-        array_push(self::$stack[self::name][$method][$key], $call);
+        self::$stack[self::name][$method][$key] = $call;
     }
 
     /**

@@ -15,6 +15,7 @@ use PhpureCore\Cargo;
 class Request
 {
 
+    private $crypto = false;
     public $cargo = null;
     public $server = null;
     public $method = null;

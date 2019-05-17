@@ -4,6 +4,7 @@ namespace PhpureCore\Config;
 
 use Closure;
 use Exception;
+use PhpureCore\Handle;
 
 class Crypto extends Arrow
 {
@@ -25,7 +26,8 @@ class Crypto extends Arrow
      */
     public static function set(string $key, string $value)
     {
-        if (empty($key) || empty($value)) return;
+        if (empty($key)) Handle::exception('no key');
+        if (empty($value)) Handle::exception('no value');
         self::$stack[self::name][$key] = $value;
     }
 
