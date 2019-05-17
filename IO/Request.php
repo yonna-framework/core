@@ -59,9 +59,10 @@ class Request
                 break;
         }
         // 解密协议
-        $this->crypto = (strpos($this->body, 'CRYPTO|') === 0);
+        // Crypto::cipherMethods();
+        $this->crypto = Crypto::isCrypto($this);
         if ($this->crypto === true) {
-            $this->input = $this->crypto()->decrypt($this->body = str_replace_once('CRYPTO|', '', $this->body));
+            $this->input = Crypto::input($this);
             $this->input = json_decode($this->input, true) ?? array();
         } else {
             $this->input = json_decode($this->body, true) ?? array();

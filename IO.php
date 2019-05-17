@@ -23,14 +23,6 @@ class IO
         return $this;
     }
 
-    protected function crypto()
-    {
-        if (!$this->crypto && !empty($this->request->cargo->config)) {
-            $this->crypto = new Crypto(CONFIG['crypto']);
-        }
-        return $this->crypto;
-    }
-
     /**
      * 执行并返回结果
      * @param $array

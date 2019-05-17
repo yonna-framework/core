@@ -17,10 +17,11 @@ class Handle
 
     /**
      * @param HandleCollector $handleCollector
+     * @return false|string
      */
     private static function handle(HandleCollector $handleCollector)
     {
-        exit($handleCollector->response());
+        return $handleCollector->response();
     }
 
     public static function success(string $message = 'success', array $data = array(), $type = 'json')
@@ -30,7 +31,7 @@ class Handle
             ->setCode(HandleCode::SUCCESS)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        return self::handle($collector);
     }
 
     public static function broadcast(string $message = 'broadcast', array $data = array(), $type = 'json')
@@ -40,7 +41,7 @@ class Handle
             ->setCode(HandleCode::BROADCAST)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        return self::handle($collector);
     }
 
     public static function goon(string $message = 'goon', array $data = array(), $type = 'json')
@@ -50,7 +51,7 @@ class Handle
             ->setCode(HandleCode::GOON)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        return self::handle($collector);
     }
 
     public static function error(string $message = 'error', array $data = array(), $type = 'json')
@@ -60,7 +61,7 @@ class Handle
             ->setCode(HandleCode::ERROR)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        return self::handle($collector);
     }
 
     public static function exception(string $message = 'exception', array $data = array(), $type = 'json')
