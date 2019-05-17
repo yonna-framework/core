@@ -10,7 +10,7 @@ class Creator
 
     private $root = '';
     private $debug = false;
-    private $env = 'dev';
+    private $env = 'example';
     private $timezone = 'PRC';
     private $minimum_php_version = '7.2';
 
