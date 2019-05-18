@@ -17,36 +17,38 @@ class Request
 {
 
     public $crypto = false;
+    public $local = false;
     public $cargo = null;
     public $header = null;
     public $method = null;
+    public $content_type = null;
     public $body = null;
     public $input = array();
     public $file = null;
-
-    public function __construct(Cargo $cargo)
-    {
-        $this->cargo = $cargo;
-        return $this;
-    }
+    public $client_id = null;
+    public $ip = '127.0.0.1';
+    public $stack = null;
 
     /**
      * build Request by BootType
      */
-    public function build()
+    private function init()
     {
         switch ($this->cargo->getBootType()) {
             case Type::AJAX_HTTP:
                 $header = array();
+                $server = array();
                 foreach ($_SERVER as $k => $v) {
+                    $server[strtolower($k)] = $v;
                     if (strpos($k, 'HTTP_') === 0) {
                         $header[strtolower(str_replace('HTTP_', '', $k))] = $v;
                     }
                 }
                 $this->header = $header;
-                $this->method = $_SERVER['REQUEST_METHOD'];
-                $this->body = $_POST['body'] ?? file_get_contents('php://input');
-                $this->file = parseFileData($_FILES);
+                $this->stack = $this->header['stack'] ?? null;
+                $this->method = strtoupper($server['request_method']);
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->file = parse_fileData($_FILES);
                 break;
             case Type::SWOOLE_HTTP:
                 break;
@@ -58,8 +60,49 @@ class Request
                 Handle::exception('Request invalid boot type');
                 break;
         }
+        if (!Crypto::checkToken($this)) {
+            Handle::notPermission('welcome');
+        }
+        // IP
+        $ip = null;
+        $ip === null && $ip = $this->header['x_real_ip'] ?? null;
+        $ip === null && $ip = $this->header['client_ip'] ?? null;
+        $ip === null && $ip = $this->header['x_forwarded_for'] ?? null;
+        $ip === null && $ip = $server['remote_addr'] ?? null;
+        $this->ip = $ip;
+        $this->local = ($ip === '127.0.0.1');
+        if (!$this->ip) {
+            Handle::notPermission('iam pure');
+        }
         // 解密协议
         // Crypto::cipherMethods();
+        switch ($this->method) {
+            case 'GET':
+                switch ($this->content_type) {
+                    case 'multipart/form-data':
+                        $body = $_GET['body'] ?? null;
+                        $this->body = is_string($body) ? $body : json_encode($_GET);
+                        break;
+                    default:
+                        $this->body = file_get_contents('php://input') ?? '';
+                        break;
+                }
+                break;
+            case 'POST':
+                switch ($this->content_type) {
+                    case 'multipart/form-data':
+                        $body = $_POST['body'] ?? null;
+                        $this->body = is_string($body) ? $body : json_encode($_POST);
+                        break;
+                    default:
+                        $this->body = file_get_contents('php://input') ?? '';
+                        break;
+                }
+                break;
+            case 'DEFAULT':
+                Handle::exception('method error');
+                break;
+        }
         $this->crypto = Crypto::isCrypto($this);
         if ($this->crypto === true) {
             $this->input = Crypto::input($this);
@@ -67,8 +110,13 @@ class Request
         } else {
             $this->input = json_decode($this->body, true) ?? array();
         }
-        dd($this);
         return $this;
+    }
+
+    public function __construct(Cargo $cargo)
+    {
+        $this->cargo = $cargo;
+        return $this->init();
     }
 
 }

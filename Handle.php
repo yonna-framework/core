@@ -24,6 +24,31 @@ class Handle
         return $handleCollector->response();
     }
 
+    /**
+     * @param HandleCollector | string $data
+     * @return false|string
+     */
+    public static function end($data)
+    {
+        if ($data instanceof HandleCollector) {
+            switch ($data->getResponseDataType()){
+                case 'xml':
+                    header('Content-Type:application/xml; charset=utf-8');
+                    break;
+                case 'json':
+                    header('Content-Type:application/json; charset=utf-8');
+                    break;
+                default:
+                    header('Content-Type:text/html; charset=utf-8');
+                    break;
+            }
+            exit($data->response());
+        } else if (is_array($data)) {
+            exit($data);
+        }
+        exit('Not result');
+    }
+
     public static function success(string $message = 'success', array $data = array(), $type = 'json')
     {
         $collector = (new HandleCollector())
@@ -74,7 +99,7 @@ class Handle
             ->setExtra(array(
                 'debug_backtrace' => debug_backtrace()
             ));
-        self::handle($collector);
+        self::end($collector);
     }
 
     public static function notPermission(string $message = 'not permission', array $data = array(), $type = 'json')
@@ -84,7 +109,7 @@ class Handle
             ->setCode(HandleCode::NOT_PERMISSION)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        self::end($collector);
     }
 
     public static function notFound(string $message = 'not found', array $data = array(), $type = 'json')
@@ -94,7 +119,7 @@ class Handle
             ->setCode(HandleCode::NOT_FOUND)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        self::end($collector);
     }
 
     public static function abort(string $message = 'abort', array $data = array(), $type = 'json')
@@ -104,7 +129,7 @@ class Handle
             ->setCode(HandleCode::ABORT)
             ->setMessage($message)
             ->setData($data);
-        self::handle($collector);
+        self::end($collector);
     }
 
 }

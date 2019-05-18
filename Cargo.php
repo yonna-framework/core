@@ -11,6 +11,7 @@ class Cargo
 {
 
     public $root = '';
+    public $pure_core_path = __DIR__;
     public $timezone = '';
     public $current_php_version = '';
     public $minimum_php_version = '';
@@ -20,6 +21,7 @@ class Cargo
     public $env_name = '';
 
     public $foundation_qty = 0;
+    public $foundation_diy_qty = 0;
 
     public $windows = false;
     public $linux = false;
@@ -28,6 +30,14 @@ class Cargo
 
     public $env = array();
     public $config = array();
+
+    /**
+     * @return string
+     */
+    public function getPureCorePath(): string
+    {
+        return $this->pure_core_path;
+    }
 
     /**
      * @param array $config
@@ -181,6 +191,22 @@ class Cargo
     {
         $this->foundation_qty = $foundation_qty;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFoundationDiyQty(): int
+    {
+        return $this->foundation_diy_qty;
+    }
+
+    /**
+     * @param int $foundation_diy_qty
+     */
+    public function setFoundationDiyQty(int $foundation_diy_qty): void
+    {
+        $this->foundation_diy_qty = $foundation_diy_qty;
     }
 
     /**

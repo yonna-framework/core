@@ -2,8 +2,8 @@
 
 namespace PhpureCore\Bootstrap;
 
-use Exception;
 use PhpureCore\Cargo;
+use PhpureCore\Handle;
 
 class Foundation
 {
@@ -33,7 +33,7 @@ class Foundation
                 } elseif (strpos($file, '.php') === false) {
                     continue;
                 } else {
-                    require($realFile);
+                    require_once($realFile);
                     $qty++;
                 }
             }
@@ -44,15 +44,20 @@ class Foundation
 
     /**
      * 基础函数初始化
-     * @throws Exception
      */
     public function init()
     {
-        // cargo
-        $path = realpath($this->cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
-        if(!$path) throw new Exception('Foundation Error: root path');
+        // default
+        $path = realpath($this->cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Foundation');
+        if(!$path) Handle::exception('Foundation Error: root path');
         $qty = $this->requireDir($path);
         $this->cargo->setFoundationQty($qty);
+        // diy
+        $path = realpath($this->cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
+        if($path){
+            $qty = $this->requireDir($path);
+            $this->cargo->setFoundationDiyQty($qty);
+        }
         return $this->cargo;
     }
 }

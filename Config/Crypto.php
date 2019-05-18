@@ -28,6 +28,7 @@ class Crypto extends Arrow
     {
         if (empty($key)) Handle::exception('no key');
         if (empty($value)) Handle::exception('no value');
+        $key = strtoupper($key);
         self::$stack[self::name][$key] = $value;
     }
 
@@ -38,6 +39,7 @@ class Crypto extends Arrow
      */
     public static function get(string $key): string
     {
+        $key = strtoupper($key);
         return self::$stack[self::name][$key] ?? '';
     }
 

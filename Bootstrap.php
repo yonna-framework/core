@@ -53,9 +53,8 @@ class Bootstrap
         // set type
         $this->cargo->setBootType($this->getType());
         // IO
-        $Request = (new Request($this->cargo))->build();
-        $response = (new IO($Request))->exec();
-
+        $Request = (new Request($this->cargo));
+        IO::response($Request);
     }
 
 }

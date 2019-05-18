@@ -144,7 +144,7 @@ class HandleCollector
      */
     public function toXml()
     {
-        return json_encode($this->toArray());
+        return xmlrpc_encode($this->toArray());
     }
 
     /**

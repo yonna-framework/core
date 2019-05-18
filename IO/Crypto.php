@@ -2,6 +2,7 @@
 
 namespace PhpureCore\IO;
 
+use PhpureCore\Config\Crypto as Config;
 use PhpureCore\Handle;
 
 class Crypto
@@ -11,13 +12,13 @@ class Crypto
      * @param $str
      * @return string
      */
-    private static function encrypt($str)
+    private static function encrypt(string $str)
     {
-        $type = getenv('CRYPTO_IO_REQUEST_TYPE') ?? null;
-        $secret = getenv('CRYPTO_IO_REQUEST_SECRET') ?? null;
-        $iv = getenv('CRYPTO_IO_REQUEST_IV') ?? null;
+        $type = Config::get('io_request_type');
+        $secret = Config::get('io_request_secret');
+        $iv = Config::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            return 'Crypto encrypt error';
+            Handle::abort('Crypto encrypt error');
         }
         return openssl_encrypt($str, $type, $secret, 0, $iv);
     }
@@ -26,13 +27,13 @@ class Crypto
      * @param $str
      * @return string
      */
-    private static function decrypt($str)
+    private static function decrypt(string $str)
     {
-        $type = getenv('CRYPTO_IO_REQUEST_TYPE') ?? null;
-        $secret = getenv('CRYPTO_IO_REQUEST_SECRET') ?? null;
-        $iv = getenv('CRYPTO_IO_REQUEST_IV') ?? null;
+        $type = Config::get('io_request_type');
+        $secret = Config::get('io_request_secret');
+        $iv = Config::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            return 'Crypto decrypt error';
+            Handle::abort('Crypto encrypt error');
         }
         return openssl_decrypt($str, $type, $secret, 0, $iv);
     }
@@ -49,9 +50,9 @@ class Crypto
      * 获得加密的自定义协议头
      * 当body数据以此为协议头时，认为其为加密串
      */
-    public static function protocol()
+    public static function protocol(): string
     {
-        return getenv('CRYPTO_IO_REQUEST_PROTOCOL') ?? 'CRYPTO|';
+        return Config::get('io_request_protocol') ?? 'CRYPTO|';
     }
 
     /**
@@ -59,9 +60,31 @@ class Crypto
      * @param Request $request
      * @return bool
      */
-    public static function isCrypto(Request $request)
+    public static function isCrypto(Request $request): bool
     {
         return strpos($request->body, self::protocol()) === 0;
+    }
+
+    /**
+     * 对照 IO token
+     * @param Request $request
+     * @return bool
+     */
+    public static function checkToken(Request $request)
+    {
+        if (empty($request->header['platform']) || empty($request->header['token'])
+            || empty($request->header['client_id']) || empty($request->header['pure'])) {
+            return false;
+        }
+        if (Config::get('io_token') !== $request->header['token']) {
+            return false;
+        }
+        $token = strtolower(trim($request->header['platform'] . $request->header['token'] . $request->header['client_id'] /*. $request->body*/));
+        $sha256 = hash_hmac('sha256', $token, Config::get('io_token_secret'));
+        if (!$sha256 || $request->header['pure'] !== $sha256) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -75,13 +98,13 @@ class Crypto
     }
 
     /**
-     * 是否隐秘请求
+     * 处理request
      * @param Request $request
      * @return bool
      */
     public static function response(Request $request)
     {
-        return strpos($request->body, self::protocol()) === 0;
+
     }
 
 }
