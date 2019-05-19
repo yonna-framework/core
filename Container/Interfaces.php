@@ -5,7 +5,8 @@ namespace PhpureCore\Container;
 class Interfaces
 {
     const default = [
-        \PhpureCore\Interfaces\Bootstrap::class => \PhpureCore\Bootstrap\Bootstrap::class,
+        \PhpureCore\Interfaces\Bootstrap::class => \PhpureCore\Bootstrap::class,
+        \PhpureCore\Interfaces\Cargo::class => \PhpureCore\Bootstrap\Cargo::class,
         \PhpureCore\Interfaces\Request::class => \PhpureCore\IO\Request::class,
     ];
 

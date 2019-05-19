@@ -3,7 +3,7 @@
  * IO
  */
 
-namespace PhpureCore\IO;
+namespace PhpureCore;
 
 class IO
 {

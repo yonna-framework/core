@@ -18,8 +18,8 @@ class Cargo implements \PhpureCore\Interfaces\Cargo
     public $boot_type = '';
     public $env_name = '';
 
-    public $foundation_qty = 0;
-    public $foundation_diy_qty = 0;
+    public $function_qty = 0;
+    public $function_diy_qty = 0;
 
     public $windows = false;
     public $linux = false;
@@ -179,35 +179,33 @@ class Cargo implements \PhpureCore\Interfaces\Cargo
     /**
      * @return int
      */
-    public function getFoundationQty(): int
+    public function getFunctionQty(): int
     {
-        return $this->foundation_qty;
+        return $this->function_qty;
     }
 
     /**
-     * @param int $foundation_qty
-     * @return Cargo
+     * @param int $function_qty
      */
-    public function setFoundationQty(int $foundation_qty): Cargo
+    public function setFunctionQty(int $function_qty): void
     {
-        $this->foundation_qty = $foundation_qty;
-        return $this;
+        $this->function_qty = $function_qty;
     }
 
     /**
      * @return int
      */
-    public function getFoundationDiyQty(): int
+    public function getFunctionDiyQty(): int
     {
-        return $this->foundation_diy_qty;
+        return $this->function_diy_qty;
     }
 
     /**
-     * @param int $foundation_diy_qty
+     * @param int $function_diy_qty
      */
-    public function setFoundationDiyQty(int $foundation_diy_qty): void
+    public function setFunctionDiyQty(int $function_diy_qty): void
     {
-        $this->foundation_diy_qty = $foundation_diy_qty;
+        $this->function_diy_qty = $function_diy_qty;
     }
 
     /**

@@ -1,17 +1,19 @@
 #!/usr/bin/env php
 <?php
 
+namespace PhpureCore;
+
 /**
- * h-php 的命令窗体
+ * pure 的命令窗体
  * Class Commander
  */
-class Commander
+class Exec
 {
 
     const HEAD = '>hPHP: ';
     const CLS = "\e[H\e[J";
 
-    private $commands = [
+    private static $commands = [
         array('key' => ['cls', 'clear'], 'options' => '', 'desc' => 'clean screen'),
         array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
         array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit hPHP'),
@@ -21,10 +23,10 @@ class Commander
         array('key' => ['swt'], 'options' => '-p [PORT]', 'desc' => 'start a swoole tcp server'),
         array('key' => ['pkg'], 'options' => '-c [CONFIG PATH]', 'desc' => 'package project'),
     ];
-    private $commandKeys = [];
-    private $help = '';
+    private static $commandKeys = [];
+    private static $help = '';
 
-    private function c($msg)
+    private static function c($msg)
     {
         echo self::HEAD . $msg;
     }
@@ -32,64 +34,64 @@ class Commander
     public function __construct()
     {
         // command keys
-        $this->commandKeys = [];
+        self::$commandKeys = [];
         // build help description
-        $this->help .= "\n ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $this->help .= " ┃ Command List:\n";
-        $this->help .= " ┃\n";
-        foreach ($this->commands as $c) {
+        self::$help .= "\n ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        self::$help .= " ┃ Command List:\n";
+        self::$help .= " ┃\n";
+        foreach (self::$commands as $c) {
             $key = implode(' | ', $c['key']);
-            $this->commandKeys = array_merge($this->commandKeys, $c['key']);
-            $this->help .= " ┃     <{$key}> " . ($c['options'] ? "<options: {$c['options']}>" : '') . "\n";
-            $this->help .= " ┃           {$c['desc']}\n";
+            self::$commandKeys = array_merge(self::$commandKeys, $c['key']);
+            self::$help .= " ┃     <{$key}> " . ($c['options'] ? "<options: {$c['options']}>" : '') . "\n";
+            self::$help .= " ┃           {$c['desc']}\n";
         }
-        $this->help .= " ┃\n ┃     (count:" . count($this->commands) . ")\n";
-        $this->help .= " ┃ Hope help you ~";
-        $this->help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        self::$help .= " ┃\n ┃     (count:" . count(self::$commands) . ")\n";
+        self::$help .= " ┃ Hope help you ~";
+        self::$help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     }
 
-    public function run()
+    public static function run()
     {
         while (true) {
             fwrite(STDOUT, "\n" . self::HEAD);
             $stdin = fgets(STDIN);
             $stdin = str_replace(["\r", "\n"], '', $stdin);
             if (empty($stdin)) {
-                $this->c("type your command please!");
+                self::c("type your command please!");
                 continue;
             }
             $stdin = explode(' ', $stdin);
             $command = array_shift($stdin);
             $options = trim(implode(' ', $stdin));
-            if (!in_array($command, $this->commandKeys)) {
-                $this->c("not command named: {$command},type \"help\" to get the command list");
+            if (!in_array($command, self::$commandKeys)) {
+                self::c("not command named: {$command},type \"help\" to get the command list");
                 continue;
             }
             switch ($command) {
                 case 'swh':
                     if (!$options) {
-                        $this->c('not port');
+                        self::c('not port');
                         break;
                     }
                     system("php hSwoole.http.php {$options}");
                     break;
                 case 'swws':
                     if (!$options) {
-                        $this->c('not port');
+                        self::c('not port');
                         break;
                     }
                     system("php hSwoole.websocket.php {$options}");
                     break;
                 case 'swt':
                     if (!$options) {
-                        $this->c('not port');
+                        self::c('not port');
                         break;
                     }
                     system("php hSwoole.tcp.php {$options}");
                     break;
                 case 'pkg':
                     if (!$options) {
-                        $this->c('not config path');
+                        self::c('not config path');
                         break;
                     }
                     system("php hPackage.php {$options}");
@@ -104,17 +106,15 @@ class Commander
                     break;
                 case '-h':
                 case 'help':
-                    $this->c($this->help);
+                    self::c(self::$help);
                     break;
                 case 'exit':
                 case 'die':
                     exit;
                 default:
-                    $this->c("command is {$command}");
+                    self::c("command is {$command}");
                     break;
             }
         }
     }
 }
-
-(new Commander())->run();

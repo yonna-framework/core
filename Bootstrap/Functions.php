@@ -4,7 +4,7 @@ namespace PhpureCore\Bootstrap;
 
 use PhpureCore\Handle;
 
-class Foundation
+class Functions
 {
 
     /**
@@ -35,15 +35,15 @@ class Foundation
 
     public static function install(Cargo $Cargo)
     {
-        $path = realpath($Cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Foundation');
-        if (!$path) Handle::exception('Foundation Error: root path');
+        $path = realpath($Cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Functions');
+        if (!$path) Handle::exception('Functions Error: root path');
         $qty = self::requireDir($path);
-        $Cargo->setFoundationQty($qty);
+        $Cargo->setFunctionQty($qty);
         // diy
-        $path = realpath($Cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
+        $path = realpath($Cargo->getRoot() . DIRECTORY_SEPARATOR . 'functions');
         if ($path) {
             $qty = self::requireDir($path);
-            $Cargo->setFoundationDiyQty($qty);
+            $Cargo->setFunctionDiyQty($qty);
         }
         return $Cargo;
     }
