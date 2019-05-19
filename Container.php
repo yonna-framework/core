@@ -5,7 +5,6 @@
 
 namespace PhpureCore;
 
-use PhpureCore\Container\Interfaces;
 use ReflectionClass;
 use ReflectionException;
 

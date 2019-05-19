@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Container;
+namespace PhpureCore;
 
 class Interfaces
 {
