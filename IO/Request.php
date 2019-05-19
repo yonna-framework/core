@@ -5,20 +5,22 @@
 
 namespace PhpureCore\IO;
 
-use PhpureCore\Bootstrap\Type;
-use PhpureCore\Cargo;
+use PhpureCore\Mapping\BootType;
 use PhpureCore\Handle;
 
 /**
  * Class Request
  * @package PhpureCore\IO
  */
-class Request
+class Request implements \PhpureCore\Interfaces\Request
 {
+    /**
+     * @var \PhpureCore\Bootstrap\Cargo
+     */
+    public $cargo = null;
 
     public $crypto = false;
     public $local = false;
-    public $cargo = null;
     public $header = null;
     public $method = null;
     public $content_type = null;
@@ -35,7 +37,7 @@ class Request
     private function init()
     {
         switch ($this->cargo->getBootType()) {
-            case Type::AJAX_HTTP:
+            case BootType::AJAX_HTTP:
                 $header = array();
                 $server = array();
                 foreach ($_SERVER as $k => $v) {
@@ -45,16 +47,15 @@ class Request
                     }
                 }
                 $this->header = $header;
-                $this->stack = $this->header['stack'] ?? null;
                 $this->method = strtoupper($server['request_method']);
                 $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->file = parse_fileData($_FILES);
                 break;
-            case Type::SWOOLE_HTTP:
+            case BootType::SWOOLE_HTTP:
                 break;
-            case Type::SWOOLE_WEB_SOCKET:
+            case BootType::SWOOLE_WEB_SOCKET:
                 break;
-            case Type::SWOOLE_TCP:
+            case BootType::SWOOLE_TCP:
                 break;
             default:
                 Handle::exception('Request invalid boot type');
@@ -63,13 +64,16 @@ class Request
         if (!Crypto::checkToken($this)) {
             Handle::notPermission('welcome');
         }
+        //
+        $this->client_id = $this->header['client_id'] ?? '';
+        $this->stack = $this->header['stack'] ?? '';
         // IP
         $ip = null;
         $ip === null && $ip = $this->header['x_real_ip'] ?? null;
         $ip === null && $ip = $this->header['client_ip'] ?? null;
         $ip === null && $ip = $this->header['x_forwarded_for'] ?? null;
         $ip === null && $ip = $server['remote_addr'] ?? null;
-        $this->ip = $ip;
+        $ip && $this->ip = $ip;
         $this->local = ($ip === '127.0.0.1');
         if (!$this->ip) {
             Handle::notPermission('iam pure');
@@ -110,13 +114,13 @@ class Request
         } else {
             $this->input = json_decode($this->body, true) ?? array();
         }
-        return $this;
     }
 
-    public function __construct(Cargo $cargo)
+    public function __construct(object $cargo)
     {
         $this->cargo = $cargo;
-        return $this->init();
+        $this->init();
+        return $this;
     }
 
 }

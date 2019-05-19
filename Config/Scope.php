@@ -3,7 +3,6 @@
 namespace PhpureCore\Config;
 
 use Closure;
-use Exception;
 use PhpureCore\Handle;
 
 class Scope extends Arrow

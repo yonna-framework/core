@@ -3,9 +3,7 @@
  * Bootstrap handle code
  */
 
-namespace PhpureCore\Handle;
-
-use PhpureCore\Mapping;
+namespace PhpureCore\Mapping;
 
 /**
  * Class HandleCode

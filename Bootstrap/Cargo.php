@@ -3,15 +3,13 @@
  * Bootstrap Cargo!
  */
 
-namespace PhpureCore;
+namespace PhpureCore\Bootstrap;
 
-use PhpureCore\Config\Broadcast;
-
-class Cargo
+class Cargo implements \PhpureCore\Interfaces\Cargo
 {
 
     public $root = '';
-    public $pure_core_path = __DIR__;
+    public $pure_core_path = __DIR__ . '/..';
     public $timezone = '';
     public $current_php_version = '';
     public $minimum_php_version = '';
@@ -32,21 +30,14 @@ class Cargo
     public $config = array();
 
     /**
-     * @return string
+     * Cargo constructor.
+     * @param array $params
      */
-    public function getPureCorePath(): string
+    public function __construct(array $params = [])
     {
-        return $this->pure_core_path;
-    }
-
-    /**
-     * @param array $config
-     * @return Cargo
-     */
-    public function setConfig(array $config): Cargo
-    {
-        $this->config = $config;
-        return $this;
+        foreach ($params as $k => $v) {
+            $this->$k = $v;
+        }
     }
 
     /**
@@ -58,12 +49,40 @@ class Cargo
     }
 
     /**
-     * @param string $root
+     * @return string
+     */
+    public function getBootType(): string
+    {
+        return $this->boot_type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEnvName(): string
+    {
+        return $this->env_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPureCorePath(): string
+    {
+        return $this->pure_core_path;
+    }
+
+
+    // -------------------------------------------------------
+
+
+    /**
+     * @param array $config
      * @return Cargo
      */
-    public function setRoot(string $root): Cargo
+    public function setConfig(array $config): Cargo
     {
-        $this->root = $root;
+        $this->config = $config;
         return $this;
     }
 
@@ -158,24 +177,6 @@ class Cargo
     }
 
     /**
-     * @return string
-     */
-    public function getBootType(): string
-    {
-        return $this->boot_type;
-    }
-
-    /**
-     * @param string $boot_type
-     * @return Cargo
-     */
-    public function setBootType(string $boot_type): Cargo
-    {
-        $this->boot_type = $boot_type;
-        return $this;
-    }
-
-    /**
      * @return int
      */
     public function getFoundationQty(): int
@@ -261,22 +262,6 @@ class Cargo
     {
         $this->debug = $debug;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEnvName(): string
-    {
-        return $this->env_name;
-    }
-
-    /**
-     * @param string $env_name
-     */
-    public function setEnvName(string $env_name): void
-    {
-        $this->env_name = $env_name;
     }
 
     /**

@@ -2,26 +2,17 @@
 
 namespace PhpureCore\Bootstrap;
 
-use PhpureCore\Cargo;
 use PhpureCore\Handle;
 
 class Foundation
 {
-
-    private $cargo = null;
-
-    public function __construct(Cargo $cargo)
-    {
-        $this->cargo = $cargo;
-        return $this;
-    }
 
     /**
      * @param $dir
      * @param int $qty
      * @return int|void
      */
-    private function requireDir($dir, $qty = 0)
+    private static function requireDir($dir, $qty = 0)
     {
         if (!is_dir($dir)) return;
         $files = opendir($dir);
@@ -29,7 +20,7 @@ class Foundation
             if ($file != '.' && $file != '..') {
                 $realFile = $dir . '/' . $file;
                 if (is_dir($realFile)) {
-                    $qty = $this->requireDir($realFile, $qty);
+                    $qty = self::requireDir($realFile, $qty);
                 } elseif (strpos($file, '.php') === false) {
                     continue;
                 } else {
@@ -42,22 +33,19 @@ class Foundation
         return $qty;
     }
 
-    /**
-     * 基础函数初始化
-     */
-    public function init()
+    public static function install(Cargo $Cargo)
     {
-        // default
-        $path = realpath($this->cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Foundation');
-        if(!$path) Handle::exception('Foundation Error: root path');
-        $qty = $this->requireDir($path);
-        $this->cargo->setFoundationQty($qty);
+        $path = realpath($Cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Foundation');
+        if (!$path) Handle::exception('Foundation Error: root path');
+        $qty = self::requireDir($path);
+        $Cargo->setFoundationQty($qty);
         // diy
-        $path = realpath($this->cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
-        if($path){
-            $qty = $this->requireDir($path);
-            $this->cargo->setFoundationDiyQty($qty);
+        $path = realpath($Cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
+        if ($path) {
+            $qty = self::requireDir($path);
+            $Cargo->setFoundationDiyQty($qty);
         }
-        return $this->cargo;
+        return $Cargo;
     }
+
 }

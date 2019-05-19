@@ -3,11 +3,9 @@
  * Bootstrap Types
  */
 
-namespace PhpureCore\Bootstrap;
+namespace PhpureCore\Mapping;
 
-use PhpureCore\Mapping;
-
-class Type extends Mapping
+class BootType extends Mapping
 {
 
     const AJAX_HTTP = 'AJAX_HTTP';

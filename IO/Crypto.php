@@ -104,7 +104,7 @@ class Crypto
      */
     public static function response(Request $request)
     {
-
+        return self::encrypt(str_replace_once(self::protocol(), '', $request->body));
     }
 
 }

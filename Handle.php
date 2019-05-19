@@ -5,7 +5,7 @@
 
 namespace PhpureCore;
 
-use PhpureCore\Handle\HandleCode;
+use PhpureCore\Mapping\HandleCode;
 use PhpureCore\Handle\HandleCollector;
 
 /**
@@ -31,7 +31,7 @@ class Handle
     public static function end($data)
     {
         if ($data instanceof HandleCollector) {
-            switch ($data->getResponseDataType()){
+            switch ($data->getResponseDataType()) {
                 case 'xml':
                     header('Content-Type:application/xml; charset=utf-8');
                     break;
