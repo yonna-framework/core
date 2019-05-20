@@ -1,10 +1,11 @@
 {
   "name": "hunzsig-server/phpure-core",
-  "description": "Phppure Core",
+  "description": "Phpure Core",
   "license": "MIT",
   "type": "library",
   "keywords": [
     "php",
+    "pure",
     "framework",
     "swoole"
   ],
@@ -13,7 +14,8 @@
     "php-amqplib/php-amqplib": "2.9.2",
     "hunzsig-server/var-dumper": "^1.0.2",
     "vlucas/phpdotenv": "3.3.3",
-    "whoops/soap": "1.0.0"
+    "whoops/soap": "1.0.0",
+    "elasticsearch/elasticsearch": "^6.7"
   },
   "autoload": {
     "psr-4": {
@@ -24,7 +26,7 @@
     {
       "name": "hunzsig",
       "email": "mzyhaohaoren@qq.com",
-      "homepage": "https://www.hunzsig.com"
+      "homepage": "https://www.hunzsig.org"
     }
   ]
 }
