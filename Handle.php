@@ -109,7 +109,7 @@ class Handle
             ->setCode(HandleCode::NOT_PERMISSION)
             ->setMessage($message)
             ->setData($data);
-        self::end($collector);
+        // self::end($collector);
     }
 
     public static function notFound(string $message = 'not found', array $data = array(), $type = 'json')
@@ -119,7 +119,7 @@ class Handle
             ->setCode(HandleCode::NOT_FOUND)
             ->setMessage($message)
             ->setData($data);
-        self::end($collector);
+        // self::end($collector);
     }
 
     public static function abort(string $message = 'abort', array $data = array(), $type = 'json')
@@ -129,7 +129,7 @@ class Handle
             ->setCode(HandleCode::ABORT)
             ->setMessage($message)
             ->setData($data);
-        self::end($collector);
+        // self::end($collector);
     }
 
 }
