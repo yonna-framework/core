@@ -4,7 +4,7 @@ namespace PhpureCore\Config;
 
 use Closure;
 use Exception;
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Crypto extends Arrow
 {

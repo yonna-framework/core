@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Bootstrap;
 
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Functions
 {

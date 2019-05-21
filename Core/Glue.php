@@ -8,30 +8,30 @@ use RuntimeException;
 
 class Glue
 {
-    const default = [
-        \Bootstrap::class => \PhpureCore\Bootstrap\Bootstrap::class,
-        \Cargo::class => \PhpureCore\Bootstrap\Cargo::class,
-        \IO::class => \PhpureCore\IO\IO::class,
-        \Request::class => \PhpureCore\IO\Request::class,
-    ];
 
     /**
      * 类粘合
      */
-    protected static $glue = null;
+    protected static $glue = [];
 
 
     /**
+     * 粘合体关连
+     * @param string $glue
+     * @param string $class
+     */
+    public static function link(string $glue, string $class): void
+    {
+        static::$glue[$glue] = $class;
+    }
+
+    /**
+     * 获取所有粘合体
      * @return array
      */
     public static function all(): array
     {
-        if (null === static::$glue) {
-            $default = self::default;
-
-            static::$glue = array_merge($default);
-        }
-        return static::$glue;
+        return static::$glue ?? [];
     }
 
     /**
@@ -47,14 +47,13 @@ class Glue
     }
 
     /**
-     * 工厂方法，创建实例，并完成依赖注入
+     * 粘合 * 工厂方法，创建实例，并完成依赖注入
      * @param string $class
      * @param array $params
      * @return object
      */
     public static function paste($class, $params = []): object
     {
-        // 粘合
         $g = static::get($class) ?? null;
         if (is_string($class) && $g) {
             return static::paste($g, $params);
@@ -99,23 +98,15 @@ class Glue
      * @param array $args
      * @return mixed
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function __callStatic($method, $args)
     {
-        $instance = static::paste(get_called_class(), $args);
+        $instance = Glue::paste(get_called_class(), $args);
         if (!$instance) {
-            throw new RuntimeException('A glue root has not been set.');
+            throw new RuntimeException('Glue root has not been set.');
         }
         return $instance->$method(...$args);
-    }
-
-    public static function d41d8cd98f00b204e9800998ecf8427e(): void
-    {
-        foreach (array_keys(static::get()) as $gk) {
-            $path = realpath(__DIR__ . '/../Glue/' . $gk . '.php');
-            require($path);
-        }
     }
 
 }

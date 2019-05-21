@@ -3,7 +3,7 @@
 namespace PhpureCore\Bootstrap;
 
 use PhpureCore\Config\{Arrow};
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Config
 {
@@ -26,7 +26,7 @@ class Config
      */
     public static function install(Cargo $Cargo)
     {
-        $config_root = self::checkPath($Cargo->getRoot() . DIRECTORY_SEPARATOR . 'config');
+        $config_root = self::checkPath($Cargo->getRoot() . '/app/config');
         self::checkPath($config_root . DIRECTORY_SEPARATOR . 'broadcast.php');
         self::checkPath($config_root . DIRECTORY_SEPARATOR . 'crontab.php');
         self::checkPath($config_root . DIRECTORY_SEPARATOR . 'crypto.php');

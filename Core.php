@@ -6,6 +6,10 @@
 namespace PhpureCore;
 
 use PhpureCore\Core\Glue;
+use PhpureCore\Glue\Bootstrap;
+use PhpureCore\Glue\Handle;
+
+require __DIR__ . '/Core/include.php';
 
 class Core
 {
@@ -19,11 +23,10 @@ class Core
      */
     protected static $instances = [];
 
-
     /**
-     * @return Container
+     * @return Core
      */
-    public static function getInstance(): Container
+    public static function getInstance(): Core
     {
         if (null === static::$instance) {
             static::$instance = new static();
@@ -69,15 +72,23 @@ class Core
 
     /**
      * 驱动净神
-     * bootstarp
+     * bootstrap
      * @param $root
      * @param null $env_name
      * @param null $boot_type
      */
-    public static function bootstarp($root, $env_name = null, $boot_type = null)
+    public static function bootstrap($root, $env_name = null, $boot_type = null)
     {
-        Glue::d41d8cd98f00b204e9800998ecf8427e();
-        \Bootstrap::boot($root, $env_name, $boot_type);
+        // default glues
+        Glue::link(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
+        Glue::link(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
+        Glue::link(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
+        Glue::link(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
+        Glue::link(\PhpureCore\Glue\Crypto::class, \PhpureCore\IO\Crypto::class);
+        Glue::link(\PhpureCore\Glue\Handle::class, \PhpureCore\Core\Handle::class);
+        Glue::link(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\Core\HandleCollector::class);
+        // boot
+        Bootstrap::boot($root, $env_name, $boot_type);
     }
 
 }

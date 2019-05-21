@@ -6,7 +6,7 @@
 namespace PhpureCore\IO;
 
 use PhpureCore\Mapping\BootType;
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 /**
  * Class Request

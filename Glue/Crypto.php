@@ -6,10 +6,10 @@ namespace PhpureCore\Glue;
 use PhpureCore\Core\Glue;
 
 /**
- * Class Request
+ * Class Crypto
  *
- * @see \PhpureCore\IO\Request
+ * @see \PhpureCore\IO\Crypto
  */
-class Request extends Glue
+class Crypto extends Glue
 {
 }

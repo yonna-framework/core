@@ -3,7 +3,7 @@
 namespace PhpureCore\IO;
 
 use PhpureCore\Config\Crypto as Config;
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Crypto
 {

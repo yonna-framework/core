@@ -8,7 +8,7 @@ namespace PhpureCore\Bootstrap;
 use Dotenv\Dotenv;
 use Whoops\Handler\PrettyPageHandler as WhoopsHandlerPrettyPageHandler;
 use Whoops\Run as WhoopsRun;
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Env
 {

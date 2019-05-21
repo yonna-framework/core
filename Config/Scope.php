@@ -3,7 +3,7 @@
 namespace PhpureCore\Config;
 
 use Closure;
-use PhpureCore\Handle;
+use PhpureCore\Glue\Handle;
 
 class Scope extends Arrow
 {

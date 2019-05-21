@@ -2,8 +2,6 @@
 
 namespace PhpureCore\Config;
 
-use Closure;
-
 class Arrow
 {
 

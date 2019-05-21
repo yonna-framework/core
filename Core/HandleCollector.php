@@ -3,22 +3,26 @@
  * Bootstrap handle collector
  */
 
-namespace PhpureCore\Handle;
+namespace PhpureCore\Core;
 
 
 /**
- * Class HandleCollector
- * @package PhpureCore\Handle
+ * Class Collector
+ * @package PhpureCore\Core
  */
 class HandleCollector
 {
 
     private $response_data_type = 'json';
-
     private $code = 0;
     private $message = '';
     private $data = array();
     private $extra = array();
+
+    public function __construct()
+    {
+        return $this;
+    }
 
     /**
      * @return string

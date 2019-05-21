@@ -8,10 +8,17 @@ namespace PhpureCore\IO;
 class IO
 {
 
-    public static function response(object $request)
+    private $request = null;
+
+    public function __construct()
     {
-        //
-        dump($request);
+        return $this;
+    }
+
+    public function response(object $request)
+    {
+        $this->request = $request;
+        dump($this->request);
     }
 
 }
