@@ -5,7 +5,7 @@
 
 namespace PhpureCore\Bootstrap;
 
-class Cargo implements \PhpureCore\Interfaces\Cargo
+class Cargo
 {
 
     public $root = '';

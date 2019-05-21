@@ -3,19 +3,19 @@
  * Bootstrap core
  */
 
-namespace PhpureCore;
+namespace PhpureCore\Bootstrap;
 
 use Exception;
-use PhpureCore\Bootstrap\Config;
-use PhpureCore\Bootstrap\Env;
-use PhpureCore\Bootstrap\Functions;
-use PhpureCore\Interfaces\Cargo;
-use PhpureCore\Interfaces\Request;
+use PhpureCore\Core;
 use PhpureCore\Mapping\BootType;
 
-class Bootstrap implements Interfaces\Bootstrap
+class Bootstrap
 {
 
+    public function __construct()
+    {
+        return $this;
+    }
 
     /**
      * Bootstrap constructor.
@@ -23,12 +23,12 @@ class Bootstrap implements Interfaces\Bootstrap
      * @param null $env_name
      * @param null $boot_type
      */
-    public function __construct($root, $env_name = null, $boot_type = null)
+    public function boot($root, $env_name = null, $boot_type = null)
     {
         /**
          * @var $Cargo \PhpureCore\Bootstrap\Cargo
          */
-        $Cargo = Container::singleton(Cargo::class, [
+        $Cargo = Core::singleton(\Cargo::class, [
             'root' => $root ?? '',
             'env_name' => $env_name ?? 'example',
             'boot_type' => $boot_type ?? BootType::AJAX_HTTP,
@@ -44,7 +44,7 @@ class Bootstrap implements Interfaces\Bootstrap
         } catch (Exception $e) {
             dd($e);
         }
-        IO::response(Container::singleton(Request::class, $Cargo));
+        \IO::response(Core::singleton(\Request::class, $Cargo));
         return $this;
     }
 

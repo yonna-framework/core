@@ -12,7 +12,7 @@ use PhpureCore\Handle;
  * Class Request
  * @package PhpureCore\IO
  */
-class Request implements \PhpureCore\Interfaces\Request
+class Request
 {
     /**
      * @var \PhpureCore\Bootstrap\Cargo

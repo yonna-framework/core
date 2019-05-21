@@ -1,9 +1,9 @@
 <?php
 /**
- * IO
+ * input / output
  */
 
-namespace PhpureCore;
+namespace PhpureCore\IO;
 
 class IO
 {
