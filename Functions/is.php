@@ -28,29 +28,6 @@ function is_email($email)
 }
 
 /**
- * 计算身份证校验码，根据国家标准GB 11643-1999
- * @param $idCardBase
- * @return bool|mixed
- */
-function getVerifyBit($idCardBase)
-{
-    if (strlen($idCardBase) != 17) {
-        return false;
-    }
-    //加权因子
-    $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
-    //校验码对应值
-    $verify_number_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
-    $checksum = 0;
-    for ($i = 0; $i < strlen($idCardBase); $i++) {
-        $checksum = $checksum + round(substr($idCardBase, $i, 1), 3) * $factor[$i];
-    }
-    $mod = $checksum % 11;
-    $verify_number = $verify_number_list[$mod];
-    return $verify_number;
-}
-
-/**
  * 验证身份证NO
  * @param $idCardNo
  * @param bool $isStrict
@@ -58,6 +35,29 @@ function getVerifyBit($idCardBase)
  */
 function is_identityCardNo($idCardNo, $isStrict = false)
 {
+    /**
+     * 计算身份证校验码，根据国家标准GB 11643-1999
+     * @param $idCardBase
+     * @return bool|mixed
+     */
+    function getVerifyBit($idCardBase)
+    {
+        if (strlen($idCardBase) != 17) {
+            return false;
+        }
+        //加权因子
+        $factor = array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
+        //校验码对应值
+        $verify_number_list = array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
+        $checksum = 0;
+        for ($i = 0; $i < strlen($idCardBase); $i++) {
+            $checksum = $checksum + round(substr($idCardBase, $i, 1), 3) * $factor[$i];
+        }
+        $mod = $checksum % 11;
+        $verify_number = $verify_number_list[$mod];
+        return $verify_number;
+    }
+
     $idCardLength = strlen($idCardNo);
     //长度验证
     if (!preg_match('/^\d{17}(\d|x)$/i', $idCardNo) and !preg_match('/^\d{15}$/i', $idCardNo)) {
@@ -72,7 +72,10 @@ function is_identityCardNo($idCardNo, $isStrict = false)
         //15位身份证验证生日，转换为18位
         if ($idCardLength == 15) {
             $sBirthday = '19' . substr($idCardNo, 6, 2) . '-' . substr($idCardNo, 8, 2) . '-' . substr($idCardNo, 10, 2);
-            $d = new DateTime($sBirthday);
+            try {
+                $d = new DateTime($sBirthday);
+            } catch (Exception $e) {
+            }
             $dd = $d->format('Y-m-d');
             if ($sBirthday != $dd) {
                 return false;
@@ -83,7 +86,10 @@ function is_identityCardNo($idCardNo, $isStrict = false)
         }
         //18位身份证处理
         $sBirthday = substr($idCardNo, 6, 4) . '-' . substr($idCardNo, 10, 2) . '-' . substr($idCardNo, 12, 2);
-        $d = new DateTime($sBirthday);
+        try {
+            $d = new DateTime($sBirthday);
+        } catch (Exception $e) {
+        }
         $dd = $d->format('Y-m-d');
         if ($sBirthday != $dd) return false;
         //身份证编码规范验证
@@ -122,12 +128,30 @@ function is_ip($str)
 }
 
 /**
- * 是否windows
+ * 是否 windows
  * @return bool
  */
 function is_windows()
 {
     return strstr(PHP_OS, 'WIN') ? true : false;
+}
+
+/**
+ * 是否 linux
+ * @return bool
+ */
+function is_linux()
+{
+    return strstr(PHP_OS, 'Linux') ? true : false;
+}
+
+/**
+ * 是否 mac
+ * @return bool
+ */
+function is_mac()
+{
+    return strstr(PHP_OS, 'macintosh') ? true : false;
 }
 
 /**

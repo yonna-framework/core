@@ -1,61 +1,6 @@
 <?php
 
 /**
- * 生成N位随机验证码(大小写+数字)
- * @param int $len
- * @return string
- */
-function rand_char($len = 6)
-{
-    $codeLib = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-    ];
-    $codeMax = count($codeLib);
-    $code = '';
-    for ($i = 0; $i < $len; $i++) {
-        $code .= $codeLib[rand(0, $codeMax - 1)];
-    }
-    return $code;
-}
-
-/**
- * 生成N位随机数字
- * @param int $len
- * @return string
- */
-function rand_char_num($len = 6)
-{
-    $codeLib = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    $codeMax = count($codeLib);
-    $code = '';
-    for ($i = 0; $i < $len; $i++) {
-        $code .= $codeLib[rand(0, $codeMax - 1)];
-    }
-    return $code;
-}
-
-/**
- * 生成N位随机数字
- * @param int $len
- * @param bool $isUpper
- * @return string
- */
-function rand_char_letter($len = 6, $isUpper = false)
-{
-    $codeLib = $isUpper
-        ? ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-        : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-    $codeMax = count($codeLib);
-    $code = '';
-    for ($i = 0; $i < $len; $i++) {
-        $code .= $codeLib[rand(0, $codeMax - 1)];
-    }
-    return $code;
-}
-
-/**
  * 强制类型转换 -> string
  * @desc 兼容一般数据并运用递归处理数组内数据
  * @param $obj
@@ -133,12 +78,12 @@ function parse_real($obj)
  * @param $obj
  * @return float|string
  */
-function parse_tecNum($obj)
+function parse_scientificCountingMethod($obj)
 {
     if (is_array($obj)) {
         foreach ($obj as $k => $v) {
             if (is_array($v)) {
-                $obj[$k] = parse_tecNum($v);
+                $obj[$k] = parse_scientificCountingMethod($v);
             } else {
                 if (stripos($v, 'e+') === false) {
                     $obj[$k] = $v;
@@ -207,170 +152,4 @@ function parse_fileData($fileData)
         }
     }
     return $newFileData;
-}
-
-
-/**
- * 换行切<br>
- * @param $str
- * @return mixed
- */
-function eol2br($str)
-{
-    return nl2br($str);
-}
-
-/**
- * <br>切换行
- * @param $str
- * @return mixed
- */
-function br2nl($str)
-{
-    return str_replace(["<br>", "<br/>"], PHP_EOL, $str);
-}
-
-/**
- * 将驼峰转为下划线命名
- * @param $str
- * @return string
- */
-function camel2underscore($str)
-{
-    return strtolower(preg_replace('/((?<=[a-z])(?=[A-Z]))/', '_', $str));
-}
-
-/**
- * null to string
- * @param $obj
- * @return array|string
- */
-function null2String($obj)
-{
-    if (is_array($obj)) {
-        foreach ($obj as $k => $v) {
-            if (is_array($v)) {
-                $obj[$k] = null2String($v);
-            } elseif (is_null($v)) {
-                $obj[$k] = "";
-            }
-        }
-    } elseif (is_null($obj)) {
-        $obj = "";
-    }
-    return $obj;
-}
-
-/**
- * 字符串转二进制01
- * @param $str
- * @return string
- */
-function str2bin($str)
-{
-    if (!is_string($str)) return null;
-    $value = unpack('H*', $str);
-    $value = str_split($value[1], 1);
-    $bin = '';
-    foreach ($value as $v) {
-        $b = str_pad(base_convert($v, 16, 2), 4, '0', STR_PAD_LEFT);
-        $bin .= $b;
-    }
-    return $bin;
-}
-
-/**
- * 二进制01字符串转
- * @param $bin
- * @return string
- */
-function bin2str($bin)
-{
-    if (!is_string($bin)) return null;
-    $bin = str_split($bin, 4);
-    $str = '';
-    foreach ($bin as $v) {
-        $str .= base_convert($v, 2, 16);
-    }
-    $str = pack('H*', $str);
-    return $str;
-}
-
-/**
- * @param $bn
- * @param $sn
- * @return int
- */
-function kmod($bn, $sn)
-{
-    return intval(fmod(floatval($bn), $sn));
-}
-
-/**
- * 任意进制转 极限 进制
- * @param $data
- * @param $base_from
- * @return string
- */
-function limit_convert($data, $base_from)
-{
-    $chars_map = [
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        '_', '~', '!', '@', '$', '[', ']', '-', '·',
-    ];
-    $dividend = count($chars_map);
-    if ($base_from >= $dividend) {
-        return null;
-    }
-    if ($base_from !== 10) {
-        $data = base_convert($data, $base_from, 10);
-    }
-    $base64_chars = [];
-    while ($data > $dividend) {
-        $r = kmod($data, $dividend);
-        $data = ($data - $r) / $dividend;
-        $base64_chars[] = $chars_map[$r];
-    }
-    $r = kmod($data, $dividend);
-    $base64_chars[] = $chars_map[$r];
-    return join('', array_reverse($base64_chars));
-}
-
-/**
- * 只替换第一个
- * @param $needle
- * @param $replace
- * @param $haystack
- * @return mixed
- */
-function str_replace_once($needle, $replace, $haystack)
-{
-    $pos = strpos($haystack, $needle);
-    return $pos === false ? $haystack : substr_replace($haystack, $replace, $pos, strlen($needle));
-}
-
-/**
- * 只替换第一个 适配编码
- * @param $needle
- * @param $replace
- * @param $haystack
- * @param string $encoding
- * @return mixed
- */
-function mb_str_replace_once($needle, $replace, $haystack, $encoding = 'utf8')
-{
-    $pos = mb_strpos($haystack, $needle, 0, $encoding);
-    return $pos === false ? $haystack : substr_replace($haystack, $replace, $pos, mb_strlen($needle, $encoding));
-}
-
-/**
- * 字符串反转
- * @param $str
- * @return string
- */
-function str_reserve($str)
-{
-    if (!$str) return (string)$str;
-    return implode(array_reverse(str_split($str)));
 }

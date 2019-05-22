@@ -82,7 +82,7 @@ function array_recursiveFilter($filter, $data)
  * @param $arr
  * @return bool
  */
-function array_is_assoc($arr)
+function array_isAssoc($arr)
 {
     $index = 0;
     foreach (array_keys($arr) as $key) {

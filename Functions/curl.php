@@ -1,23 +1,6 @@
 <?php
 
 /**
- * 获取当前客户端IP
- * @return  string $ip
- */
-function curl_remoteIP()
-{
-    $ip = null;
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = isIp($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : $ip;
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = isIp($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $ip;
-    } else {
-        $ip = isIp($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : $ip;
-    }
-    return $ip;
-}
-
-/**
  * 伪造headers
  * @param $data
  * @return array
