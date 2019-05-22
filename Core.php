@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Core
  */
@@ -7,9 +8,6 @@ namespace PhpureCore;
 
 use PhpureCore\Core\Glue;
 use PhpureCore\Glue\Bootstrap;
-use PhpureCore\Glue\Handle;
-
-require __DIR__ . '/Core/include.php';
 
 class Core
 {
@@ -79,14 +77,24 @@ class Core
      */
     public static function bootstrap($root, $env_name = null, $boot_type = null)
     {
+        // autoload
+        spl_autoload_register(function ($res) use ($root) {
+            $res = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $res);
+            foreach ([$root] as $path) {
+                $file = $path . DIRECTORY_SEPARATOR . $res . '.php';
+                if (is_file($file)) {
+                    require($file);
+                    break;
+                }
+            }
+        });
         // default glues
         Glue::link(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
+        Glue::link(\PhpureCore\Glue\Handle::class, \PhpureCore\Core\Handle::class);
+        Glue::link(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\Core\HandleCollector::class);
         Glue::link(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
         Glue::link(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
         Glue::link(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
-        Glue::link(\PhpureCore\Glue\Crypto::class, \PhpureCore\IO\Crypto::class);
-        Glue::link(\PhpureCore\Glue\Handle::class, \PhpureCore\Core\Handle::class);
-        Glue::link(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\Core\HandleCollector::class);
         // boot
         Bootstrap::boot($root, $env_name, $boot_type);
     }

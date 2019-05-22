@@ -2,7 +2,7 @@
 
 namespace PhpureCore\IO;
 
-use PhpureCore\Config\Crypto as Config;
+use PhpureCore\Config\Crypto as ConfigCrypto;
 use PhpureCore\Glue\Handle;
 
 class Crypto
@@ -14,9 +14,9 @@ class Crypto
      */
     private static function encrypt(string $str)
     {
-        $type = Config::get('io_request_type');
-        $secret = Config::get('io_request_secret');
-        $iv = Config::get('io_request_iv');
+        $type = ConfigCrypto::get('io_request_type');
+        $secret = ConfigCrypto::get('io_request_secret');
+        $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
             Handle::abort('Crypto encrypt error');
         }
@@ -29,9 +29,9 @@ class Crypto
      */
     private static function decrypt(string $str)
     {
-        $type = Config::get('io_request_type');
-        $secret = Config::get('io_request_secret');
-        $iv = Config::get('io_request_iv');
+        $type = ConfigCrypto::get('io_request_type');
+        $secret = ConfigCrypto::get('io_request_secret');
+        $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
             Handle::abort('Crypto encrypt error');
         }
@@ -52,7 +52,7 @@ class Crypto
      */
     public static function protocol(): string
     {
-        return Config::get('io_request_protocol') ?? 'CRYPTO|';
+        return ConfigCrypto::get('io_request_protocol') ?? 'CRYPTO|';
     }
 
     /**
@@ -76,11 +76,11 @@ class Crypto
             || empty($request->header['client_id']) || empty($request->header['pure'])) {
             return false;
         }
-        if (Config::get('io_token') !== $request->header['token']) {
+        if (ConfigCrypto::get('io_token') !== $request->header['token']) {
             return false;
         }
-        $token = strtolower(trim($request->header['platform'] . $request->header['token'] . $request->header['client_id'] /*. $request->body*/));
-        $sha256 = hash_hmac('sha256', $token, Config::get('io_token_secret'));
+        $token = strtolower(trim($request->header['user_agent'] . $request->header['platform'] . $request->header['client_id'] /*. $request->body*/));
+        $sha256 = hash_hmac('sha256', $token, ConfigCrypto::get('io_token_secret'));
         if (!$sha256 || $request->header['pure'] !== $sha256) {
             return false;
         }

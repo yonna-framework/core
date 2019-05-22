@@ -10,14 +10,6 @@ class Broadcast extends Arrow
 
     const name = 'broadcast';
 
-    public function __construct()
-    {
-        if (!isset(self::$stack[self::name])) {
-            self::$stack[self::name] = array();
-        }
-        return $this;
-    }
-
     /**
      * @param string $scope
      * @param Closure $call

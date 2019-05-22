@@ -33,7 +33,7 @@ class Bootstrap
          * @var $Cargo \PhpureCore\Bootstrap\Cargo
          */
         $Cargo = Core::singleton(Cargo::class, [
-            'root' => $root ?? '',
+            'root' => $root ?? __DIR__ . '/../../../../',
             'env_name' => $env_name ?? 'example',
             'boot_type' => $boot_type ?? BootType::AJAX_HTTP,
         ]);

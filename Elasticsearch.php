@@ -37,7 +37,13 @@ class Elasticsearch
             'body' => ['testField' => 'abc']
         ];
         $response = $client->index($params);
+        $a = $client->get([
+            'index' => 'my_index',
+            'type' => 'my_type',
+            'id' => 'my_id'
+        ]);
         dump($response);
+        var_dump($a);
     }
 
 }

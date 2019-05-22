@@ -2,22 +2,12 @@
 
 namespace PhpureCore\Config;
 
-use Closure;
-use Exception;
 use PhpureCore\Glue\Handle;
 
 class Crypto extends Arrow
 {
 
     const name = 'crypto';
-
-    public function __construct()
-    {
-        if (!isset(self::$stack[self::name])) {
-            self::$stack[self::name] = array();
-        }
-        return $this;
-    }
 
     /**
      * 设置密钥

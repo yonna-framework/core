@@ -9,7 +9,8 @@ class Cargo
 {
 
     public $root = '';
-    public $pure_core_path = __DIR__ . '/..';
+    public $app_root = '';
+    public $pure_core_path = '';
     public $timezone = '';
     public $current_php_version = '';
     public $minimum_php_version = '';
@@ -38,6 +39,9 @@ class Cargo
         foreach ($params as $k => $v) {
             $this->$k = $v;
         }
+        $this->root = realpath($this->root);
+        $this->app_root = realpath($this->root . '/app') ?? '';
+        $this->pure_core_path = realpath(__DIR__ . '/..');
     }
 
     /**
@@ -46,6 +50,14 @@ class Cargo
     public function getRoot(): string
     {
         return $this->root;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppRoot(): string
+    {
+        return $this->app_root;
     }
 
     /**

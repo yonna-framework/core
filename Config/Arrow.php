@@ -9,7 +9,7 @@ class Arrow
 
     public static function fetch(): array
     {
-        return self::$stack;
+        return static::$stack;
     }
 
 }

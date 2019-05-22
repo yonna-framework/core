@@ -10,14 +10,6 @@ class Scope extends Arrow
 
     const name = 'scope';
 
-    public function __construct()
-    {
-        if (!isset(self::$stack[self::name])) {
-            self::$stack[self::name] = array();
-        }
-        return $this;
-    }
-
     /**
      * 通用添加方法
      * @param string $method
