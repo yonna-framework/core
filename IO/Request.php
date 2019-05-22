@@ -22,6 +22,7 @@ class Request
     public $crypto = false;
     public $local = false;
     public $header = null;
+    public $cookie = null;
     public $method = null;
     public $content_type = null;
     public $body = null;
@@ -47,6 +48,7 @@ class Request
                     }
                 }
                 $this->header = $header;
+                $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->file = parse_fileData($_FILES);

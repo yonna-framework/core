@@ -137,6 +137,15 @@ function is_windows()
 }
 
 /**
+ * 是否 unix
+ * @return bool
+ */
+function is_unix()
+{
+    return strstr(PHP_OS, 'unix') ? true : false;
+}
+
+/**
  * 是否 linux
  * @return bool
  */
