@@ -7,14 +7,9 @@ use PhpureCore\Glue\Handle;
 class Foundation
 {
 
-    /**
-     * @param $dir
-     * @param int $qty
-     * @return int|void
-     */
     private static function requireDir($dir, $qty = 0)
     {
-        if (!is_dir($dir)) return;
+        if (!is_dir($dir)) return 0;
         $files = opendir($dir);
         while ($file = readdir($files)) {
             if ($file != '.' && $file != '..') {

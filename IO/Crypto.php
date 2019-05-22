@@ -4,6 +4,7 @@ namespace PhpureCore\IO;
 
 use PhpureCore\Config\Crypto as ConfigCrypto;
 use PhpureCore\Glue\Handle;
+use Str;
 
 class Crypto
 {
@@ -94,7 +95,7 @@ class Crypto
      */
     public static function input(Request $request)
     {
-        return self::decrypt(str_replace_once(self::protocol(), '', $request->body));
+        return self::decrypt(Str::replaceFirst(self::protocol(), '', $request->body));
     }
 
     /**
@@ -104,7 +105,7 @@ class Crypto
      */
     public static function response(Request $request)
     {
-        return self::encrypt(str_replace_once(self::protocol(), '', $request->body));
+        return self::encrypt(Str::replaceFirst(self::protocol(), '', $request->body));
     }
 
 }

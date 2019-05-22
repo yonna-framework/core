@@ -40,8 +40,6 @@ class Bootstrap
         try {
             // 环境
             $Cargo = Env::install($Cargo);
-            // 函数
-            $Cargo = Functions::install($Cargo);
             // 基础库
             $Cargo = Foundation::install($Cargo);
             // 配置

@@ -5,6 +5,7 @@
 
 namespace PhpureCore\IO;
 
+use Parse;
 use PhpureCore\Mapping\BootType;
 use PhpureCore\Glue\Handle;
 
@@ -51,7 +52,7 @@ class Request
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
-                $this->file = parse_fileData($_FILES);
+                $this->file = Parse::fileData($_FILES);
                 break;
             case BootType::SWOOLE_HTTP:
                 break;
