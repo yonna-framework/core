@@ -43,8 +43,11 @@ class Handle
                 case 'json':
                     header('Content-Type:application/json; charset=utf-8');
                     break;
-                default:
+                case 'html':
                     header('Content-Type:text/html; charset=utf-8');
+                    break;
+                default:
+                    header('Content-Type:text/plain; charset=utf-8');
                     break;
             }
             exit($data->response());

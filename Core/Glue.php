@@ -14,22 +14,11 @@ class Glue
      */
     protected static $glue = [];
 
-
-    /**
-     * 粘合体关连
-     * @param string $glue
-     * @param string $class
-     */
-    public static function link(string $glue, string $class): void
-    {
-        static::$glue[$glue] = $class;
-    }
-
     /**
      * 获取所有粘合体
      * @return array
      */
-    public static function all(): array
+    private static function all(): array
     {
         return static::$glue ?? [];
     }
@@ -38,12 +27,22 @@ class Glue
      * @param null $class
      * @return string | array
      */
-    public static function get($class = null)
+    private static function fetch($class = null)
     {
         if (null === static::$glue) {
             static::$glue = Glue::all();
         }
         return $class === null ? static::$glue : (static::$glue[$class] ?? null);
+    }
+
+    /**
+     * 粘合体关连
+     * @param string $glue
+     * @param string $class
+     */
+    public static function relating(string $glue, string $class): void
+    {
+        static::$glue[$glue] = $class;
     }
 
     /**
@@ -54,7 +53,7 @@ class Glue
      */
     public static function paste($class, $params = []): object
     {
-        $g = static::get($class) ?? null;
+        $g = static::fetch($class) ?? null;
         if (is_string($class) && $g) {
             return static::paste($g, $params);
         }

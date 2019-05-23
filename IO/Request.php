@@ -6,6 +6,7 @@
 namespace PhpureCore\IO;
 
 use Parse;
+use PhpureCore\Core;
 use PhpureCore\Mapping\BootType;
 use PhpureCore\Glue\Handle;
 
@@ -26,18 +27,22 @@ class Request
     public $cookie = null;
     public $method = null;
     public $content_type = null;
-    public $body = null;
-    public $input = array();
-    public $file = null;
+    public $body = '';
+
     public $client_id = null;
     public $ip = '127.0.0.1';
-    public $stack = null;
+
+    /**
+     * @var $input \PhpureCore\IO\Input
+     */
+    public $input = null;
 
     /**
      * build Request by BootType
      */
     private function init()
     {
+        $this->input = Core::get(\PhpureCore\IO\Input::class);
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
                 $header = array();
@@ -52,7 +57,7 @@ class Request
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
-                $this->file = Parse::fileData($_FILES);
+                $this->input->setFile(Parse::fileData($_FILES));
                 break;
             case BootType::SWOOLE_HTTP:
                 break;
@@ -69,7 +74,7 @@ class Request
         }
         //
         $this->client_id = $this->header['client_id'] ?? '';
-        $this->stack = $this->header['stack'] ?? '';
+        $this->input->setStack($this->header['stack'] ?? '');
         // IP
         $ip = null;
         $ip === null && $ip = $this->header['x_real_ip'] ?? null;
@@ -112,11 +117,11 @@ class Request
         }
         $this->crypto = Crypto::isCrypto($this);
         if ($this->crypto === true) {
-            $this->input = Crypto::input($this);
-            $this->input = json_decode($this->input, true) ?? array();
+            $inputData = json_decode(Crypto::input($this), true) ?? [];
         } else {
-            $this->input = json_decode($this->body, true) ?? array();
+            $inputData = json_decode($this->body, true) ?? [];
         }
+        $this->input->setData($inputData);
     }
 
     public function __construct(object $cargo)

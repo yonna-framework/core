@@ -166,6 +166,15 @@ namespace {
         }
 
         /**
+         * 是否 AJAX
+         * @return bool
+         */
+        public static function ajax()
+        {
+            return ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? null) === 'XMLHttpRequest';
+        }
+
+        /**
          * 是否CGI
          * @return bool
          */

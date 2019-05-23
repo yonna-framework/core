@@ -88,13 +88,14 @@ class Core
                 }
             }
         });
-        // default glues
-        Glue::link(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
-        Glue::link(\PhpureCore\Glue\Handle::class, \PhpureCore\Core\Handle::class);
-        Glue::link(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\Core\HandleCollector::class);
-        Glue::link(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
-        Glue::link(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
-        Glue::link(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
+        // default glues relation
+        Glue::relating(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
+        Glue::relating(\PhpureCore\Glue\Handle::class, \PhpureCore\Core\Handle::class);
+        Glue::relating(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\Core\HandleCollector::class);
+        Glue::relating(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
+        Glue::relating(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
+        Glue::relating(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
+        Glue::relating(\PhpureCore\Glue\Scope::class, \PhpureCore\Config\Scope::class);
         // boot
         Bootstrap::boot($root, $env_name, $boot_type);
     }

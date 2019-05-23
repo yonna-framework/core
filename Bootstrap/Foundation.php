@@ -34,12 +34,6 @@ class Foundation
         if (!$path) Handle::exception('Foundation Error: path');
         $qty = self::requireDir($path);
         $Cargo->setFoundationQty($qty);
-        // diy
-        $path = realpath($Cargo->getRoot() . DIRECTORY_SEPARATOR . 'foundation');
-        if ($path) {
-            $qty = self::requireDir($path);
-            $Cargo->setFoundationDiyQty($qty);
-        }
         return $Cargo;
     }
 

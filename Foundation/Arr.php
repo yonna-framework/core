@@ -213,7 +213,6 @@ namespace {
             if (is_null(static::get($array, $key))) {
                 static::set($array, $key, $value);
             }
-
             return $array;
         }
 

@@ -20,9 +20,7 @@ class Cargo
     public $env_name = '';
 
     public $function_qty = 0;
-    public $function_diy_qty = 0;
     public $foundation_qty = 0;
-    public $foundation_diy_qty = 0;
 
     public $windows = false;
     public $linux = false;
@@ -209,22 +207,6 @@ class Cargo
     /**
      * @return int
      */
-    public function getFunctionDiyQty(): int
-    {
-        return $this->function_diy_qty;
-    }
-
-    /**
-     * @param int $function_diy_qty
-     */
-    public function setFunctionDiyQty(int $function_diy_qty): void
-    {
-        $this->function_diy_qty = $function_diy_qty;
-    }
-
-    /**
-     * @return int
-     */
     public function getFoundationQty(): int
     {
         return $this->foundation_qty;
@@ -236,22 +218,6 @@ class Cargo
     public function setFoundationQty(int $foundation_qty): void
     {
         $this->foundation_qty = $foundation_qty;
-    }
-
-    /**
-     * @return int
-     */
-    public function getFoundationDiyQty(): int
-    {
-        return $this->foundation_diy_qty;
-    }
-
-    /**
-     * @param int $foundation_diy_qty
-     */
-    public function setFoundationDiyQty(int $foundation_diy_qty): void
-    {
-        $this->foundation_diy_qty = $foundation_diy_qty;
     }
 
     /**

@@ -3,6 +3,9 @@
 namespace PhpureCore\Config;
 
 use Closure;
+use PhpureCore\Core;
+use PhpureCore\Scope\Neck;
+use PhpureCore\Scope\Tail;
 use PhpureCore\Glue\Handle;
 
 class Scope extends Arrow
@@ -10,13 +13,19 @@ class Scope extends Arrow
 
     const name = 'scope';
 
+    public function __construct()
+    {
+        return $this;
+    }
+
     /**
      * 通用添加方法
      * @param string $method
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
      */
-    public static function add(string $method, string $key, Closure $call)
+    private function add(string $method, string $key, $call, string $action = null)
     {
         if (empty($method)) Handle::exception('no method');
         if (empty($key)) Handle::exception('no key');
@@ -24,63 +33,116 @@ class Scope extends Arrow
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
-        if (!isset(self::$stack[self::name][$method])) {
-            self::$stack[self::name][$method] = array();
+        if (!isset(static::$stack[self::name][$method])) {
+            static::$stack[self::name][$method] = [];
         }
-        if (!isset(self::$stack[self::name][$method][$key])) {
-            self::$stack[self::name][$method][$key] = array();
+        // if call instanceof string, convert it to Closure
+        if (is_string($call)) {
+            if (class_exists($call)) {
+                !$action && Handle::exception("Should call a action for {$call}");
+                $call = function ($request) use ($call, $action) {
+                    Core::get($call, $request)->$action();
+                };
+            }
         }
-        self::$stack[self::name][$method][$key] = $call;
+        // if call instanceof Closure, combine the neck and tail
+        if ($call instanceof Closure) {
+            if (!isset(static::$stack[self::name][$method][$key])) {
+                static::$stack[self::name][$method][$key] = ['neck' => [], 'call' => null, 'tail' => []];
+            }
+            // neck
+            $necks = Neck::fetch();
+            if ($necks) foreach ($necks as $neck) static::$stack[self::name][$method][$key]['neck'][] = $neck;
+            // call
+            static::$stack[self::name][$method][$key]['call'] = $call;
+            // neck
+            $tails = Tail::fetch();
+            if ($tails) foreach ($tails as $tail) static::$stack[self::name][$method][$key]['tail'][] = $tail;
+        }
+    }
+
+    /**
+     * middleware
+     * @param $call
+     * @param string|null $action
+     * @param bool $isTail
+     * @return $this
+     */
+    public function middleware($call, string $action = null, bool $isTail = false)
+    {
+        if (is_string($call)) {
+            $call = [[$call, $action]];
+        }
+        foreach ($call as $c) {
+            list($class, $act) = $c;
+            $isTail ? Tail::add($call, $action) : Neck::add($class, $act);
+        }
+        return $this;
     }
 
     /**
      * POST
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
+     * @return $this
      */
-    public static function post(string $key, Closure $call)
+    public function post(string $key, $call, string $action = 'post')
     {
-        self::add('post', $key, $call);
+        $this->add('post', $key, $call, $action);
+        return $this;
     }
 
     /**
      * GET
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
+     * @return $this
      */
-    public static function get(string $key, Closure $call)
+    public function get(string $key, $call, string $action = 'get')
     {
-        self::add('get', $key, $call);
+        $this->add('get', $key, $call, $action);
+        return $this;
     }
 
     /**
      * PUT
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
+     * @return $this
      */
-    public static function put(string $key, Closure $call)
+    public function put(string $key, $call, string $action = 'put')
     {
-        self::add('put', $key, $call);
+        $this->add('put', $key, $call, $action);
+        return $this;
     }
 
     /**
      * DELETE
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
+     * @return $this
      */
-    public static function delete(string $key, Closure $call)
+    public function delete(string $key, $call, string $action = 'delete')
     {
-        self::add('delete', $key, $call);
+        $this->add('delete', $key, $call, $action);
+        return $this;
     }
 
     /**
      * PATCH
      * @param string $key
-     * @param Closure $call
+     * @param Closure | string $call
+     * @param string $action
+     * @return $this
      */
-    public static function patch(string $key, Closure $call)
+    public function patch(string $key, $call, string $action = 'patch')
     {
-        self::add('patch', $key, $call);
+        $this->add('patch', $key, $call, $action);
+        return $this;
     }
 
 }
