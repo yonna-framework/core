@@ -5,7 +5,7 @@ namespace PhpureCore\Glue;
 use PhpureCore\Core\Glue;
 
 /**
- * Class Handle
+ * Class Response
  *
  * @method static getResponseDataType() @return
  * @method static self setResponseDataType(string $response_data_type)
@@ -22,7 +22,7 @@ use PhpureCore\Core\Glue;
  * @method static toXml()
  * @method static response()
  *
- * @see \PhpureCore\Core\HandleCollector
+ * @see \PhpureCore\IO\ResponseCollector
  */
 class HandleCollector extends Glue
 {

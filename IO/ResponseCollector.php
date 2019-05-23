@@ -3,14 +3,14 @@
  * Bootstrap handle collector
  */
 
-namespace PhpureCore\Core;
+namespace PhpureCore\IO;
 
 
 /**
  * Class Collector
- * @package PhpureCore\Core
+ * @package PhpureCore\IO
  */
-class HandleCollector
+class ResponseCollector
 {
 
     private $response_data_type = 'json';
@@ -34,7 +34,7 @@ class HandleCollector
 
     /**
      * @param string $response_data_type
-     * @return HandleCollector
+     * @return ResponseCollector
      */
     public function setResponseDataType(string $response_data_type): self
     {
@@ -52,7 +52,7 @@ class HandleCollector
 
     /**
      * @param int $code
-     * @return HandleCollector
+     * @return ResponseCollector
      */
     public function setCode(int $code): self
     {
@@ -70,7 +70,7 @@ class HandleCollector
 
     /**
      * @param string $message
-     * @return HandleCollector
+     * @return ResponseCollector
      */
     public function setMessage(string $message): self
     {
@@ -88,7 +88,7 @@ class HandleCollector
 
     /**
      * @param array $data
-     * @return HandleCollector
+     * @return ResponseCollector
      */
     public function setData(array $data): self
     {
@@ -106,7 +106,7 @@ class HandleCollector
 
     /**
      * @param array $extra
-     * @return HandleCollector
+     * @return ResponseCollector
      */
     public function setExtra(array $extra): self
     {

@@ -39,7 +39,7 @@ code.google.com/p/crypto-js/wiki/License
             typedArray = new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength);
         }
 
-        // Handle Uint8Array
+        // Response Uint8Array
         if (typedArray instanceof Uint8Array) {
             // Shortcut
             var typedArrayByteLength = typedArray.byteLength;

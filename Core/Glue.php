@@ -91,7 +91,7 @@ class Glue
     }
 
     /**
-     * Handle dynamic, static calls to the object.
+     * Response dynamic, static calls to the object.
      *
      * @param string $method
      * @param array $args

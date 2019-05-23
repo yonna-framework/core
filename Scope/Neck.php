@@ -14,17 +14,15 @@ class Neck
     /**
      * 添加 neck
      * @param Closure | string $call
-     * @param string $action
      */
-    public static function add($call, string $action = null)
+    public static function add($call)
     {
         if (empty($call)) Handle::exception('no call');
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                !$action && Handle::exception("Should call a action for {$call}");
-                $call = function ($request) use ($call, $action) {
-                    Core::get($call, $request)->$action();
+                $call = function ($request) use ($call) {
+                    Core::get($call, $request)->handle();
                 };
             }
         } // if call instanceof Closure, combine the middleware and
@@ -37,8 +35,10 @@ class Neck
      * 获取 neck
      * @return array
      */
-    public static function fetch(){
-        $n =  static::$neck;
+    public static function fetch()
+    {
+        var_dump(static::$neck);
+        $n = static::$neck;
         static::$neck = [];
         return $n;
     }

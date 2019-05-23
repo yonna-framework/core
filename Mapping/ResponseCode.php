@@ -1,15 +1,15 @@
 <?php
 /**
- * Bootstrap handle code
+ * Bootstrap Response Code
  */
 
 namespace PhpureCore\Mapping;
 
 /**
- * Class HandleCode
- * @package PhpureCore\Handle
+ * Class ResponseCode
+ * @package PhpureCore\Response
  */
-class HandleCode extends Mapping
+class ResponseCode extends Mapping
 {
 
     const SUCCESS = 200;

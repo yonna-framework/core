@@ -64,19 +64,12 @@ class Scope extends Arrow
     /**
      * middleware
      * @param $call
-     * @param string|null $action
      * @param bool $isTail
      * @return $this
      */
-    public function middleware($call, string $action = null, bool $isTail = false)
+    public function middleware($call, bool $isTail = false)
     {
-        if (is_string($call)) {
-            $call = [[$call, $action]];
-        }
-        foreach ($call as $c) {
-            list($class, $act) = $c;
-            $isTail ? Tail::add($call, $action) : Neck::add($class, $act);
-        }
+        $isTail ? Tail::add($call) : Neck::add($call);
         return $this;
     }
 

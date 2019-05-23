@@ -1,18 +1,18 @@
 <?php
 /**
- * Bootstrap handle
+ * IO Response
  */
 
-namespace PhpureCore\Core;
+namespace PhpureCore\IO;
 
 use PhpureCore\Core;
-use PhpureCore\Mapping\HandleCode;
+use PhpureCore\Mapping\ResponseCode;
 
 /**
- * Class Handle
+ * Class Response
  * @package PhpureCore
  */
-class Handle
+class Response
 {
 
     public function __construct()
@@ -24,18 +24,18 @@ class Handle
      * @param $Collector
      * @return false|string
      */
-    private function handle(HandleCollector $Collector)
+    private function handle(ResponseCollector $Collector)
     {
         return $Collector->response();
     }
 
     /**
-     * @param HandleCollector | string $data
+     * @param ResponseCollector | string $data
      * @return false|string
      */
     public function end($data)
     {
-        if ($data instanceof HandleCollector) {
+        if ($data instanceof ResponseCollector) {
             switch ($data->getResponseDataType()) {
                 case 'xml':
                     header('Content-Type:application/xml; charset=utf-8');
@@ -59,11 +59,11 @@ class Handle
 
     public function success(string $message = 'success', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::SUCCESS)
+            ->setCode(ResponseCode::SUCCESS)
             ->setMessage($message)
             ->setData($data);
         return $this->handle($HandleCollector);
@@ -71,11 +71,11 @@ class Handle
 
     public function broadcast(string $message = 'broadcast', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::BROADCAST)
+            ->setCode(ResponseCode::BROADCAST)
             ->setMessage($message)
             ->setData($data);
         return $this->handle($HandleCollector);
@@ -83,11 +83,11 @@ class Handle
 
     public function goon(string $message = 'goon', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::GOON)
+            ->setCode(ResponseCode::GOON)
             ->setMessage($message)
             ->setData($data);
         return $this->handle($HandleCollector);
@@ -95,11 +95,11 @@ class Handle
 
     public function error(string $message = 'error', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::ERROR)
+            ->setCode(ResponseCode::ERROR)
             ->setMessage($message)
             ->setData($data);
         return $this->handle($HandleCollector);
@@ -107,11 +107,11 @@ class Handle
 
     public function exception(string $message = 'exception', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::EXCEPTION)
+            ->setCode(ResponseCode::EXCEPTION)
             ->setMessage($message)
             ->setData($data)
             ->setExtra(array(
@@ -122,11 +122,11 @@ class Handle
 
     public function notPermission(string $message = 'not permission', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::NOT_PERMISSION)
+            ->setCode(ResponseCode::NOT_PERMISSION)
             ->setMessage($message)
             ->setData($data);
         $this->end($HandleCollector);
@@ -134,11 +134,11 @@ class Handle
 
     public function notFound(string $message = 'not found', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::NOT_FOUND)
+            ->setCode(ResponseCode::NOT_FOUND)
             ->setMessage($message)
             ->setData($data);
         $this->end($HandleCollector);
@@ -146,11 +146,11 @@ class Handle
 
     public function abort(string $message = 'abort', array $data = array(), $type = 'json')
     {
-        /** @var HandleCollector $HandleCollector */
+        /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
-            ->setCode(HandleCode::ABORT)
+            ->setCode(ResponseCode::ABORT)
             ->setMessage($message)
             ->setData($data);
         $this->end($HandleCollector);

@@ -5,7 +5,7 @@ namespace PhpureCore\Glue;
 use PhpureCore\Core\Glue;
 
 /**
- * Class Handle
+ * Class Response
  *
  * @method static end($data)
  * @method static success(string $message = 'success', array $data = array(), $type = 'json')
@@ -17,7 +17,7 @@ use PhpureCore\Core\Glue;
  * @method static notFound(string $message = 'not found', array $data = array(), $type = 'json')
  * @method static abort(string $message = 'abort', array $data = array(), $type = 'json')
  *
- * @see \PhpureCore\Core\Handle
+ * @see \PhpureCore\IO\Response
  */
 class Handle extends Glue
 {

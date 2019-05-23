@@ -33,6 +33,7 @@ class IO
         }
         $scope = Str::upper($scope);
         $scope = Arr::get($this->request->cargo->config, "scope.{$request->method}.{$scope}");
+        dd($scope);
         $necks = $scope['neck'];
         $call = $scope['call'];
         $tails = $scope['tail'];
@@ -40,7 +41,6 @@ class IO
             foreach ($necks as $neck) $neck($request);
             $response = $call($request);
             foreach ($tails as $tail) $tail($response);
-            var_dump($response);
         }
         Handle::abort('io destroy');
     }

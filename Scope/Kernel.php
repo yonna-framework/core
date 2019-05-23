@@ -6,7 +6,7 @@ namespace PhpureCore\Scope;
  * Class Kernel
  * @package PhpureCore\Scope
  */
-class Kernel
+abstract class Kernel
 {
 
     /**
