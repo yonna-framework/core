@@ -36,13 +36,16 @@ class Env
         define('______', null);
         define('_______', null);
         define("TIMEZONE", getenv('TIMEZONE') ?? 'PRC');
-        // whoops
+        // IS_DEBUG
         if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
             $whoops = new WhoopsRun;
             $handle = (new WhoopsHandlerPrettyPageHandler());
             $handle->setPageTitle('PHPure#Core');
             $whoops->pushHandler($handle);
             $whoops->register();
+            ini_set('display_errors', 'On');
+        } else {
+            ini_set('display_errors', 'Off');
         }
         // system
         $isWindows = strstr(PHP_OS, 'WIN') && PHP_OS !== 'CYGWIN' ? true : false;
