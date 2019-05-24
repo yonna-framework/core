@@ -8,7 +8,7 @@ namespace PhpureCore\IO;
 use Arr;
 use Closure;
 use Str;
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 
 class IO
 {
@@ -29,20 +29,33 @@ class IO
         $data = $this->request->input->getData();
         $scope = $data['scope'] ?? null;
         if (!$scope) {
-            Handle::abort('no scope');
+            Response::abort('no scope');
         }
         $scope = Str::upper($scope);
         $scope = Arr::get($this->request->cargo->config, "scope.{$request->method}.{$scope}");
-        dd($scope);
         $necks = $scope['neck'];
         $call = $scope['call'];
         $tails = $scope['tail'];
         if ($call instanceof Closure) {
-            foreach ($necks as $neck) $neck($request);
+            if ($necks) foreach ($necks as $neck) $neck($request);
             $response = $call($request);
-            foreach ($tails as $tail) $tail($response);
+            if ($tails) foreach ($tails as $tail) $tail($request, $response);
+            // response
+            if (is_array($response)) {
+                $response = Response::success('success array', $response);
+            } else if (is_string($response)) {
+                $response = Response::success($response, []);
+            } else if (is_numeric($response)) {
+                $response = Response::success('success number', [$response]);
+            } else if (is_bool($response)) {
+                $response ? $response = Response::success('success bool') : Response::error('error bool');
+            }
+            if (!($response instanceof ResponseCollector)) {
+                Response::exception('Response must instanceof ResponseCollector');
+            }
+            Response::end($response);
         }
-        Handle::abort('io destroy');
+        Response::abort('io destroy');
     }
 
 }

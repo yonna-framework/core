@@ -8,7 +8,7 @@ namespace PhpureCore\Bootstrap;
 use Dotenv\Dotenv;
 use Whoops\Handler\PrettyPageHandler as WhoopsHandlerPrettyPageHandler;
 use Whoops\Run as WhoopsRun;
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 
 class Env
 {
@@ -20,7 +20,7 @@ class Env
         // 检测ENV文件
         if ($Cargo->getEnvName()) {
             if (!is_file($Cargo->getRoot() . DIRECTORY_SEPARATOR . '.env.' . $Cargo->getEnvName())) {
-                Handle::exception('Need file .env.' . $Cargo->getEnvName());
+                Response::exception('Need file .env.' . $Cargo->getEnvName());
             }
             $Dotenv = Dotenv::create($Cargo->getRoot(), '.env.' . $Cargo->getEnvName());
             $Dotenv->load();
@@ -28,7 +28,7 @@ class Env
         // 检测PHP版本
         $minimum_php_version = getenv('MINIMUM_PHP_VERSION') ?? self::MINIMUM_PHP_VERSION;
         if (version_compare(PHP_VERSION, $minimum_php_version, '<')) {
-            Handle::exception("Need PHP >= {$minimum_php_version}");
+            Response::exception("Need PHP >= {$minimum_php_version}");
         }
         $Cargo->setCurrentPhpVersion(PHP_VERSION);
         define('____', 'PureStream');

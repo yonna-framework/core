@@ -6,7 +6,7 @@ use Closure;
 use PhpureCore\Core;
 use PhpureCore\Scope\Neck;
 use PhpureCore\Scope\Tail;
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 
 class Scope extends Arrow
 {
@@ -27,9 +27,9 @@ class Scope extends Arrow
      */
     private function add(string $method, string $key, $call, string $action = null)
     {
-        if (empty($method)) Handle::exception('no method');
-        if (empty($key)) Handle::exception('no key');
-        if (empty($call)) Handle::exception('no call');
+        if (empty($method)) Response::exception('no method');
+        if (empty($key)) Response::exception('no key');
+        if (empty($call)) Response::exception('no call');
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -39,9 +39,9 @@ class Scope extends Arrow
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                !$action && Handle::exception("Should call a action for {$call}");
+                !$action && Response::exception("Should call a action for {$call}");
                 $call = function ($request) use ($call, $action) {
-                    Core::get($call, $request)->$action();
+                    return Core::get($call, $request)->$action();
                 };
             }
         }
@@ -78,12 +78,10 @@ class Scope extends Arrow
      * @param string $key
      * @param Closure | string $call
      * @param string $action
-     * @return $this
      */
     public function post(string $key, $call, string $action = 'post')
     {
         $this->add('post', $key, $call, $action);
-        return $this;
     }
 
     /**
@@ -91,12 +89,10 @@ class Scope extends Arrow
      * @param string $key
      * @param Closure | string $call
      * @param string $action
-     * @return $this
      */
     public function get(string $key, $call, string $action = 'get')
     {
         $this->add('get', $key, $call, $action);
-        return $this;
     }
 
     /**
@@ -104,12 +100,10 @@ class Scope extends Arrow
      * @param string $key
      * @param Closure | string $call
      * @param string $action
-     * @return $this
      */
     public function put(string $key, $call, string $action = 'put')
     {
         $this->add('put', $key, $call, $action);
-        return $this;
     }
 
     /**
@@ -117,12 +111,10 @@ class Scope extends Arrow
      * @param string $key
      * @param Closure | string $call
      * @param string $action
-     * @return $this
      */
     public function delete(string $key, $call, string $action = 'delete')
     {
         $this->add('delete', $key, $call, $action);
-        return $this;
     }
 
     /**
@@ -130,12 +122,10 @@ class Scope extends Arrow
      * @param string $key
      * @param Closure | string $call
      * @param string $action
-     * @return $this
      */
     public function patch(string $key, $call, string $action = 'patch')
     {
         $this->add('patch', $key, $call, $action);
-        return $this;
     }
 
 }

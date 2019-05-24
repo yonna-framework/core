@@ -24,7 +24,7 @@ class Response
      * @param $Collector
      * @return false|string
      */
-    private function handle(ResponseCollector $Collector)
+    public function handle(ResponseCollector $Collector)
     {
         return $Collector->response();
     }
@@ -57,62 +57,62 @@ class Response
         exit('Not result');
     }
 
-    public function success(string $message = 'success', array $data = array(), $type = 'json')
+    public function success(string $msg = 'success', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::SUCCESS)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
-        return $this->handle($HandleCollector);
+        return $HandleCollector;
     }
 
-    public function broadcast(string $message = 'broadcast', array $data = array(), $type = 'json')
+    public function broadcast(string $msg = 'broadcast', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::BROADCAST)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
-        return $this->handle($HandleCollector);
+        return $HandleCollector;
     }
 
-    public function goon(string $message = 'goon', array $data = array(), $type = 'json')
+    public function goon(string $msg = 'goon', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::GOON)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
-        return $this->handle($HandleCollector);
+        return $HandleCollector;
     }
 
-    public function error(string $message = 'error', array $data = array(), $type = 'json')
+    public function error(string $msg = 'error', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::ERROR)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
-        return $this->handle($HandleCollector);
+        return $HandleCollector;
     }
 
-    public function exception(string $message = 'exception', array $data = array(), $type = 'json')
+    public function exception(string $msg = 'exception', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::EXCEPTION)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data)
             ->setExtra(array(
                 'debug_backtrace' => debug_backtrace()
@@ -120,38 +120,38 @@ class Response
         $this->end($HandleCollector);
     }
 
-    public function notPermission(string $message = 'not permission', array $data = array(), $type = 'json')
+    public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::NOT_PERMISSION)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
         $this->end($HandleCollector);
     }
 
-    public function notFound(string $message = 'not found', array $data = array(), $type = 'json')
+    public function notFound(string $msg = 'not found', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::NOT_FOUND)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
         $this->end($HandleCollector);
     }
 
-    public function abort(string $message = 'abort', array $data = array(), $type = 'json')
+    public function abort(string $msg = 'abort', array $data = array(), $type = 'json')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\HandleCollector::class);
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::ABORT)
-            ->setMessage($message)
+            ->setMsg($msg)
             ->setData($data);
         $this->end($HandleCollector);
     }

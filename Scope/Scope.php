@@ -2,8 +2,6 @@
 
 namespace PhpureCore\Scope;
 
-use Closure;
-
 /**
  * Class Middleware
  * @package PhpureCore\Scope

@@ -15,7 +15,7 @@ class ResponseCollector
 
     private $response_data_type = 'json';
     private $code = 0;
-    private $message = '';
+    private $msg = '';
     private $data = array();
     private $extra = array();
 
@@ -63,18 +63,18 @@ class ResponseCollector
     /**
      * @return string
      */
-    public function getMessage(): string
+    public function getMsg(): string
     {
-        return $this->message;
+        return $this->msg;
     }
 
     /**
-     * @param string $message
+     * @param string $msg
      * @return ResponseCollector
      */
-    public function setMessage(string $message): self
+    public function setMsg(string $msg): self
     {
-        $this->message = $message;
+        $this->msg = $msg;
         return $this;
     }
 
@@ -128,7 +128,7 @@ class ResponseCollector
         }
         return array(
             'code' => $this->getCode(),
-            'message' => $this->getMessage(),
+            'msg' => $this->getMsg(),
             'data' => $data,
         );
     }

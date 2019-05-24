@@ -90,8 +90,8 @@ class Core
         });
         // default glues relation
         Glue::relating(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
-        Glue::relating(\PhpureCore\Glue\Handle::class, \PhpureCore\IO\Response::class);
-        Glue::relating(\PhpureCore\Glue\HandleCollector::class, \PhpureCore\IO\ResponseCollector::class);
+        Glue::relating(\PhpureCore\Glue\Response::class, \PhpureCore\IO\Response::class);
+        Glue::relating(\PhpureCore\Glue\ResponseCollector::class, \PhpureCore\IO\ResponseCollector::class);
         Glue::relating(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
         Glue::relating(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
         Glue::relating(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);

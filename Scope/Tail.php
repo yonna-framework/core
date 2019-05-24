@@ -4,7 +4,7 @@ namespace PhpureCore\Scope;
 
 use Closure;
 use PhpureCore\Core;
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 
 class Tail
 {
@@ -17,12 +17,12 @@ class Tail
      */
     public static function add($call)
     {
-        if (empty($call)) Handle::exception('no call');
+        if (empty($call)) Response::exception('no call');
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                $call = function ($request) use ($call) {
-                    Core::get($call, $request)->handle();
+                $call = function ($request, ...$params) use ($call) {
+                    Core::get($call, $request)->handle($params);
                 };
             }
         } // if call instanceof Closure, combine the middleware and

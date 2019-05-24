@@ -24,7 +24,7 @@ use PhpureCore\Core\Glue;
  *
  * @see \PhpureCore\IO\ResponseCollector
  */
-class HandleCollector extends Glue
+class ResponseCollector extends Glue
 {
 
 

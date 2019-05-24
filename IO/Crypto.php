@@ -3,7 +3,7 @@
 namespace PhpureCore\IO;
 
 use PhpureCore\Config\Crypto as ConfigCrypto;
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 use Str;
 
 class Crypto
@@ -19,7 +19,7 @@ class Crypto
         $secret = ConfigCrypto::get('io_request_secret');
         $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            Handle::abort('Crypto encrypt error');
+            Response::abort('Crypto encrypt error');
         }
         return openssl_encrypt($str, $type, $secret, 0, $iv);
     }
@@ -34,7 +34,7 @@ class Crypto
         $secret = ConfigCrypto::get('io_request_secret');
         $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            Handle::abort('Crypto encrypt error');
+            Response::abort('Crypto encrypt error');
         }
         return openssl_decrypt($str, $type, $secret, 0, $iv);
     }
@@ -44,7 +44,7 @@ class Crypto
      */
     public static function cipherMethods()
     {
-        Handle::abort('Cipher Methods', openssl_get_cipher_methods());
+        Response::abort('Cipher Methods', openssl_get_cipher_methods());
     }
 
     /**

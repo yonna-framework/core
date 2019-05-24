@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Bootstrap;
 
-use PhpureCore\Glue\Handle;
+use PhpureCore\Glue\Response;
 
 class Foundation
 {
@@ -31,7 +31,7 @@ class Foundation
     public static function install(Cargo $Cargo)
     {
         $path = realpath($Cargo->getPureCorePath() . DIRECTORY_SEPARATOR . 'Foundation');
-        if (!$path) Handle::exception('Foundation Error: path');
+        if (!$path) Response::exception('Foundation Error: path');
         $qty = self::requireDir($path);
         $Cargo->setFoundationQty($qty);
         return $Cargo;
