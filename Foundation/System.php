@@ -161,4 +161,13 @@ namespace {
 
     }
 
+    function phpure_system_handler($exception)
+    {
+        \PhpureCore\Glue\Response::exception($exception->getMessage());
+    }
+
+    error_reporting(-1);
+    set_error_handler('phpure_system_handler');
+    set_exception_handler('phpure_system_handler');
+
 }

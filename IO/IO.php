@@ -42,11 +42,11 @@ class IO
             if ($tails) foreach ($tails as $tail) $tail($request, $response);
             // response
             if (is_array($response)) {
-                $response = Response::success('success array', $response);
+                $response = Response::success('fetch array success', $response);
             } else if (is_string($response)) {
                 $response = Response::success($response, []);
             } else if (is_numeric($response)) {
-                $response = Response::success('success number', [$response]);
+                $response = Response::success('fetch number success', [$response]);
             } else if (is_bool($response)) {
                 $response ? $response = Response::success('success bool') : Response::error('error bool');
             }

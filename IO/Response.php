@@ -21,6 +21,37 @@ class Response
     }
 
     /**
+     * safety debug backtrace
+     * @param int $safeLv 安全等级，数字越高安全性越高
+     * @return array
+     */
+    private function debug_backtrace($safeLv = 0)
+    {
+        $path = realpath(__DIR__ . '/../../../..');
+        $trace = debug_backtrace();
+        foreach ($trace as $tk => $t) {
+            if ($safeLv >= 3) {
+                if (isset($t['line'])) unset($trace[$tk]['line']);
+            }
+            if ($safeLv >= 2) {
+                if (isset($t['type'])) unset($trace[$tk]['type']);
+            }
+            if ($safeLv >= 1) {
+                if (isset($t['object'])) unset($trace[$tk]['object']);
+                if (isset($t['args'])) unset($trace[$tk]['args']);
+                if (!empty($t['file'])) {
+                    $trace[$tk]['file'] = str_replace($path, '#:Pure', str_replace(
+                        'vendor' . DIRECTORY_SEPARATOR . 'hunzsig-server' . DIRECTORY_SEPARATOR . 'phpure-core',
+                        'C',
+                        $t['file']
+                    ));
+                }
+            }
+        }
+        return $trace;
+    }
+
+    /**
      * @param $Collector
      * @return false|string
      */
@@ -114,8 +145,22 @@ class Response
             ->setCode(ResponseCode::EXCEPTION)
             ->setMsg($msg)
             ->setData($data)
-            ->setExtra(array(
-                'debug_backtrace' => debug_backtrace()
+            ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
+                ? $this->debug_backtrace(0) : $this->debug_backtrace(1),
+            ));
+        $this->end($HandleCollector);
+    }
+
+    public function abort(string $msg = 'abort', array $data = array(), $type = 'json')
+    {
+        /** @var ResponseCollector $HandleCollector */
+        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector
+            ->setResponseDataType($type)
+            ->setCode(ResponseCode::ABORT)
+            ->setMsg($msg)
+            ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
+                ? $this->debug_backtrace(1) : $this->debug_backtrace(2),
             ));
         $this->end($HandleCollector);
     }
@@ -128,7 +173,10 @@ class Response
             ->setResponseDataType($type)
             ->setCode(ResponseCode::NOT_PERMISSION)
             ->setMsg($msg)
-            ->setData($data);
+            ->setData($data)
+            ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
+                ? $this->debug_backtrace(2) : $this->debug_backtrace(3),
+            ));
         $this->end($HandleCollector);
     }
 
@@ -140,19 +188,9 @@ class Response
             ->setResponseDataType($type)
             ->setCode(ResponseCode::NOT_FOUND)
             ->setMsg($msg)
-            ->setData($data);
-        $this->end($HandleCollector);
-    }
-
-    public function abort(string $msg = 'abort', array $data = array(), $type = 'json')
-    {
-        /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
-        $HandleCollector
-            ->setResponseDataType($type)
-            ->setCode(ResponseCode::ABORT)
-            ->setMsg($msg)
-            ->setData($data);
+            ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
+                ? $this->debug_backtrace(2) : $this->debug_backtrace(3),
+            ));
         $this->end($HandleCollector);
     }
 
