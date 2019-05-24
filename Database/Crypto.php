@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\IO;
+namespace PhpureCore\Database;
 
 use PhpureCore\Config\Crypto as ConfigCrypto;
 use PhpureCore\Glue\Response;

@@ -1,8 +1,8 @@
 <?php
 
-namespace library;
+namespace PhpureCore\Database;
 
-class Model extends Table
+class Model extends Coupling
 {
 
     private $_now;

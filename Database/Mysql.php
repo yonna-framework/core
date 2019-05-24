@@ -4,11 +4,12 @@
  * version >= 5.7
  */
 
-namespace library;
+namespace PhpureCore\Database;
 
 use Exception;
 use PDO;
 use PDOException;
+use Str;
 
 class Mysql extends DataBase
 {
@@ -147,19 +148,20 @@ class Mysql extends DataBase
      * @param int $port
      * @param string $user
      * @param string $password
-     * @param string $db_name
+     * @param string $name
      * @param string $charset
      */
-    public function __construct($host, $port, $user, $password, $db_name, $charset)
+    public function __construct($host, $port, $user, $password, $name, $charset)
     {
         $this->settings = array(
             'host' => $host,
             'port' => $port,
             'user' => $user,
             'password' => $password,
-            'dbname' => $db_name,
+            'dbname' => $name,
             'charset' => $charset ?: 'utf8mb4',
         );
+        print_r($this->settings);
         $this->dsn();
     }
 
@@ -1894,7 +1896,7 @@ class Mysql extends DataBase
                     unset($field[$k]);
                     foreach ($fk as $kk) {
                         if ($table === substr($kk, 0, $tableLen)) {
-                            $field[] = "{$parseTable}." . mb_str_replace_once("{$table}_", '', $kk) . " as {$kk}";
+                            $field[] = "{$parseTable}." . Str::replaceFirst("{$table}_", '', $kk) . " as {$kk}";
                         }
                     }
                 } else {

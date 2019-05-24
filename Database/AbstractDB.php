@@ -1,10 +1,9 @@
 <?php
-namespace library;
+namespace PhpureCore\Database;
 
 use Exception;
-use plugins\Hphp\Crypto;
 
-class DataBase
+abstract class AbstractDB
 {
 
     /**
@@ -67,7 +66,7 @@ class DataBase
 
     /**
      * @param string|number $redisType
-     * @return DataBase|Mysql|Pgsql|Mssql
+     * @return Mysql|Pgsql|Mssql|Sqlite
      */
     public function setRedisType($redisType)
     {
@@ -88,7 +87,7 @@ class DataBase
     /**
      * @tips 一旦设为加密则只能全字而无法模糊匹配
      * @param bool $isCrypto
-     * @return DataBase|Mysql|Pgsql|Mssql
+     * @return Mysql|Pgsql|Mssql|Sqlite
      */
     public function setIsCrypto(bool $isCrypto)
     {
@@ -118,14 +117,6 @@ class DataBase
             $this->crypto = new Crypto($config);
         }
         return $this->crypto;
-    }
-
-    protected function enCrypto($string){
-        return $string ? $this->getCrypto()->encrypt($string) : $string;
-    }
-
-    protected function deCrypto($string){
-        return $string ? $this->getCrypto()->decrypt($string) : $string;
     }
 
 }

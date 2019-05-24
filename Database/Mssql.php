@@ -4,7 +4,7 @@
  * version >= 2012
  */
 
-namespace library;
+namespace PhpureCore\Database;
 
 use Exception;
 use PDO;

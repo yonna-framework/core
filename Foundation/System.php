@@ -159,6 +159,15 @@ namespace {
             @rmdir($dir);
         }
 
+        /**
+         * 获得所有的 Cipher Methods
+         * @return array
+         */
+        public static function getOpensslCipherMethods()
+        {
+            return openssl_get_cipher_methods();
+        }
+
     }
 
     function phpure_system_handler($exception)
@@ -167,7 +176,6 @@ namespace {
     }
 
     error_reporting(-1);
-    set_error_handler('phpure_system_handler');
     set_exception_handler('phpure_system_handler');
 
 }

@@ -1,5 +1,9 @@
 <?php
-namespace library;
+
+namespace PhpureCore\Database;
+
+use Exception;
+use Redis as RedisDriver;
 
 class Redis
 {
@@ -10,7 +14,7 @@ class Redis
     const Conf = CONFIG['redis'];
 
     /**
-     * @var \Redis | null
+     * @var RedisDriver | null
      *
      */
     private $redis = null;
@@ -18,22 +22,22 @@ class Redis
     /**
      * 架构函数 取得模板对象实例
      * @access public
-     * @throws \Exception
      * @return self
+     * @throws Exception
      */
     public function __construct()
     {
         if (self::Conf['active'] === true && $this->redis == null) {
             if (class_exists('\\Redis')) {
                 try {
-                    $this->redis = new \Redis();
+                    $this->redis = new RedisDriver();
                     $this->redis->connect(
                         self::Conf['host'],
                         self::Conf['port']
                     );
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->redis = null;
-                    throw new \Exception('Redis 遇到问题或未安装，请Config处关闭Redis以提高性能');
+                    throw new Exception('Redis 遇到问题或未安装，请Config处关闭Redis以提高性能');
                 }
             }
         }
