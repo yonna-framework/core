@@ -45,14 +45,6 @@ class Mysql extends AbstractPDO
     const notContainsAnd = 'notContainsAnd';                //notContainsAnd
 
     /**
-     * 条件对象，实现无敌闭包
-     *
-     * @var array
-     */
-    private $_where = array();
-    private $_where_table = '';
-
-    /**
      * 构造方法
      *
      * @param string $host
@@ -393,11 +385,11 @@ class Mysql extends AbstractPDO
      */
     protected function _parseOptions($options = array())
     {
-        if (empty($this->_options['field'])) {
+        if (empty($this->options['field'])) {
             $this->field('*');
         }
         if (is_array($options)) {
-            $options = array_merge($this->_options, $options);
+            $options = array_merge($this->options, $options);
         }
         if (!isset($options['table'])) {
             $options['table'] = $this->getTable();
@@ -643,20 +635,20 @@ class Mysql extends AbstractPDO
     private function parseWhere($where)
     {
         $whereStr = '';
-        if ($this->_where) {
+        if ($this->where) {
             //闭包形式
-            $whereStr = $this->builtWhereSql($this->_where);
+            $whereStr = $this->builtWhereSql($this->where);
         } elseif ($where) {
             if (is_string($where)) {
                 //直接字符串
                 $whereStr = $where;
             } elseif (is_array($where)) {
                 //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
-                $this->_where = array();
+                $this->where = array();
                 foreach ($where as $k => $v) {
                     $this->equalTo($k, $v);
                 }
-                $whereStr = $this->builtWhereSql($this->_where);
+                $whereStr = $this->builtWhereSql($this->where);
             }
         }
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
@@ -974,13 +966,13 @@ class Mysql extends AbstractPDO
      */
     private function getFieldType($table = null)
     {
-        if (!$table) return $this->_currentFieldType;
-        if (empty($this->_tempFieldType[$table])) {
+        if (!$table) return $this->currentFieldType;
+        if (empty($this->tempFieldType[$table])) {
             $alia = false;
             $originTable = null;
-            if (!empty($this->_options['alia'][$table])) {
+            if (!empty($this->options['alia'][$table])) {
                 $originTable = $table;
-                $table = $this->_options['alia'][$table];
+                $table = $this->options['alia'][$table];
                 $alia = true;
             }
             $sql = "SELECT COLUMN_NAME AS `field`,DATA_TYPE AS fieldtype FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema ='{$this->settings["dbname"]}' AND table_name = '{$table}';";
@@ -1008,10 +1000,10 @@ class Mysql extends AbstractPDO
                     $ft[$table . '_' . $v['field']] = $v['fieldtype'];
                 }
             }
-            $this->_tempFieldType[$table] = $ft;
-            $this->_currentFieldType = array_merge($this->_currentFieldType, $ft);
+            $this->tempFieldType[$table] = $ft;
+            $this->currentFieldType = array_merge($this->currentFieldType, $ft);
         }
-        return $this->_currentFieldType;
+        return $this->currentFieldType;
     }
 
 
@@ -1083,7 +1075,7 @@ class Mysql extends AbstractPDO
      */
     protected function getTable()
     {
-        return $this->_options['table'] ?? null;
+        return $this->options['table'] ?? null;
     }
 
     /**
@@ -1098,15 +1090,15 @@ class Mysql extends AbstractPDO
         $table = str_replace([' as ', ' AS ', ' As ', ' aS ', ' => '], ' ', trim($table));
         $tableEX = explode(' ', $table);
         if (count($tableEX) === 2) {
-            $this->_options['table'] = $tableEX[1];
-            $this->_options['table_origin'] = $tableEX[0];
-            if (!isset($this->_options['alia'])) {
-                $this->_options['alia'] = array();
+            $this->options['table'] = $tableEX[1];
+            $this->options['table_origin'] = $tableEX[0];
+            if (!isset($this->options['alia'])) {
+                $this->options['alia'] = array();
             }
-            $this->_options['alia'][$tableEX[1]] = $tableEX[0];
+            $this->options['alia'][$tableEX[1]] = $tableEX[0];
         } else {
-            $this->_options['table'] = $table;
-            $this->_options['table_origin'] = null;
+            $this->options['table'] = $table;
+            $this->options['table_origin'] = null;
         }
         return $this;
     }
@@ -1120,7 +1112,7 @@ class Mysql extends AbstractPDO
     public function using($using)
     {
         if ($using) {
-            $this->_options['using'] = $using;
+            $this->options['using'] = $using;
         }
         return $this;
     }
@@ -1136,7 +1128,7 @@ class Mysql extends AbstractPDO
     {
         if (empty($union)) return $this;
         if ($all) {
-            $this->_options['union']['_all'] = true;
+            $this->options['union']['_all'] = true;
         }
         if (is_object($union)) {
             $union = get_object_vars($union);
@@ -1145,13 +1137,13 @@ class Mysql extends AbstractPDO
         $options = null;
         if (is_array($union)) {
             if (isset($union[0])) {
-                $this->_options['union'] = array_merge($this->_options['union'], $union);
+                $this->options['union'] = array_merge($this->options['union'], $union);
                 return $this;
             } else {
-                $this->_options['union'][] = $union;
+                $this->options['union'][] = $union;
             }
         } elseif (is_string($options)) {
-            $this->_options['union'][] = $options;
+            $this->options['union'][] = $options;
         }
         return $this;
     }
@@ -1161,7 +1153,7 @@ class Mysql extends AbstractPDO
      */
     public function getJoinQty()
     {
-        return (int)$this->_options['joinQty'];
+        return (int)$this->options['joinQty'];
     }
 
     /**
@@ -1177,9 +1169,9 @@ class Mysql extends AbstractPDO
             foreach ($join as $key => &$_join) {
                 $_join = false !== stripos($_join, 'JOIN') ? $_join : $type . ' JOIN ' . $_join;
             }
-            $this->_options['join'] = $join;
+            $this->options['join'] = $join;
         } elseif (!empty($join)) {
-            $this->_options['join'][] = false !== stripos($join, 'JOIN') ? $join : $type . ' JOIN ' . $join;
+            $this->options['join'][] = false !== stripos($join, 'JOIN') ? $join : $type . ' JOIN ' . $join;
         }
         return $this;
     }
@@ -1217,15 +1209,15 @@ class Mysql extends AbstractPDO
                     } else $jsonStr .= " AND " . ($alia ? "{$target}.{$k}={$alia}.{$v}" : '');
                 }
             }
-            if (!isset($this->_options['joinQty'])) {
-                $this->_options['joinQty'] = 0;
+            if (!isset($this->options['joinQty'])) {
+                $this->options['joinQty'] = 0;
             }
-            $this->_options['joinQty']++;
+            $this->options['joinQty']++;
             if ($alia) {
-                if (!isset($this->_options['alia'])) {
-                    $this->_options['alia'] = array();
+                if (!isset($this->options['alia'])) {
+                    $this->options['alia'] = array();
                 }
-                $this->_options['alia'][$originJoin[1]] = $originJoin[0];
+                $this->options['alia'][$originJoin[1]] = $originJoin[0];
             }
             $this->joinTo($jsonStr, $type);
         }
@@ -1242,9 +1234,9 @@ class Mysql extends AbstractPDO
     {
         if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
             if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
-                $this->_where[] = array(
+                $this->where[] = array(
                     'operat' => $operat,
-                    'table' => $this->_where_table,
+                    'table' => $this->where_table,
                     'field' => $field,
                     'value' => $value,
                 );
@@ -1255,14 +1247,14 @@ class Mysql extends AbstractPDO
 
     public function clearWhere()
     {
-        $this->_where = array();
-        $this->_where_table = '';
+        $this->where = array();
+        $this->where_table = '';
         return $this;
     }
 
     public function whereTable($table)
     {
-        $this->_where_table = $table;
+        $this->where_table = $table;
         return $this;
     }
 
@@ -1274,10 +1266,10 @@ class Mysql extends AbstractPDO
      */
     public function closure($cond = 'and', $isGlobal = false)
     {
-        if ($this->_where) {
+        if ($this->where) {
             $o = array();
             $f = array();
-            foreach ($this->_where as $v) {
+            foreach ($this->where as $v) {
                 if ($v['operat'] === 'closure') {
                     $o[] = $v;
                 } elseif ($v['field']) {
@@ -1286,15 +1278,15 @@ class Mysql extends AbstractPDO
             }
             if ($o && $f) {
                 if ($isGlobal === false) {
-                    $this->_where = $o;
-                    $this->_where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
+                    $this->where = $o;
+                    $this->where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
                 } else {
-                    $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
+                    $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
                 }
             } elseif ($o && !$f) {
-                $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->_where));
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->where));
             } elseif (!$o && $f) {
-                $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
             }
         }
         return $this;
@@ -1728,8 +1720,8 @@ class Mysql extends AbstractPDO
                         if ($jsonPos > 0) {
                             $jpos = explode('#>>', $v);
                             $ft[$table . '_' . $to] = $ft[$table . '_' . trim($jpos[0])];
-                        } elseif (!empty($this->_currentFieldType[$table . '_' . $from])) {
-                            $this->_currentFieldType[$table . '_' . $to] = $this->_currentFieldType[$table . '_' . $from];
+                        } elseif (!empty($this->currentFieldType[$table . '_' . $from])) {
+                            $this->currentFieldType[$table . '_' . $to] = $this->currentFieldType[$table . '_' . $from];
                             $ft[$table . '_' . $to] = $ft[$table . '_' . $from];
                         }
                     }
@@ -1745,10 +1737,10 @@ class Mysql extends AbstractPDO
                     $field[$k] = "{$tempParseTableForm} as {$table}_{$to}";
                 }
             }
-            if (!isset($this->_options['field'])) {
-                $this->_options['field'] = array();
+            if (!isset($this->options['field'])) {
+                $this->options['field'] = array();
             }
-            $this->_options['field'] = array_merge_recursive($this->_options['field'], $field);
+            $this->options['field'] = array_merge_recursive($this->options['field'], $field);
         }
         return $this;
     }
@@ -1768,15 +1760,15 @@ class Mysql extends AbstractPDO
         if (!is_string($groupBy)) {
             return $this;
         }
-        if (!isset($this->_options['group'])) {
-            $this->_options['group'] = '';
+        if (!isset($this->options['group'])) {
+            $this->options['group'] = '';
         }
-        if ($this->_options['group'] != '') {
-            $this->_options['group'] .= ',';
+        if ($this->options['group'] != '') {
+            $this->options['group'] .= ',';
         }
         if ($table) {
-            $this->_options['group'] .= $this->parseTable($table) . '.' . $groupBy;
-        } else $this->_options['group'] .= $groupBy;
+            $this->options['group'] .= $this->parseTable($table) . '.' . $groupBy;
+        } else $this->options['group'] .= $groupBy;
         return $this;
     }
 
@@ -1793,8 +1785,8 @@ class Mysql extends AbstractPDO
         if (!$orderBy) {
             return $this;
         }
-        if (!isset($this->_options['order'])) {
-            $this->_options['order'] = array();
+        if (!isset($this->options['order'])) {
+            $this->options['order'] = array();
         }
         if ($table) {
             $table = $this->parseTable($table);
@@ -1802,9 +1794,9 @@ class Mysql extends AbstractPDO
         if (is_string($orderBy)) {
             $sort = strtolower($sort);
             if ($table) {
-                $this->_options['order'][$table . '.' . $orderBy] = $sort;
+                $this->options['order'][$table . '.' . $orderBy] = $sort;
             } else {
-                $this->_options['order'][$orderBy] = $sort;
+                $this->options['order'][$orderBy] = $sort;
             }
         } elseif (is_array($orderBy)) {
             $orderBy = array_filter($orderBy);
@@ -1812,9 +1804,9 @@ class Mysql extends AbstractPDO
                 $orderInfo = explode(' ', $v);
                 $orderInfo[1] = strtolower($orderInfo[1]);
                 if ($table) {
-                    $this->_options['order'][$table . '.' . $orderInfo[0]] = $orderInfo[1];
+                    $this->options['order'][$table . '.' . $orderInfo[0]] = $orderInfo[1];
                 } else {
-                    $this->_options['order'][$orderInfo[0]] = $orderInfo[1];
+                    $this->options['order'][$orderInfo[0]] = $orderInfo[1];
                 }
                 unset($orderInfo);
             }
@@ -1834,9 +1826,9 @@ class Mysql extends AbstractPDO
         foreach ($orderBy as $o) {
             $o = explode(' ', $o);
             if ($table) {
-                $this->_options['order'][$table . '.' . $o[0]] = $o[1];
+                $this->options['order'][$table . '.' . $o[0]] = $o[1];
             } else {
-                $this->_options['order'][$o[0]] = $o[1];
+                $this->options['order'][$o[0]] = $o[1];
             }
         }
         return $this;
@@ -1854,16 +1846,16 @@ class Mysql extends AbstractPDO
         if (!is_string($having)) {
             return $this;
         }
-        if (!isset($this->_options['having'])) {
-            $this->_options['having'] = '';
+        if (!isset($this->options['having'])) {
+            $this->options['having'] = '';
         }
-        if ($this->_options['having'] != '') {
-            $this->_options['having'] .= ',';
+        if ($this->options['having'] != '') {
+            $this->options['having'] .= ',';
         }
         if ($table) {
-            $this->_options['having'] .= $this->$having($table) . '.' . $having;
+            $this->options['having'] .= $this->$having($table) . '.' . $having;
         } else {
-            $this->_options['having'] .= $having;
+            $this->options['having'] .= $having;
         }
         return $this;
     }
@@ -1880,7 +1872,7 @@ class Mysql extends AbstractPDO
         if (is_null($length) && strpos($offset, ',')) {
             list($offset, $length) = explode(',', $offset);
         }
-        $this->_options['limit'] = ($length ? intval($length) . ' OFFSET ' : '') . intval($offset);
+        $this->options['limit'] = ($length ? intval($length) . ' OFFSET ' : '') . intval($offset);
         return $this;
     }
 
@@ -2187,19 +2179,19 @@ class Mysql extends AbstractPDO
         }
         $sql .= ' SET ' . implode(',', $set);
         if (strpos($table, ',')) {// 多表更新支持JOIN操作
-            $sql .= $this->parseJoin(!empty($this->_options['join']) ? $this->_options['join'] : '');
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
         }
-        $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
             throw new Exception('update must be sure when without where：' . $sql);
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             //  单表更新支持order和limit
-            $sql .= $this->parseOrder(!empty($this->_options['order']) ? $this->_options['order'] : '')
-                . $this->parseLimit(!empty($this->_options['limit']) ? $this->_options['limit'] : '');
+            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
-        $sql .= $this->parseComment(!empty($this->_options['comment']) ? $this->_options['comment'] : '');
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
         return $this->query($sql);
     }
 
@@ -2212,25 +2204,25 @@ class Mysql extends AbstractPDO
      */
     public function delete($sure = false)
     {
-        $table = $this->parseTable($this->_options['table']);
+        $table = $this->parseTable($this->options['table']);
         $sql = 'DELETE FROM ' . $table;
         if (strpos($table, ',')) {// 多表删除支持USING和JOIN操作
-            if (!empty($this->_options['using'])) {
-                $sql .= ' USING ' . $this->parseTable($this->_options['using']) . ' ';
+            if (!empty($this->options['using'])) {
+                $sql .= ' USING ' . $this->parseTable($this->options['using']) . ' ';
             }
-            $sql .= $this->parseJoin(!empty($this->_options['join']) ? $this->_options['join'] : '');
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
         }
-        $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
             throw new Exception('delete must be sure when without where');
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             // 单表删除支持order和limit
-            $sql .= $this->parseOrder(!empty($this->_options['order']) ? $this->_options['order'] : '')
-                . $this->parseLimit(!empty($this->_options['limit']) ? $this->_options['limit'] : '');
+            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
-        $sql .= $this->parseComment(!empty($this->_options['comment']) ? $this->_options['comment'] : '');
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
         return $this->query($sql);
     }
 

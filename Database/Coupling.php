@@ -16,9 +16,10 @@ class Coupling
     /**
      * 连接数据库
      * @param string | array $conf
+     * @param null $dbtc db type check
      * @return Mysql|Pgsql|Mssql|Sqlite|Mongo|Redis
      */
-    public static function connect($conf = 'default'): object
+    public static function connect($conf = 'default', $dbtc = null): object
     {
         if (static::$config === null) {
             static::$config = Arrow::fetch()['database'];
@@ -42,6 +43,7 @@ class Coupling
             $link['file'] = $conf['file'] ?? null;
         }
         if (empty($link['type'])) Response::exception('Lack type of database');
+        if ($dbtc && $dbtc !== $link['type']) Response::exception('Database type check no pass');
         if (empty($link['host']) || empty($link['port'])) Response::exception('Lack of host/port address');
         $u = md5(var_export($link, true));
         if (empty(static::$db[$u])) {

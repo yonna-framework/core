@@ -22,6 +22,24 @@ abstract class AbstractDB
     protected $charset = null;
     protected $project_key = null;
 
+    /**
+     * where条件对象，实现无敌闭包
+     * @var array
+     */
+    protected $where = array();
+
+    /**
+     * where条件，哪个表
+     * @var string
+     */
+    protected $where_table = '';
+
+    /**
+     * where条件，哪个收集
+     * @var string
+     */
+    protected $where_collection = '';
+
 
     /**
      * 错误信息
@@ -47,7 +65,7 @@ abstract class AbstractDB
      * 析构方法
      * @access public
      */
-    protected function __destruct()
+    public function __destruct()
     {
         $this->resetAll();
     }
@@ -67,6 +85,9 @@ abstract class AbstractDB
         $this->dsn = null;
         $this->use_crypto = false;
         $this->error = null;
+        $this->where = array();
+        $this->where_table = '';
+        $this->where_collection = '';
     }
 
 

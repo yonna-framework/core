@@ -37,13 +37,13 @@ abstract class AbstractPDO extends AbstractDB
      *
      * @var array
      */
-    protected $_options = array();
+    protected $options = array();
 
     /**
      * 临时字段寄存
      */
-    protected $_currentFieldType = array();
-    protected $_tempFieldType = array();
+    protected $currentFieldType = array();
+    protected $tempFieldType = array();
 
     /**
      * 最后一条执行的 sql
@@ -61,7 +61,7 @@ abstract class AbstractPDO extends AbstractDB
      * 析构方法
      * @access public
      */
-    protected function __destruct()
+    public function __destruct()
     {
         $this->pdoFree();
         $this->pdoClose();
@@ -73,13 +73,11 @@ abstract class AbstractPDO extends AbstractDB
      */
     protected function resetAll()
     {
-        $this->_options = array();
+        $this->options = array();
         $this->parameters = array();
         $this->lastSql = '';
-        $this->_currentFieldType = array();
-        $this->_tempFieldType = array();
-        $this->_where = array();
-        $this->_where_table = '';
+        $this->currentFieldType = array();
+        $this->tempFieldType = array();
         parent::resetAll();
     }
 

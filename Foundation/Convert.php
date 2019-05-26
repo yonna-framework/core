@@ -132,6 +132,7 @@ namespace {
             return join('', array_reverse($base64_chars));
         }
 
+
     }
 
 }

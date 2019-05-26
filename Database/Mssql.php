@@ -60,7 +60,7 @@ class Mssql extends AbstractDB
      *
      * @var array
      */
-    private $_options = array();
+    private $options = array();
 
     /**
      * 错误信息
@@ -104,8 +104,8 @@ class Mssql extends AbstractDB
      *
      * @var array
      */
-    private $_where = array();
-    private $_where_table = '';
+    private $where = array();
+    private $where_table = '';
 
     /**
      * 排序类型设置
@@ -116,19 +116,19 @@ class Mssql extends AbstractDB
     /**
      * 临时字段寄存
      */
-    private $_currentFieldType = array();
-    private $_tempFieldType = array();
+    private $currentFieldType = array();
+    private $tempFieldType = array();
 
     /**
      * 清除所有数据
      */
     public function resetAll()
     {
-        $this->_options = array();
-        $this->_where = array();
-        $this->_where_table = '';
-        $this->_currentFieldType = array();
-        $this->_tempFieldType = array();
+        $this->options = array();
+        $this->where = array();
+        $this->where_table = '';
+        $this->currentFieldType = array();
+        $this->tempFieldType = array();
         $this->parameters = array();
         $this->lastSql = '';
         $this->error = '';
@@ -524,11 +524,11 @@ class Mssql extends AbstractDB
      */
     protected function _parseOptions($options = array())
     {
-        if (empty($this->_options['field'])) {
+        if (empty($this->options['field'])) {
             $this->field('*');
         }
         if (is_array($options)) {
-            $options = array_merge($this->_options, $options);
+            $options = array_merge($this->options, $options);
         }
         if (!isset($options['table'])) {
             $options['table'] = $this->getTable();
@@ -660,7 +660,7 @@ class Mssql extends AbstractDB
      */
     private function parseLimit($limit)
     {
-        if (!empty($this->_options['offset'])) {
+        if (!empty($this->options['offset'])) {
             return '';
         }
         return !empty($limit) ? ' TOP ' . $limit . ' ' : '';
@@ -675,10 +675,10 @@ class Mssql extends AbstractDB
     private function parseOffset($offset)
     {
         if ($offset > 0 || $offset === 0) {
-            if (empty($this->_options['order'])) {
+            if (empty($this->options['order'])) {
                 throw new \Exception('OFFSET should used ORDER BY');
             }
-            return " offset {$offset} rows fetch next {$this->_options['limit']} rows only";
+            return " offset {$offset} rows fetch next {$this->options['limit']} rows only";
         }
         return '';
     }
@@ -819,20 +819,20 @@ class Mssql extends AbstractDB
     private function parseWhere($where)
     {
         $whereStr = '';
-        if ($this->_where) {
+        if ($this->where) {
             //闭包形式
-            $whereStr = $this->builtWhereSql($this->_where);
+            $whereStr = $this->builtWhereSql($this->where);
         } elseif ($where) {
             if (is_string($where)) {
                 //直接字符串
                 $whereStr = $where;
             } elseif (is_array($where)) {
                 //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
-                $this->_where = array();
+                $this->where = array();
                 foreach ($where as $k => $v) {
                     $this->equalTo($k, $v);
                 }
-                $whereStr = $this->builtWhereSql($this->_where);
+                $whereStr = $this->builtWhereSql($this->where);
             }
         }
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
@@ -1071,13 +1071,13 @@ class Mssql extends AbstractDB
      */
     private function getFieldType($table = null)
     {
-        if (!$table) return $this->_currentFieldType;
-        if (empty($this->_tempFieldType[$table])) {
+        if (!$table) return $this->currentFieldType;
+        if (empty($this->tempFieldType[$table])) {
             $alia = false;
             $originTable = null;
-            if (!empty($this->_options['alia'][$table])) {
+            if (!empty($this->options['alia'][$table])) {
                 $originTable = $table;
-                $table = $this->_options['alia'][$table];
+                $table = $this->options['alia'][$table];
                 $alia = true;
             }
             $sql = "sp_columns \"{$table}\";";
@@ -1104,10 +1104,10 @@ class Mssql extends AbstractDB
                     $ft[$table . '_' . $v['COLUMN_NAME']] = $v['TYPE_NAME'];
                 }
             }
-            $this->_tempFieldType[$table] = $ft;
-            $this->_currentFieldType = array_merge($this->_currentFieldType, $ft);
+            $this->tempFieldType[$table] = $ft;
+            $this->currentFieldType = array_merge($this->currentFieldType, $ft);
         }
-        return $this->_currentFieldType;
+        return $this->currentFieldType;
     }
 
 
@@ -1179,7 +1179,7 @@ class Mssql extends AbstractDB
      */
     protected function getSchemas()
     {
-        return $this->_options['schemas'];
+        return $this->options['schemas'];
     }
 
     /**
@@ -1191,7 +1191,7 @@ class Mssql extends AbstractDB
     public function schemas($schemas)
     {
         $this->resetAll();
-        $this->_options['schemas'] = $schemas;
+        $this->options['schemas'] = $schemas;
         return $this;
     }
 
@@ -1202,7 +1202,7 @@ class Mssql extends AbstractDB
      */
     protected function getTable()
     {
-        return $this->_options['table'] ?? null;
+        return $this->options['table'] ?? null;
     }
 
     /**
@@ -1216,15 +1216,15 @@ class Mssql extends AbstractDB
         $table = str_replace([' as ', ' AS ', ' As ', ' aS ', ' => '], ' ', trim($table));
         $tableEX = explode(' ', $table);
         if (count($tableEX) === 2) {
-            $this->_options['table'] = $tableEX[1];
-            $this->_options['table_origin'] = $tableEX[0];
-            if (!isset($this->_options['alia'])) {
-                $this->_options['alia'] = array();
+            $this->options['table'] = $tableEX[1];
+            $this->options['table_origin'] = $tableEX[0];
+            if (!isset($this->options['alia'])) {
+                $this->options['alia'] = array();
             }
-            $this->_options['alia'][$tableEX[1]] = $tableEX[0];
+            $this->options['alia'][$tableEX[1]] = $tableEX[0];
         } else {
-            $this->_options['table'] = $table;
-            $this->_options['table_origin'] = null;
+            $this->options['table'] = $table;
+            $this->options['table_origin'] = null;
         }
         return $this;
     }
@@ -1238,7 +1238,7 @@ class Mssql extends AbstractDB
     public function using($using)
     {
         if ($using) {
-            $this->_options['using'] = $using;
+            $this->options['using'] = $using;
         }
         return $this;
     }
@@ -1254,7 +1254,7 @@ class Mssql extends AbstractDB
     {
         if (empty($union)) return $this;
         if ($all) {
-            $this->_options['union']['_all'] = true;
+            $this->options['union']['_all'] = true;
         }
         if (is_object($union)) {
             $union = get_object_vars($union);
@@ -1263,13 +1263,13 @@ class Mssql extends AbstractDB
         $options = null;
         if (is_array($union)) {
             if (isset($union[0])) {
-                $this->_options['union'] = array_merge($this->_options['union'], $union);
+                $this->options['union'] = array_merge($this->options['union'], $union);
                 return $this;
             } else {
-                $this->_options['union'][] = $union;
+                $this->options['union'][] = $union;
             }
         } elseif (is_string($options)) {
-            $this->_options['union'][] = $options;
+            $this->options['union'][] = $options;
         }
         return $this;
     }
@@ -1279,7 +1279,7 @@ class Mssql extends AbstractDB
      */
     public function getJoinQty()
     {
-        return (int)$this->_options['joinQty'];
+        return (int)$this->options['joinQty'];
     }
 
     /**
@@ -1295,9 +1295,9 @@ class Mssql extends AbstractDB
             foreach ($join as $key => &$_join) {
                 $_join = false !== stripos($_join, 'JOIN') ? $_join : $type . ' JOIN ' . $_join;
             }
-            $this->_options['join'] = $join;
+            $this->options['join'] = $join;
         } elseif (!empty($join)) {
-            $this->_options['join'][] = false !== stripos($join, 'JOIN') ? $join : $type . ' JOIN ' . $join;
+            $this->options['join'][] = false !== stripos($join, 'JOIN') ? $join : $type . ' JOIN ' . $join;
         }
         return $this;
     }
@@ -1335,15 +1335,15 @@ class Mssql extends AbstractDB
                     } else $jsonStr .= " AND " . ($alia ? "{$target}.{$k}={$alia}.{$v}" : '');
                 }
             }
-            if (!isset($this->_options['joinQty'])) {
-                $this->_options['joinQty'] = 0;
+            if (!isset($this->options['joinQty'])) {
+                $this->options['joinQty'] = 0;
             }
-            $this->_options['joinQty']++;
+            $this->options['joinQty']++;
             if ($alia) {
-                if (!isset($this->_options['alia'])) {
-                    $this->_options['alia'] = array();
+                if (!isset($this->options['alia'])) {
+                    $this->options['alia'] = array();
                 }
-                $this->_options['alia'][$originJoin[1]] = $originJoin[0];
+                $this->options['alia'][$originJoin[1]] = $originJoin[0];
             }
             $this->joinTo($jsonStr, $type);
         }
@@ -1360,9 +1360,9 @@ class Mssql extends AbstractDB
     {
         if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
             if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
-                $this->_where[] = array(
+                $this->where[] = array(
                     'operat' => $operat,
-                    'table' => $this->_where_table,
+                    'table' => $this->where_table,
                     'field' => $field,
                     'value' => $value,
                 );
@@ -1373,14 +1373,14 @@ class Mssql extends AbstractDB
 
     public function clearWhere()
     {
-        $this->_where = array();
-        $this->_where_table = '';
+        $this->where = array();
+        $this->where_table = '';
         return $this;
     }
 
     public function whereTable($table)
     {
-        $this->_where_table = $table;
+        $this->where_table = $table;
         return $this;
     }
 
@@ -1392,10 +1392,10 @@ class Mssql extends AbstractDB
      */
     public function closure($cond = 'and', $isGlobal = false)
     {
-        if ($this->_where) {
+        if ($this->where) {
             $o = array();
             $f = array();
-            foreach ($this->_where as $v) {
+            foreach ($this->where as $v) {
                 if ($v['operat'] === 'closure') {
                     $o[] = $v;
                 } elseif ($v['field']) {
@@ -1404,15 +1404,15 @@ class Mssql extends AbstractDB
             }
             if ($o && $f) {
                 if ($isGlobal === false) {
-                    $this->_where = $o;
-                    $this->_where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
+                    $this->where = $o;
+                    $this->where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
                 } else {
-                    $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
+                    $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
                 }
             } elseif ($o && !$f) {
-                $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->_where));
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->where));
             } elseif (!$o && $f) {
-                $this->_where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
             }
         }
         return $this;
@@ -1800,8 +1800,8 @@ class Mssql extends AbstractDB
                         if ($jsonPos > 0) {
                             $jpos = explode('#>>', $v);
                             $ft[$table . '_' . $to] = $ft[$table . '_' . trim($jpos[0])];
-                        } elseif (!empty($this->_currentFieldType[$table . '_' . $from])) {
-                            $this->_currentFieldType[$table . '_' . $to] = $this->_currentFieldType[$table . '_' . $from];
+                        } elseif (!empty($this->currentFieldType[$table . '_' . $from])) {
+                            $this->currentFieldType[$table . '_' . $to] = $this->currentFieldType[$table . '_' . $from];
                             $ft[$table . '_' . $to] = $ft[$table . '_' . $from];
                         }
                     }
@@ -1820,10 +1820,10 @@ class Mssql extends AbstractDB
                     $field[$k] = "{$tempParseTableForm} as {$table}_{$to}";
                 }
             }
-            if (!isset($this->_options['field'])) {
-                $this->_options['field'] = array();
+            if (!isset($this->options['field'])) {
+                $this->options['field'] = array();
             }
-            $this->_options['field'] = array_merge_recursive($this->_options['field'], $field);
+            $this->options['field'] = array_merge_recursive($this->options['field'], $field);
         }
         return $this;
     }
@@ -1843,15 +1843,15 @@ class Mssql extends AbstractDB
         if (!is_string($groupBy)) {
             return $this;
         }
-        if (!isset($this->_options['group'])) {
-            $this->_options['group'] = '';
+        if (!isset($this->options['group'])) {
+            $this->options['group'] = '';
         }
-        if ($this->_options['group'] != '') {
-            $this->_options['group'] .= ',';
+        if ($this->options['group'] != '') {
+            $this->options['group'] .= ',';
         }
         if ($table) {
-            $this->_options['group'] .= $this->parseTable($table) . '.' . $groupBy;
-        } else $this->_options['group'] .= $groupBy;
+            $this->options['group'] .= $this->parseTable($table) . '.' . $groupBy;
+        } else $this->options['group'] .= $groupBy;
         return $this;
     }
 
@@ -1868,8 +1868,8 @@ class Mssql extends AbstractDB
         if (!$orderBy) {
             return $this;
         }
-        if (!isset($this->_options['order'])) {
-            $this->_options['order'] = array();
+        if (!isset($this->options['order'])) {
+            $this->options['order'] = array();
         }
         if ($table) {
             $table = $this->parseTable($table);
@@ -1877,9 +1877,9 @@ class Mssql extends AbstractDB
         if (is_string($orderBy)) {
             $sort = strtolower($sort);
             if ($table) {
-                $this->_options['order'][$table . '.' . $orderBy] = $sort;
+                $this->options['order'][$table . '.' . $orderBy] = $sort;
             } else {
-                $this->_options['order'][$orderBy] = $sort;
+                $this->options['order'][$orderBy] = $sort;
             }
         } elseif (is_array($orderBy)) {
             $orderBy = array_filter($orderBy);
@@ -1887,9 +1887,9 @@ class Mssql extends AbstractDB
                 $orderInfo = explode(' ', $v);
                 $orderInfo[1] = strtolower($orderInfo[1]);
                 if ($table) {
-                    $this->_options['order'][$table . '.' . $orderInfo[0]] = $orderInfo[1];
+                    $this->options['order'][$table . '.' . $orderInfo[0]] = $orderInfo[1];
                 } else {
-                    $this->_options['order'][$orderInfo[0]] = $orderInfo[1];
+                    $this->options['order'][$orderInfo[0]] = $orderInfo[1];
                 }
                 unset($orderInfo);
             }
@@ -1909,9 +1909,9 @@ class Mssql extends AbstractDB
         foreach ($orderBy as $o) {
             $o = explode(' ', $o);
             if ($table) {
-                $this->_options['order'][$table . '.' . $o[0]] = $o[1];
+                $this->options['order'][$table . '.' . $o[0]] = $o[1];
             } else {
-                $this->_options['order'][$o[0]] = $o[1];
+                $this->options['order'][$o[0]] = $o[1];
             }
         }
         return $this;
@@ -1929,16 +1929,16 @@ class Mssql extends AbstractDB
         if (!is_string($having)) {
             return $this;
         }
-        if (!isset($this->_options['having'])) {
-            $this->_options['having'] = '';
+        if (!isset($this->options['having'])) {
+            $this->options['having'] = '';
         }
-        if ($this->_options['having'] != '') {
-            $this->_options['having'] .= ',';
+        if ($this->options['having'] != '') {
+            $this->options['having'] .= ',';
         }
         if ($table) {
-            $this->_options['having'] .= $this->$having($table) . '.' . $having;
+            $this->options['having'] .= $this->$having($table) . '.' . $having;
         } else {
-            $this->_options['having'] .= $having;
+            $this->options['having'] .= $having;
         }
         return $this;
     }
@@ -1956,11 +1956,11 @@ class Mssql extends AbstractDB
             list($offset, $length) = explode(',', $offset);
         }
         if ($length === null) {
-            $this->_options['limit'] = $offset;
-            $this->_options['offset'] = null;
+            $this->options['limit'] = $offset;
+            $this->options['offset'] = null;
         } else {
-            $this->_options['limit'] = $length;
-            $this->_options['offset'] = $offset;
+            $this->options['limit'] = $length;
+            $this->options['offset'] = $offset;
         }
         return $this;
     }
@@ -2205,19 +2205,19 @@ class Mssql extends AbstractDB
         }
         $sql .= ' SET ' . implode(',', $set);
         if (strpos($table, ',')) {// 多表更新支持JOIN操作
-            $sql .= $this->parseJoin(!empty($this->_options['join']) ? $this->_options['join'] : '');
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
         }
-        $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
             throw new \Exception('update must be sure when without where：' . $sql);
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             //  单表更新支持order和limit
-            $sql .= $this->parseOrder(!empty($this->_options['order']) ? $this->_options['order'] : '')
-                . $this->parseLimit(!empty($this->_options['limit']) ? $this->_options['limit'] : '');
+            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
-        $sql .= $this->parseComment(!empty($this->_options['comment']) ? $this->_options['comment'] : '');
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
         return $this->query($sql);
     }
 
@@ -2230,25 +2230,25 @@ class Mssql extends AbstractDB
      */
     public function delete($sure = false)
     {
-        $table = $this->parseTable($this->_options['table']);
+        $table = $this->parseTable($this->options['table']);
         $sql = 'DELETE FROM ' . $table;
         if (strpos($table, ',')) {// 多表删除支持USING和JOIN操作
-            if (!empty($this->_options['using'])) {
-                $sql .= ' USING ' . $this->parseTable($this->_options['using']) . ' ';
+            if (!empty($this->options['using'])) {
+                $sql .= ' USING ' . $this->parseTable($this->options['using']) . ' ';
             }
-            $sql .= $this->parseJoin(!empty($this->_options['join']) ? $this->_options['join'] : '');
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
         }
-        $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
             throw new \Exception('delete must be sure when without where');
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             // 单表删除支持order和limit
-            $sql .= $this->parseOrder(!empty($this->_options['order']) ? $this->_options['order'] : '')
-                . $this->parseLimit(!empty($this->_options['limit']) ? $this->_options['limit'] : '');
+            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
-        $sql .= $this->parseComment(!empty($this->_options['comment']) ? $this->_options['comment'] : '');
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
         return $this->query($sql);
     }
 
