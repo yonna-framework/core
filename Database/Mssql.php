@@ -10,7 +10,7 @@ use Exception;
 use PDO;
 use PDOException;
 
-class Mssql extends DataBase
+class Mssql extends AbstractDB
 {
 
     /**

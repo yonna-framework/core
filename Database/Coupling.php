@@ -2,32 +2,31 @@
 
 namespace PhpureCore\Database;
 
+use PhpureCore\Config\Arrow;
 use PhpureCore\Core;
 use PhpureCore\Glue\Response;
 
 class Coupling
 {
 
-    private static $config = array();
+    private static $config = null;
     private static $db = array();
     private static $transTrace = array();
-
-    public function __construct(array $config = [])
-    {
-        static::$config = $config;
-        $dbKeys = array_keys($config);
-        array_walk($dbKeys, function ($key) {
-            static::$transTrace[strtoupper($key)] = 0;
-        });
-    }
 
     /**
      * 连接数据库
      * @param string | array $conf
-     * @return Mysql | Pgsql | Mssql | Sqlite
+     * @return Mysql|Pgsql|Mssql|Sqlite|Mongo|Redis
      */
-    public function connect($conf = 'default'): object
+    public static function connect($conf = 'default'): object
     {
+        if (static::$config === null) {
+            static::$config = Arrow::fetch()['database'];
+            $dbKeys = array_keys(static::$config);
+            array_walk($dbKeys, function ($key) {
+                static::$transTrace[strtoupper($key)] = 0;
+            });
+        }
         $link = array();
         if (is_string($conf)) {
             $conf = static::$config[$conf];
@@ -55,7 +54,11 @@ class Coupling
                     );
                     break;
                 case 'Redis':
-
+                    static::$db[$u] = Core::singleton(
+                        $dbClassName,
+                        $link['host'], $link['port'],
+                        $link['account'], $link['password']
+                    );
                     break;
                 case 'Mongo':
                 case 'Mysql':

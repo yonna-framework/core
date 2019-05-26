@@ -2,8 +2,6 @@
 
 namespace PhpureCore\Scope;
 
-use PhpureCore\Core;
-
 /**
  * Class Kernel
  * @package PhpureCore\Scope
@@ -47,17 +45,5 @@ abstract class Kernel implements \PhpureCore\Scope\Interfaces\Kernel
     {
         return $this->request()->input;
     }
-
-    /**
-     * @return object|\PhpureCore\Database\Coupling
-     */
-    protected function db()
-    {
-        if (!$this->db) {
-            $this->db = Core::singleton(\PhpureCore\Database\Coupling::class, $this->request()->cargo->config['database']);
-        }
-        return $this->db;
-    }
-
 
 }

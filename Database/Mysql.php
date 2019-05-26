@@ -1,39 +1,17 @@
 <?php
 /**
  * 数据库连接类，依赖 PDO_MYSQL 扩展
- * version >= 5.7
+ * mysql version >= 5.7
  */
 
 namespace PhpureCore\Database;
 
 use Exception;
-use PDO;
 use PDOException;
 use Str;
 
-class Mysql extends DataBase
+class Mysql extends AbstractDB
 {
-
-    /**
-     * pdo 实例
-     *
-     * @var PDO
-     */
-    private $pdo;
-
-    /**
-     * pdo sQuery
-     *
-     * @var \PDOStatement
-     */
-    private $PDOStatement;
-
-    /**
-     * dsn pdo链接设置
-     *
-     * @var string
-     */
-    private $dsn;
 
     /**
      * 数据库用户名密码等配置
@@ -114,12 +92,6 @@ class Mysql extends DataBase
     private $_where_table = '';
 
     /**
-     * 排序类型设置
-     */
-    const DESC = 'desc';
-    const ASC = 'asc';
-
-    /**
      * 临时字段寄存
      */
     private $_currentFieldType = array();
@@ -138,93 +110,33 @@ class Mysql extends DataBase
         $this->parameters = array();
         $this->lastSql = '';
         $this->error = '';
-        parent::resetAll();
     }
 
     /**
      * 构造方法
      *
      * @param string $host
-     * @param int $port
+     * @param string $port
      * @param string $user
      * @param string $password
      * @param string $name
      * @param string $charset
      */
-    public function __construct($host, $port, $user, $password, $name, $charset)
+    public function __construct(string $host, string $port, string $user, string $password, string $name, string $charset = '')
     {
         $this->settings = array(
             'host' => $host,
             'port' => $port,
             'user' => $user,
             'password' => $password,
-            'dbname' => $name,
+            'name' => $name,
             'charset' => $charset ?: 'utf8mb4',
         );
-        print_r($this->settings);
         $this->dsn();
     }
 
-    /**
-     * 析构方法
-     * @access public
-     */
-    public function __destruct()
-    {
-        $this->pdoFree();
-        $this->pdoClose();
-    }
 
-    /**
-     * 获取 DSN
-     */
-    private function dsn()
-    {
-        if (!$this->dsn) {
-            $this->dsn = 'mysql:dbname=' . $this->settings["dbname"] . ';host=' . $this->settings["host"] . ';port=' . $this->settings['port'];
-        }
-        return $this->dsn;
-    }
 
-    /**
-     * 获取 PDO
-     */
-    private function pdo()
-    {
-        if (!$this->pdo) {
-            try {
-                $this->pdo = new PDO($this->dsn(), $this->settings["user"], $this->settings["password"],
-                    array(
-                        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . $this->settings['charset'],
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_STRINGIFY_FETCHES => false,
-                        PDO::ATTR_EMULATE_PREPARES => false,
-                    )
-                );
-            } catch (PDOException $e) {
-                exit($e->getMessage());
-            }
-        }
-        return $this->pdo;
-    }
-
-    /**
-     * 关闭 PDOState
-     */
-    private function pdoFree()
-    {
-        if (!empty($this->PDOStatement)) {
-            $this->PDOStatement = null;
-        }
-    }
-
-    /**
-     * 关闭 PDO连接
-     */
-    private function pdoClose()
-    {
-        $this->pdo = null;
-    }
 
     /**
      * 数据库错误信息
@@ -287,8 +199,8 @@ class Mysql extends DataBase
                 break;
             case 'json':
                 $val = json_encode($val);
-                if ($this->isCrypto()) {
-                    $json = array('crypto' => $this->enCrypto($val));
+                if ($this->isUseCrypto()) {
+                    $json = array('crypto' => Crypto::encrypt($val));
                     $val = json_encode($json);
                 }
                 $val = addslashes($val);
@@ -304,8 +216,8 @@ class Mysql extends DataBase
             case 'varchar':
             case 'text':
                 $val = trim($val);
-                if ($this->isCrypto()) {
-                    $val = $this->enCrypto($val);
+                if ($this->isUseCrypto()) {
+                    $val = Crypto::encrypt($val);
                 }
                 break;
             default:
@@ -343,8 +255,8 @@ class Mysql extends DataBase
             case 'varchar':
             case 'text':
                 $val = trim($val);
-                if ($this->isCrypto()) {
-                    $val = $this->enCrypto($val);
+                if ($this->isUseCrypto()) {
+                    $val = Crypto::encrypt($val);
                 }
                 break;
             default:
@@ -386,9 +298,9 @@ class Mysql extends DataBase
             if ($arr) {
                 $arr = str_replace(',,,,,', '', $arr);
                 $arr = explode(',', $arr);
-                if ($this->isCrypto()) {
+                if ($this->isUseCrypto()) {
                     foreach ($arr as $ak => $a) {
-                        $arr[$ak] = $this->deCrypto($a);
+                        $arr[$ak] = Crypto::decrypt($a);
                     }
                 }
             } else {
@@ -414,9 +326,9 @@ class Mysql extends DataBase
                     switch ($ft[$k]) {
                         case 'json':
                             $result[$k] = json_decode($v, true);
-                            if ($this->isCrypto()) {
+                            if ($this->isUseCrypto()) {
                                 $crypto = $result[$k]['crypto'] ?? '';
-                                $crypto = $this->deCrypto($crypto);
+                                $crypto = Crypto::decrypt($crypto);
                                 $result[$k] = json_decode($crypto, true);
                             }
                             $result[$k] = $this->parseKSort($result[$k]);
@@ -434,8 +346,8 @@ class Mysql extends DataBase
                         case 'char':
                         case 'varchar':
                         case 'text':
-                            if (strpos($v, ',,,,,') === false && $this->isCrypto()) {
-                                $result[$k] = $this->deCrypto($v);
+                            if (strpos($v, ',,,,,') === false && $this->isUseCrypto()) {
+                                $result[$k] = Crypto::decrypt($v);
                             }
                             break;
                         default:
@@ -454,7 +366,7 @@ class Mysql extends DataBase
      * 执行
      *
      * @param string $query
-     * @return bool|\PDOStatement
+     * @return bool|PDOStatement
      * @throws PDOException
      */
     protected function execute($query)
@@ -507,7 +419,7 @@ class Mysql extends DataBase
     {
         $table = $this->getTable();
         if (!$table) {
-            throw new \Exception('lose table');
+            throw new Exception('lose table');
         }
         $query = trim($query);
         $this->lastSql = $query;
@@ -526,7 +438,7 @@ class Mysql extends DataBase
         }
         //释放前次的查询结果
         if (!$this->PDOStatement = $this->execute($query)) {
-            throw new \Exception($this->getError());
+            throw new Exception($this->getError());
         }
 
         if ($statement === 'select' || $statement === 'show') {
@@ -942,7 +854,7 @@ class Mysql extends DataBase
                             $innerSql .= " <= {$value}";
                             break;
                         case self::like:
-                            if ($this->isCrypto()) {
+                            if ($this->isUseCrypto()) {
                                 $likeO = '';
                                 $likeE = '';
                                 $vspllit = str_split($v['value']);
@@ -961,7 +873,7 @@ class Mysql extends DataBase
                             $innerSql .= " like {$value}";
                             break;
                         case self::notLike:
-                            if ($this->isCrypto()) {
+                            if ($this->isUseCrypto()) {
                                 $likeO = '';
                                 $likeE = '';
                                 $vspllit = str_split($v['value']);
@@ -1171,7 +1083,7 @@ class Mysql extends DataBase
             $result = null;
             try {
                 $result = $this->redis()->get($sql);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
             if (!$result) {
                 $PDOStatement = $this->execute($sql);
@@ -1179,7 +1091,7 @@ class Mysql extends DataBase
                     $result = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
                     try {
                         $this->redis()->set($sql, $result, 600);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                     }
                 } else {
                 }
@@ -2375,7 +2287,7 @@ class Mysql extends DataBase
         }
         $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
         if (!$where && $sure !== true) {
-            throw new \Exception('update must be sure when without where：' . $sql);
+            throw new Exception('update must be sure when without where：' . $sql);
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
@@ -2406,7 +2318,7 @@ class Mysql extends DataBase
         }
         $where = $this->parseWhere(!empty($this->_options['where']) ? $this->_options['where'] : '');
         if (!$where && $sure !== true) {
-            throw new \Exception('delete must be sure when without where');
+            throw new Exception('delete must be sure when without where');
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
@@ -2456,7 +2368,7 @@ class Mysql extends DataBase
                 }
                 $response = $lang['system_tips_i18n_' . $language] ?? $response;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             //exit($e->getMessage());
         }
         return $response;

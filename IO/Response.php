@@ -23,12 +23,13 @@ class Response
     /**
      * safety debug backtrace
      * @param int $safeLv 安全等级，数字越高安全性越高
+     * @param null $trace
      * @return array
      */
-    private function debug_backtrace($safeLv = 0)
+    private function debug_backtrace($safeLv = 0, $trace = null)
     {
         $path = realpath(__DIR__ . '/../../../..');
-        $trace = debug_backtrace();
+        if (empty($trace)) $trace = debug_backtrace();
         foreach ($trace as $tk => $t) {
             if ($safeLv >= 3) {
                 if (isset($t['line'])) unset($trace[$tk]['line']);
@@ -146,7 +147,7 @@ class Response
             ->setMsg($msg)
             ->setData($data)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
-                ? $this->debug_backtrace(0) : $this->debug_backtrace(1),
+                ? $this->debug_backtrace(0, $data) : $this->debug_backtrace(1, $data),
             ));
         $this->end($HandleCollector);
     }
@@ -160,7 +161,7 @@ class Response
             ->setCode(ResponseCode::ABORT)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
-                ? $this->debug_backtrace(1) : $this->debug_backtrace(2),
+                ? $this->debug_backtrace(1, $data) : $this->debug_backtrace(2, $data),
             ));
         $this->end($HandleCollector);
     }
@@ -175,7 +176,7 @@ class Response
             ->setMsg($msg)
             ->setData($data)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
-                ? $this->debug_backtrace(2) : $this->debug_backtrace(3),
+                ? $this->debug_backtrace(2, $data) : $this->debug_backtrace(3, $data),
             ));
         $this->end($HandleCollector);
     }
@@ -189,7 +190,7 @@ class Response
             ->setCode(ResponseCode::NOT_FOUND)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
-                ? $this->debug_backtrace(2) : $this->debug_backtrace(3),
+                ? $this->debug_backtrace(2, $data) : $this->debug_backtrace(3, $data),
             ));
         $this->end($HandleCollector);
     }

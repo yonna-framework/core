@@ -1,122 +1,93 @@
 <?php
+
 namespace PhpureCore\Database;
 
-use Exception;
+use PhpureCore\Glue\Response;
+use PhpureCore\Mapping\DBType;
 
 abstract class AbstractDB
 {
 
+    private $host = '';
+    private $port = '';
+    private $account = '';
+    private $password = '';
+    private $name = '';
+    private $charset = '';
+    private $project_key = '';
+
     /**
-     * redis
+     * dsn 链接串
      *
-     * @var \Redis
+     * @var string
      */
-    private $redis = null;
-    private $redisType = 'forever';
+    private $dsn;
 
     /**
-     * 加密参数
-     * @var Crypto
+     * 排序类型设置
      */
-    private $crypto = null;
-    private $isCrypto = false;
+    const DESC = 'desc';
+    const ASC = 'asc';
+
 
     /**
-     * 清除所有数据
+     * 是否对内容加密
+     * @var bool
      */
-    protected function resetAll()
+    private $use_crypto = false;
+
+
+
+
+
+    /**
+     * 析构方法
+     * @access public
+     */
+    public function __destruct()
     {
-        $this->isCrypto = false;
+        // nothing
     }
 
-    /**
-     * 获取 redis
-     * @return Redis
-     * @throws Exception
-     */
-    public function redis()
-    {
-        if (!$this->redis) {
-            $this->redis = (new Redis());
-        }
-        return $this->redis;
-    }
+
 
     /**
-     * 获取 redis
-     * @param $table
-     */
-    public function redisClear($table)
-    {
-        if (!$table) return;
-        try{
-            $this->redis()->delete($table);
-        }catch (\Exception $e){
-            // nothing
-        }
-    }
-
-    /**
+     * 获取 DSN
+     * @param string $type
      * @return string
      */
-    public function getRedisType(): string
+    protected function dsn(string $type)
     {
-        return $this->redisType;
+        if (empty($type)) Response::exception('Dsn type is Empty');
+        if (!$this->dsn) {
+            switch ($type){
+                case DBType::MYSQL:
+                    $this->dsn = 'mysql:dbname=' . $this->settings["name"] . ';host=' . $this->settings["host"] . ';port=' . $this->settings['port'];
+                    break;
+            }
+        }
+        return $this->dsn;
     }
 
-    /**
-     * @param string|number $redisType
-     * @return Mysql|Pgsql|Mssql|Sqlite
-     */
-    public function setRedisType($redisType)
-    {
-        if(in_array($redisType, ['forever','disabled']) || is_numeric($redisType)){
-            $this->redisType = $redisType;
-        }
-        return $this;
-    }
 
     /**
      * @return bool
      */
-    public function isCrypto(): bool
+    protected function isUseCrypto(): bool
     {
-        return $this->isCrypto;
+        return $this->use_crypto;
     }
 
     /**
      * @tips 一旦设为加密则只能全字而无法模糊匹配
-     * @param bool $isCrypto
-     * @return Mysql|Pgsql|Mssql|Sqlite
+     * @param bool $use_crypto
+     * @return AbstractDB|Mysql|Pgsql|Mssql|Sqlite|Mongo|Redis
      */
-    public function setIsCrypto(bool $isCrypto)
+    protected function setUseCrypto(bool $use_crypto)
     {
-        $this->isCrypto = $isCrypto;
+        $this->use_crypto = $use_crypto;
         return $this;
     }
 
-    /**
-     * @return Crypto
-     */
-    private function getCrypto(){
-        if(!$this->crypto){
-            $config = CONFIG['crypto'];
-            if(!$config){
-                $config = array(
-                    'type' => 'des-cbc',
-                    'secret' => 'hunzsig#',
-                    'iv' => 'hun0Zsig',
-                );
-            } else {
-                $config = array(
-                    'type' => CONFIG['crypto']['type'],
-                    'secret' => strrev(CONFIG['crypto']['secret']),
-                    'iv' => strrev(CONFIG['crypto']['iv']),
-                );
-            }
-            $this->crypto = new Crypto($config);
-        }
-        return $this->crypto;
-    }
 
 }

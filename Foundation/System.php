@@ -172,7 +172,7 @@ namespace {
 
     function phpure_system_handler($exception)
     {
-        \PhpureCore\Glue\Response::exception($exception->getMessage());
+        \PhpureCore\Glue\Response::exception($exception->getMessage(), $exception->getTrace());
     }
 
     error_reporting(-1);

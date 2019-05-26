@@ -10,7 +10,7 @@ use Exception;
 use PDO;
 use PDOException;
 
-class Pgsql extends DataBase
+class Pgsql extends AbstractDB
 {
 
     /**

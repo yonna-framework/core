@@ -56,14 +56,14 @@ class Database extends Arrow
         static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::SQLITE);
     }
 
-    public static function mongo(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function mongo(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset = '')
     {
         static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::MONGO);
     }
 
-    public static function redis(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function redis(string $tag, string $host, string $port, string $account = '', string $password = '')
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::REDIS);
+        static::set($tag, $host, $port, $account, $password, '', '', DBType::REDIS);
     }
 
 }
