@@ -8,57 +8,18 @@ namespace PhpureCore\Database;
 
 use Exception;
 use PDOException;
+use PhpureCore\Mapping\DBType;
 use Str;
 
-class Mysql extends AbstractDB
+class Mysql extends AbstractPDO
 {
 
-    /**
-     * 数据库用户名密码等配置
-     *
-     * @var array
-     */
-    private $settings = array();
-
-    /**
-     * sql 的参数
-     *
-     * @var array
-     */
-    private $parameters = array();
-
-    /**
-     * 最后一条直行的 sql
-     *
-     * @var string
-     */
-    private $lastSql = '';
-
-    /**
-     * 参数
-     *
-     * @var array
-     */
-    private $_options = array();
-
-    /**
-     * 错误信息
-     *
-     * @var
-     */
-    private $error;
+    protected $db_type = DBType::MYSQL;
 
     /**
      * 查询表达式
-     *
-     * @var string
      */
     private $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-
-    /**
-     * 多重嵌套事务处理堆栈
-     */
-    private $_transTrace = 0;
 
     /**
      * where 条件类型设置
@@ -92,80 +53,23 @@ class Mysql extends AbstractDB
     private $_where_table = '';
 
     /**
-     * 临时字段寄存
-     */
-    private $_currentFieldType = array();
-    private $_tempFieldType = array();
-
-    /**
-     * 清除所有数据
-     */
-    protected function resetAll()
-    {
-        $this->_options = array();
-        $this->_where = array();
-        $this->_where_table = '';
-        $this->_currentFieldType = array();
-        $this->_tempFieldType = array();
-        $this->parameters = array();
-        $this->lastSql = '';
-        $this->error = '';
-    }
-
-    /**
      * 构造方法
      *
      * @param string $host
      * @param string $port
-     * @param string $user
+     * @param string $account
      * @param string $password
      * @param string $name
      * @param string $charset
      */
-    public function __construct(string $host, string $port, string $user, string $password, string $name, string $charset = '')
+    public function __construct(string $host, string $port, string $account, string $password, string $name, string $charset = 'utf8mb4')
     {
-        $this->settings = array(
-            'host' => $host,
-            'port' => $port,
-            'user' => $user,
-            'password' => $password,
-            'name' => $name,
-            'charset' => $charset ?: 'utf8mb4',
-        );
-        $this->dsn();
-    }
-
-
-
-
-    /**
-     * 数据库错误信息
-     * @param $err
-     * @return bool
-     */
-    private function error($err)
-    {
-        $this->error = $err;
-        return false;
-    }
-
-    /**
-     * 获取数据库错误信息
-     * @return mixed
-     */
-    public function getError()
-    {
-        $error = $this->error;
-        if (!$error) {
-            if ($this->pdo) {
-                $errorInfo = $this->pdo->errorInfo();
-                $error = $errorInfo[1] . ':' . $errorInfo[2];
-            }
-            if ('' != $this->lastSql) {
-                $error .= "\n [ SQL语句 ] : " . $this->lastSql;
-            }
-        }
-        return $error;
+        $this->host = $host;
+        $this->port = $port;
+        $this->account = $account;
+        $this->password = $password;
+        $this->name = $name;
+        $this->charset = $charset ?: 'utf8mb4';
     }
 
     private function parseKSort(&$val)
@@ -366,7 +270,7 @@ class Mysql extends AbstractDB
      * 执行
      *
      * @param string $query
-     * @return bool|PDOStatement
+     * @return bool|\PDOStatement
      * @throws PDOException
      */
     protected function execute($query)

@@ -7,28 +7,34 @@ use PhpureCore\Mapping\DBType;
 
 abstract class AbstractDB
 {
-
-    private $host = '';
-    private $port = '';
-    private $account = '';
-    private $password = '';
-    private $name = '';
-    private $charset = '';
-    private $project_key = '';
-
-    /**
-     * dsn 链接串
-     *
-     * @var string
-     */
-    private $dsn;
-
     /**
      * 排序类型设置
      */
     const DESC = 'desc';
     const ASC = 'asc';
 
+    protected $db_type = null;
+    protected $host = null;
+    protected $port = null;
+    protected $account = null;
+    protected $password = null;
+    protected $name = null;
+    protected $charset = null;
+    protected $project_key = null;
+
+
+    /**
+     * 错误信息
+     * @var string
+     */
+    private $error = null;
+
+    /**
+     * dsn 链接串
+     *
+     * @var string
+     */
+    private $dsn = null;
 
     /**
      * 是否对内容加密
@@ -37,36 +43,72 @@ abstract class AbstractDB
     private $use_crypto = false;
 
 
-
-
-
     /**
      * 析构方法
      * @access public
      */
-    public function __destruct()
+    protected function __destruct()
     {
-        // nothing
+        $this->resetAll();
     }
 
+    /**
+     * 清除所有数据
+     */
+    protected function resetAll()
+    {
+        $this->host = null;
+        $this->port = null;
+        $this->account = null;
+        $this->password = null;
+        $this->name = null;
+        $this->charset = null;
+        $this->project_key = null;
+        $this->dsn = null;
+        $this->use_crypto = false;
+        $this->error = null;
+    }
 
 
     /**
      * 获取 DSN
-     * @param string $type
      * @return string
      */
-    protected function dsn(string $type)
+    protected function dsn()
     {
-        if (empty($type)) Response::exception('Dsn type is Empty');
+        if (empty($this->db_type)) Response::exception('Dsn type is Empty');
         if (!$this->dsn) {
-            switch ($type){
+            switch ($this->db_type) {
                 case DBType::MYSQL:
-                    $this->dsn = 'mysql:dbname=' . $this->settings["name"] . ';host=' . $this->settings["host"] . ';port=' . $this->settings['port'];
+                    $this->dsn = 'mysql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    break;
+                default:
+                    Response::exception("{$this->db_type} type is not supported for the time being");
                     break;
             }
         }
         return $this->dsn;
+    }
+
+
+    /**
+     * 数据库错误信息
+     * @param $err
+     * @return bool
+     */
+    protected function error($err)
+    {
+        $this->error = $err;
+        return false;
+    }
+
+    /**
+     * 获取数据库错误信息
+     * @return mixed
+     */
+    protected function getError()
+    {
+        return $this->error;
     }
 
 
