@@ -40,40 +40,15 @@ class Coupling
             $link['password'] = $conf['password'] ?? null;
             $link['name'] = $conf['name'] ?? null;
             $link['charset'] = $conf['charset'] ?? null;
-            $link['file'] = $conf['file'] ?? null;
+            $link['db_file_path'] = $conf['db_file_path'] ?? null;
+            $link['auto_cache'] = $conf['auto_cache'] ?? false;
         }
         if (empty($link['type'])) Response::exception('Lack type of database');
         if ($dbtc && $dbtc !== $link['type']) Response::exception('Database type check no pass');
         if (empty($link['host']) || empty($link['port'])) Response::exception('Lack of host/port address');
         $u = md5(var_export($link, true));
         if (empty(static::$db[$u])) {
-            $dbClassName = "\\PhpureCore\\Database\\{$link['type']}";
-            switch ($link['type']) {
-                case 'Sqlite':
-                    static::$db[$u] = Core::singleton(
-                        $dbClassName,
-                        $link['file'], $link['name'], $link['charset']
-                    );
-                    break;
-                case 'Redis':
-                    static::$db[$u] = Core::singleton(
-                        $dbClassName,
-                        $link['host'], $link['port'],
-                        $link['account'], $link['password']
-                    );
-                    break;
-                case 'Mongo':
-                case 'Mysql':
-                case 'Pgsql':
-                case 'Mssql':
-                default:
-                    static::$db[$u] = Core::singleton(
-                        $dbClassName,
-                        $link['host'], $link['port'], $link['account'],
-                        $link['password'], $link['name'], $link['charset']
-                    );
-                    break;
-            }
+            static::$db[$u] = Core::singleton("\\PhpureCore\\Database\\{$link['type']}", $link);
         }
         return static::$db[$u];
     }

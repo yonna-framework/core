@@ -12,19 +12,31 @@ class Database extends Arrow
 
     /**
      * @param string $tag
-     * @param string $host
-     * @param string $port
-     * @param string $account
-     * @param string $password
-     * @param string $name
-     * @param string $charset
-     * @param string $type
+     * @param array $setting
      */
-    private static function set(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset, string $type)
+    private static function set(string $tag, array $setting)
     {
+        $type = $setting['type'];
+        $host = $setting['host'];
+        $port = $setting['port'];
+        $account = $setting['account'];
+        $password = $setting['password'];
+        $name = $setting['name'];
+        $charset = $setting['charset'];
+        $db_file_path = $setting['db_file_path'];
+        $auto_cache = $setting['auto_cache'] === 'true';
         if (empty($type)) Response::exception('no type');
-        if (empty($host)) Response::exception('no host');
-        if (empty($port)) Response::exception('no port');
+        if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL || $type === DBType::MONGO || $type === DBType::REDIS) {
+            if (empty($host)) Response::exception('no host');
+            if (empty($port)) Response::exception('no port');
+        }
+        if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL) {
+            if (empty($account)) Response::exception('no account');
+            if (empty($password)) Response::exception('no password');
+        }
+        if ($type === DBType::SQLITE) {
+            if (empty($db_file_path)) Response::exception('no db file path');
+        }
         static::$stack[static::$name][$tag] = [
             'type' => $type,
             'host' => $host,
@@ -33,37 +45,46 @@ class Database extends Arrow
             'password' => $password,
             'name' => $name,
             'charset' => $charset,
+            'db_file_path' => $db_file_path,
+            'auto_cache' => $auto_cache,
         ];
     }
 
-    public static function mysql(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function mysql(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::MYSQL);
+        $setting['type'] = DBType::MYSQL;
+        static::set($tag, $setting);
     }
 
-    public static function pgsql(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function pgsql(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::PGSQL);
+        $setting['type'] = DBType::PGSQL;
+        static::set($tag, $setting);
     }
 
-    public static function mssql(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function mssql(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::MSSQL);
+        $setting['type'] = DBType::MSSQL;
+        static::set($tag, $setting);
     }
 
-    public static function sqlite(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset)
+    public static function sqlite(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::SQLITE);
+        $setting['type'] = DBType::SQLITE;
+        static::set($tag, $setting);
     }
 
-    public static function mongo(string $tag, string $host, string $port, string $account, string $password, string $name, string $charset = '')
+    public static function mongo(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, $name, $charset, DBType::MONGO);
+        $setting['type'] = DBType::MONGO;
+        static::set($tag, $setting);
     }
 
-    public static function redis(string $tag, string $host, string $port, string $account = '', string $password = '')
+    public static function redis(string $tag, array $setting)
     {
-        static::set($tag, $host, $port, $account, $password, '', '', DBType::REDIS);
+        $setting['type'] = DBType::REDIS;
+        $setting['auto_cache'] = 'false';
+        static::set($tag, $setting);
     }
 
 }

@@ -9,65 +9,12 @@ namespace PhpureCore\Database;
 use Exception;
 use PDO;
 use PDOException;
+use PhpureCore\Mapping\DBType;
 
-class Pgsql extends AbstractDB
+class Pgsql extends AbstractPDO
 {
 
-    /**
-     * pdo 实例
-     *
-     * @var PDO
-     */
-    private $pdo;
-
-    /**
-     * pdo sQuery
-     *
-     * @var \PDOStatement
-     */
-    private $PDOStatement;
-
-    /**
-     * dsn pdo链接设置
-     *
-     * @var string
-     */
-    private $dsn;
-
-    /**
-     * 数据库用户名密码等配置
-     *
-     * @var array
-     */
-    private $settings = array();
-
-    /**
-     * sql 的参数
-     *
-     * @var array
-     */
-    private $parameters = array();
-
-    /**
-     * 最后一条直行的 sql
-     *
-     * @var string
-     */
-    private $lastSql = '';
-
-    /**
-     * 参数
-     *
-     * @var array
-     */
-    private $options = array();
-
-    /**
-     * 错误信息
-     *
-     * @var
-     */
-    private $error;
+    protected $db_type = DBType::PGSQL;
 
     /**
      * 查询表达式
@@ -75,11 +22,6 @@ class Pgsql extends AbstractDB
      * @var string
      */
     private $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %SCHEMAS%.%TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-
-    /**
-     * 多重嵌套事务处理堆栈
-     */
-    private $_transTrace = 0;
 
     /**
      * where 条件类型设置
@@ -103,62 +45,19 @@ class Pgsql extends AbstractDB
     const isContainsBy = 'isContainsBy';                    //isContainsBy
 
     /**
-     * 条件对象，实现无敌闭包
-     *
-     * @var array
-     */
-    private $where = array();
-    private $where_table = '';
-
-    /**
-     * 排序类型设置
-     */
-    const DESC = 'desc';
-    const ASC = 'asc';
-
-    /**
-     * 临时字段寄存
-     */
-    private $currentFieldType = array();
-    private $tempFieldType = array();
-
-    /**
-     * 清除所有数据
-     */
-    protected function resetAll()
-    {
-        $this->options = array();
-        $this->where = array();
-        $this->where_table = '';
-        $this->currentFieldType = array();
-        $this->tempFieldType = array();
-        $this->parameters = array();
-        $this->lastSql = '';
-        $this->error = '';
-        parent::resetAll();
-    }
-
-    /**
      * 构造方法
      *
-     * @param string $host
-     * @param int $port
-     * @param string $user
-     * @param string $password
-     * @param string $db_name
-     * @param string $charset
+     * @param array $setting
      */
-    public function __construct($host, $port, $user, $password, $db_name, $charset)
+    public function __construct(array $setting)
     {
-        $this->settings = array(
-            'host' => $host,
-            'port' => $port,
-            'user' => $user,
-            'password' => $password,
-            'dbname' => $db_name,
-            'charset' => $charset ?: 'utf8',
-        );
-        $this->dsn();
+        $this->host = $setting['host'];
+        $this->port = $setting['port'];
+        $this->account = $setting['account'];
+        $this->password = $setting['password'];
+        $this->name = $setting['name'];
+        $this->charset = $setting['charset'] ?: 'utf8';
+        $this->auto_cache = $setting['auto_cache'];
     }
 
     /**
@@ -167,302 +66,10 @@ class Pgsql extends AbstractDB
      */
     public function __destruct()
     {
-        $this->pdoFree();
-        $this->pdoClose();
+        parent::__destruct();
     }
 
-    /**
-     * 获取 DSN
-     */
-    private function dsn()
-    {
-        if (!$this->dsn) {
-            $this->dsn = 'pgsql:dbname=' . $this->settings["dbname"] . ';host=' . $this->settings["host"] . ';port=' . $this->settings['port'];
-        }
-        return $this->dsn;
-    }
 
-    /**
-     * 获取 PDO
-     */
-    private function pdo()
-    {
-        if (!$this->pdo) {
-            try {
-                $this->pdo = new PDO($this->dsn(), $this->settings["user"], $this->settings["password"],
-                    array(
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_STRINGIFY_FETCHES => false,
-                        PDO::ATTR_EMULATE_PREPARES => false,
-                    )
-                );
-            } catch (PDOException $e) {
-                exit($e->getMessage());
-            }
-        }
-        return $this->pdo;
-    }
-
-    /**
-     * 关闭 PDOState
-     */
-    private function pdoFree()
-    {
-        if (!empty($this->PDOStatement)) {
-            $this->PDOStatement = null;
-        }
-    }
-
-    /**
-     * 关闭 PDO连接
-     */
-    private function pdoClose()
-    {
-        $this->pdo = null;
-    }
-
-    /**
-     * 数据库错误信息
-     * @param $err
-     * @return bool
-     */
-    private function error($err)
-    {
-        $this->error = $err;
-        return false;
-    }
-
-    /**
-     * 获取数据库错误信息
-     * @return mixed
-     */
-    public function getError()
-    {
-        $error = $this->error;
-        if (!$error) {
-            if ($this->pdo) {
-                $errorInfo = $this->pdo->errorInfo();
-                $error = $errorInfo[1] . ':' . $errorInfo[2];
-            }
-            if ('' != $this->lastSql) {
-                $error .= "\n [ SQL语句 ] : " . $this->lastSql;
-            }
-        }
-        return $error;
-    }
-
-    private function parseKSort(&$val)
-    {
-        if (is_array($val)) {
-            ksort($val);
-            foreach ($val as $k => $v) {
-                $val[$k] = $this->parseKSort($v);
-            }
-        }
-        return $val;
-    }
-
-    private function parseValueByFieldType($val, $ft)
-    {
-        if (!in_array($ft, ['json', 'jsonb']) && is_array($val)) {
-            foreach ($val as $k => $v) {
-                $val[$k] = $this->parseValueByFieldType($v, $ft);
-            }
-            return $val;
-        }
-        switch ($ft) {
-            case 'integer':
-            case 'bigint':
-            case 'smallint':
-                $val = intval($val);
-                break;
-            case 'money':
-                $val = round($val, 10);
-                break;
-            case 'boolean':
-                $val = boolval($val);
-                break;
-            case 'json':
-            case 'jsonb':
-                $val = json_encode($val);
-                if ($this->isCrypto()) {
-                    $json = array('crypto' => $this->enCrypto($val));
-                    $val = json_encode($json);
-                }
-                break;
-            case 'date':
-                $val = date('Y-m-d', strtotime($val));
-                break;
-            case 'timestamp without time zone':
-                $val = date('Y-m-d H:i:s.u', strtotime($val));
-                break;
-            case 'timestamp with time zone':
-                $val = date('Y-m-d H:i:s.u', strtotime($val)) . substr(date('O', strtotime($val)), 0, 3);
-                break;
-            case 'text':
-            case 'char':
-                $val = trim($val);
-                if ($this->isCrypto()) {
-                    $val = $this->enCrypto($val);
-                }
-                break;
-            default:
-                break;
-        }
-        if (strpos($ft, 'numeric') !== false) {
-            $val = round($val, 10);
-        }
-        return $val;
-    }
-
-    private function parseWhereByFieldType($val, $ft)
-    {
-        if (!in_array($ft, ['json', 'jsonb']) && is_array($val)) {
-            foreach ($val as $k => $v) {
-                $val[$k] = $this->parseWhereByFieldType($v, $ft);
-            }
-            return $val;
-        }
-        switch ($ft) {
-            case 'integer':
-            case 'bigint':
-            case 'smallint':
-                $val = intval($val);
-                break;
-            case 'money':
-                $val = round($val, 8);
-                break;
-            case 'boolean':
-                $val = boolval($val);
-                break;
-            case 'date':
-                $val = date('Y-m-d', strtotime($val));
-                break;
-            case 'timestamp without time zone':
-                $val = datemicro('Y-m-d H:i:s', $val);
-                break;
-            case 'timestamp with time zone':
-                $val = datemicro('Y-m-d H:i:s', $val) . substr(date('O', strtotime($val)), 0, 3);
-                break;
-            case 'text':
-            case 'char':
-                $val = trim($val);
-                if ($this->isCrypto()) {
-                    $val = $this->enCrypto($val);
-                }
-                break;
-            default:
-                break;
-        }
-        if (strpos($ft, 'numeric') !== false) {
-            $val = round($val, 10);
-        }
-        return $val;
-    }
-
-    /**
-     * 数组转pg形式数组
-     * @param $arr
-     * @param $type
-     * @return mixed
-     */
-    public function toPGArray($arr, $type)
-    {
-        if ($type && is_array($arr)) {
-            if ($arr) {
-                foreach ($arr as $ak => $a) {
-                    $arr[$ak] = $this->parseValueByFieldType($a, $type);
-                }
-                $arr = '{' . implode(',', $arr) . '}';
-            } else {
-                $arr = '{}';
-            }
-        }
-        return $arr;
-    }
-
-    /**
-     * 递归式格式化数据
-     * @param $result
-     * @return mixed
-     */
-    private function fetchFormat($result)
-    {
-        $ft = $this->getFieldType();
-        if ($ft) {
-            foreach ($result as $k => $v) {
-                if (is_array($v)) {
-                    $result[$k] = $this->fetchFormat($v);
-                } elseif (isset($ft[$k])) {
-                    if ($ft[$k] == 'json' || $ft[$k] == 'jsonb' || strpos($ft[$k], '[]') !== false) {
-                        $result[$k] = json_decode($v, true);
-                        if ($this->isCrypto()) {
-                            $crypto = $result[$k]['crypto'] ?? '';
-                            $crypto = $this->deCrypto($crypto);
-                            $result[$k] = json_decode($crypto, true);
-                        }
-                        $result[$k] = $this->parseKSort($result[$k]);
-                    } elseif (strpos($ft[$k], 'numeric') !== false) {
-                        $result[$k] = round($v, 10);
-                    } elseif ($ft[$k] === 'money') {
-                        $result[$k] = round($v, 10);
-                    } elseif (in_array($ft[$k], ['smallint', 'bigint', 'integer'])) {
-                        $result[$k] = intval($v);
-                    } elseif (in_array($ft[$k], ['text', 'char'])) {
-                        if ($this->isCrypto()) {
-                            $result[$k] = $this->deCrypto($v);
-                        }
-                    }
-                }
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * 执行
-     *
-     * @param string $query
-     * @return bool|\PDOStatement
-     * @throws PDOException
-     */
-    protected function execute($query)
-    {
-        $this->pdoFree();
-        try {
-            $PDOStatement = $this->pdo()->prepare($query);
-            if (!empty($this->parameters)) {
-                foreach ($this->parameters as $param) {
-                    $parameters = explode("\x7F", $param);
-                    $PDOStatement->bindParam($parameters[0], $parameters[1]);
-                }
-            }
-            $PDOStatement->execute();
-        } catch (PDOException $e) {
-            // 服务端断开时重连一次
-            if ($e->errorInfo[1] == 2006 || $e->errorInfo[1] == 2013) {
-                $this->pdoClose();
-                try {
-                    $PDOStatement = $this->pdo()->prepare($query);
-                    if (!empty($this->parameters)) {
-                        foreach ($this->parameters as $param) {
-                            $parameters = explode("\x7F", $param);
-                            $PDOStatement->bindParam($parameters[0], $parameters[1]);
-                        }
-                    }
-                    $PDOStatement->execute();
-                } catch (PDOException $ex) {
-                    return $this->error($ex);
-                }
-            } else {
-                $msg = $e->getMessage();
-                $err_msg = "[" . (int)$e->getCode() . "]SQL:" . $query . " " . $msg;
-                return $this->error($err_msg);
-            }
-        }
-        $this->parameters = array();
-        return $PDOStatement;
-    }
 
     /**
      * 执行 SQL

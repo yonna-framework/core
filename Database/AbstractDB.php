@@ -20,6 +20,8 @@ abstract class AbstractDB
     protected $password = null;
     protected $name = null;
     protected $charset = null;
+    protected $db_file_path = null;
+    protected $auto_cache = false;
     protected $project_key = null;
 
     /**
@@ -81,6 +83,7 @@ abstract class AbstractDB
         $this->password = null;
         $this->name = null;
         $this->charset = null;
+        $this->auto_cache = false;
         $this->project_key = null;
         $this->dsn = null;
         $this->use_crypto = false;
@@ -102,6 +105,15 @@ abstract class AbstractDB
             switch ($this->db_type) {
                 case DBType::MYSQL:
                     $this->dsn = 'mysql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    break;
+                case DBType::PGSQL:
+                    $this->dsn = 'pgsql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    break;
+                case DBType::MSSQL:
+                    $this->dsn = 'pgsql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    break;
+                case DBType::SQLITE:
+                    $this->dsn = 'sqlite:' . $this->settings["dbdir"] . DIRECTORY_SEPARATOR . $this->settings["dbname"];
                     break;
                 default:
                     Response::exception("{$this->db_type} type is not supported for the time being");
