@@ -97,11 +97,11 @@ abstract class Mapping
         if (!isset(static::$fetch_cache[$class])) {
             try {
                 $objClass = new ReflectionClass($class);
+                $arrConst = $objClass->getConstants();
+                static::$fetch_cache[$class] = $arrConst;
             } catch (ReflectionException $e) {
                 Response::exception($e->getMessage());
             }
-            $arrConst = $objClass->getConstants();
-            static::$fetch_cache[$class] = $arrConst;
         }
         return static::$fetch_cache[$class] ?? [];
     }
