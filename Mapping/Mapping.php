@@ -111,12 +111,28 @@ abstract class Mapping
         return static::fetch();
     }
 
+    public static function toJson()
+    {
+        return json_encode(static::fetch() ?: []);
+    }
+
     public static function toKV()
     {
         $data = static::fetch();
         $kv = [];
         foreach ($data as $v) {
             $kv[$v] = static::getLabel($v);
+        }
+        return $kv;
+    }
+
+    public static function toMixed()
+    {
+        $data = static::fetch();
+        $kv = [];
+        $className = static::getClassName();
+        foreach ($data as $v) {
+            $kv[$v] = static::$map_data[$className][$v];
         }
         return $kv;
     }

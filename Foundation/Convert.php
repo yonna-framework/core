@@ -20,7 +20,7 @@ namespace {
          * @param $str
          * @return mixed
          */
-        public static function eol2br($str)
+        public static function eol2br(string $str)
         {
             return nl2br($str);
         }
@@ -30,40 +30,55 @@ namespace {
          * @param $str
          * @return mixed
          */
-        public static function br2nl($str)
+        public static function br2nl(string $str)
         {
             return str_replace(["<br>", "<br/>"], PHP_EOL, $str);
         }
 
         /**
-         * 将驼峰转为下划线命名
-         * @param $str
-         * @return string
+         * null to string
+         * @param $data
+         * @return array|string
          */
-        public static function camel2underscore($str)
+        public static function null2String($data)
         {
-            return strtolower(preg_replace('/((?<=[a-z])(?=[A-Z]))/', '_', $str));
+            if (is_array($data)) {
+                foreach ($data as $k => $v) {
+                    if (is_array($v)) {
+                        $data[$k] = static::null2String($v);
+                    } elseif (is_null($v)) {
+                        $data[$k] = '';
+                    }
+                }
+            } elseif (is_null($data)) {
+                $data = '';
+            }
+            return $data;
         }
 
         /**
          * null to string
-         * @param $obj
+         * @param $data
          * @return array|string
          */
-        public static function null2String($obj)
+        public static function obj2String($data)
         {
-            if (is_array($obj)) {
-                foreach ($obj as $k => $v) {
+            if (is_array($data)) {
+                foreach ($data as $k => $v) {
                     if (is_array($v)) {
-                        $obj[$k] = static::null2String($v);
+                        $data[$k] = static::obj2String($v);
                     } elseif (is_null($v)) {
-                        $obj[$k] = "";
+                        $data[$k] = '';
+                    } elseif (is_object($v)) {
+                        $data[$k] = 'object#' . get_class($v);
                     }
                 }
-            } elseif (is_null($obj)) {
-                $obj = "";
+            } elseif (is_null($data)) {
+                $data = '';
+            } elseif (is_object($data)) {
+                $data = 'object#' . get_class($data);
             }
-            return $obj;
+            return $data;
         }
 
         /**
@@ -71,9 +86,9 @@ namespace {
          * @param $str
          * @return string
          */
-        public static function str2bin($str)
+        public static function str2bin(string $str): string
         {
-            if (!is_string($str)) return null;
+            if (!is_string($str)) return '';
             $value = unpack('H*', $str);
             $value = str_split($value[1], 1);
             $bin = '';
@@ -89,9 +104,9 @@ namespace {
          * @param $bin
          * @return string
          */
-        public static function bin2str($bin)
+        public static function bin2str(string $bin): string
         {
-            if (!is_string($bin)) return null;
+            if (!is_string($bin)) return '';
             $bin = str_split($bin, 4);
             $str = '';
             foreach ($bin as $v) {
@@ -107,7 +122,7 @@ namespace {
          * @param $base_from
          * @return string
          */
-        public static function limitConvert($data, $base_from)
+        public static function limitConvert($data, int $base_from)
         {
             $chars_map = [
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -130,6 +145,31 @@ namespace {
             $r = static::kmod($data, $dividend);
             $base64_chars[] = $chars_map[$r];
             return join('', array_reverse($base64_chars));
+        }
+
+        /**
+         * 数组转html
+         * @param array $arr
+         * @param string $prevKey
+         * @return string
+         */
+        public static function arr2html(array $arr, string $prevKey = '-root'): string
+        {
+            $str = "<table class='phpure{$prevKey}'>";
+            foreach ($arr as $k => $v) {
+                $str .= "<tr>";
+                $str .= "<td class='key'>{$k}</td>";
+                $str .= "<td class='value'>";
+                if (is_array($v)) {
+                    $str .= self::arr2html($v, "{$prevKey}-{$k}");
+                } else {
+                    $str .= (string)$v;
+                }
+                $str .= "</td>";
+                $str .= "</tr>";
+            }
+            $str .= "</table>";
+            return $str;
         }
 
 

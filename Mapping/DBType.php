@@ -15,5 +15,4 @@ class DBType extends Mapping
     const MONGO = 'Mongo';
     const REDIS = 'Redis';
 
-
 }

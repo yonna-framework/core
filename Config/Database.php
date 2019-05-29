@@ -16,14 +16,14 @@ class Database extends Arrow
      */
     private static function set(string $tag, array $setting)
     {
-        $type = $setting['type'];
-        $host = $setting['host'];
-        $port = $setting['port'];
-        $account = $setting['account'];
-        $password = $setting['password'];
-        $name = $setting['name'];
-        $charset = $setting['charset'];
-        $db_file_path = $setting['db_file_path'];
+        $type = $setting['type'] ?? null;
+        $host = $setting['host'] ?? null;
+        $port = $setting['port'] ?? null;
+        $account = $setting['account'] ?? null;
+        $password = $setting['password'] ?? null;
+        $name = $setting['name'] ?? null;
+        $charset = $setting['charset'] ?? null;
+        $db_file_path = $setting['db_file_path'] ?? null;
         $auto_cache = $setting['auto_cache'] === 'true';
         if (empty($type)) Response::exception('no type');
         if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL || $type === DBType::MONGO || $type === DBType::REDIS) {

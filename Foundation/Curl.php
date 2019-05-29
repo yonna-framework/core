@@ -41,7 +41,7 @@ namespace {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, curl_header());
+            curl_setopt($ch, CURLOPT_HTTPHEADER, self::header());
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
             $output = curl_exec($ch);
             curl_close($ch);
@@ -87,7 +87,7 @@ namespace {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, curl_header($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, self::header($data));
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             $output = curl_exec($ch);
             curl_close($ch);
@@ -108,7 +108,7 @@ namespace {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, curl_header());
+            curl_setopt($ch, CURLOPT_HTTPHEADER, self::header());
             $output = curl_exec($ch);
             curl_close($ch);
             return $output;

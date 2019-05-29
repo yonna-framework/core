@@ -44,7 +44,7 @@ class IO
             if (is_array($response)) {
                 $response = Response::success('fetch array success', $response);
             } else if (is_string($response)) {
-                $response = Response::success($response, []);
+                $response = Response::success($response, ['string' => $response]);
             } else if (is_numeric($response)) {
                 $response = Response::success('fetch number success', [$response]);
             } else if (is_bool($response)) {

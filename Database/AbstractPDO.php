@@ -130,6 +130,22 @@ abstract class AbstractPDO extends AbstractDB
                             )
                         );
                         break;
+                    case DBType::MSSQL:
+                        $this->pdo = new PDO($this->dsn(), $this->account, $this->password,
+                            array(
+                                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                            )
+                        );
+                        break;
+                    case DBType::SQLITE:
+                        $this->pdo = new PDO($this->dsn(), null, null,
+                            array(
+                                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                                PDO::ATTR_STRINGIFY_FETCHES => false,
+                                PDO::ATTR_EMULATE_PREPARES => false,
+                            )
+                        );
+                        break;
                     default:
                         Response::exception("{$this->db_type} type is not supported for the time being");
                         break;
@@ -334,6 +350,83 @@ abstract class AbstractPDO extends AbstractDB
     }
 
     /**
+     * 字段和表名处理
+     * @access protected
+     * @param string $key
+     * @return string
+     */
+    protected function parseKey($key)
+    {
+        $key = trim($key);
+        if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+            switch ($this->db_type) {
+                case DBType::MYSQL:
+                    $key = '`' . $key . '`';
+                    break;
+                case DBType::PGSQL:
+                case DBType::MSSQL:
+                    $key = '"' . $key . '"';
+                    break;
+                case DBType::SQLITE:
+                    $key = "'" . $key . "'";
+                    break;
+                default:
+                    Response::exception('parseKey db type error');
+                    break;
+            }
+        }
+        return $key;
+    }
+
+    /**
+     * value分析
+     * @access protected
+     * @param mixed $value
+     * @return string
+     */
+    protected function parseValue($value)
+    {
+        if (is_string($value)) {
+            $value = '\'' . $value . '\'';
+        } elseif (is_array($value)) {
+            $value = array_map(array($this, 'parseValue'), $value);
+        } elseif (is_bool($value)) {
+            $value = $value ? '1' : '0';
+        } elseif (is_null($value)) {
+            $value = 'null';
+        }
+        return $value;
+    }
+
+    /**
+     * field分析
+     * @access private
+     * @param mixed $fields
+     * @return string
+     */
+    protected function parseField($fields)
+    {
+        if (is_string($fields) && '' !== $fields) {
+            $fields = explode(',', $fields);
+        }
+        if (is_array($fields)) {
+            // 完善数组方式传字段名的支持
+            // 支持 'field1'=>'field2' 这样的字段别名定义
+            $array = array();
+            foreach ($fields as $key => $field) {
+                if (!is_numeric($key))
+                    $array[] = $this->parseKey($key) . ' AS ' . $this->parseKey($field);
+                else
+                    $array[] = $this->parseKey($field);
+            }
+            $fieldsStr = implode(',', $array);
+        } else {
+            $fieldsStr = '*';
+        }
+        return $fieldsStr;
+    }
+
+    /**
      * @param $val
      * @param $ft
      * @return array|bool|false|int|string
@@ -377,14 +470,20 @@ abstract class AbstractPDO extends AbstractDB
             case 'timestamp with time zone':
                 $val = date('Y-m-d H:i:s.u', strtotime($val)) . substr(date('O', strtotime($val)), 0, 3);
                 break;
+            case 'smallmoney':
             case 'money':
             case 'numeric':
             case 'decimal':
+            case 'float':
+            case 'real':
                 $val = round($val, 10);
                 break;
             case 'char':
             case 'varchar':
             case 'text':
+            case 'nchar':
+            case 'nvarchar':
+            case 'ntext':
                 $val = trim($val);
                 if ($this->isUseCrypto()) {
                     $val = Crypto::encrypt($val);
@@ -427,14 +526,20 @@ abstract class AbstractPDO extends AbstractDB
             case 'timestamp with time zone':
                 $val = Moment::datetimeMicro('Y-m-d H:i:s', $val) . substr(date('O', strtotime($val)), 0, 3);
                 break;
+            case 'smallmoney':
             case 'money':
             case 'numeric':
             case 'decimal':
+            case 'float':
+            case 'real':
                 $val = round($val, 10);
                 break;
             case 'char':
             case 'varchar':
             case 'text':
+            case 'nchar':
+            case 'nvarchar':
+            case 'ntext':
                 $val = trim($val);
                 if ($this->isUseCrypto()) {
                     $val = Crypto::encrypt($val);
@@ -588,6 +693,30 @@ abstract class AbstractPDO extends AbstractDB
             }
         }
         return $result;
+    }
+
+    /**
+     * 分析表达式
+     * @access protected
+     * @param array $options 表达式参数
+     * @return array
+     */
+    protected function parseOptions($options = array())
+    {
+        if (empty($this->options['field'])) {
+            $this->field('*');
+        }
+        if (is_array($options)) {
+            $options = array_merge($this->options, $options);
+        }
+        if (!isset($options['table'])) {
+            $options['table'] = $this->getTable();
+        }
+        //别名
+        if (!empty($options['alias'])) {
+            $options['table'] .= ' ' . $options['alias'];
+        }
+        return $options;
     }
 
     /**

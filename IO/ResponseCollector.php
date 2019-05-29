@@ -6,6 +6,8 @@
 namespace PhpureCore\IO;
 
 
+use Convert;
+
 /**
  * Class Collector
  * @package PhpureCore\IO
@@ -14,6 +16,7 @@ class ResponseCollector
 {
 
     private $response_data_type = 'json';
+    private $charset = 'utf-8';
     private $code = 0;
     private $msg = '';
     private $data = array();
@@ -39,6 +42,24 @@ class ResponseCollector
     public function setResponseDataType(string $response_data_type): self
     {
         $this->response_data_type = $response_data_type;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset(): string
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @param string $charset
+     * @return ResponseCollector
+     */
+    public function setCharset(string $charset): self
+    {
+        $this->charset = $charset;
         return $this;
     }
 
@@ -148,7 +169,25 @@ class ResponseCollector
      */
     public function toXml()
     {
-        return xmlrpc_encode($this->toArray());
+        return xmlrpc_encode(Convert::obj2String($this->toArray()));
+    }
+
+    /**
+     * to Text
+     * @return false|string
+     */
+    public function toHtml()
+    {
+        return Convert::arr2html(Convert::obj2String($this->toArray()));
+    }
+
+    /**
+     * to Text
+     * @return false|string
+     */
+    public function toText()
+    {
+        return var_export($this->toArray(), true);
     }
 
     /**
@@ -163,8 +202,14 @@ class ResponseCollector
                 $response = $this->toXml();
                 break;
             case 'json':
-            default:
                 $response = $this->toJson();
+                break;
+            case 'html':
+                $response = $this->toHtml();
+                break;
+            case 'text':
+            default:
+                $response = $this->toText();
                 break;
         }
         return $response;

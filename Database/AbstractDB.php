@@ -104,16 +104,16 @@ abstract class AbstractDB
         if (!$this->dsn) {
             switch ($this->db_type) {
                 case DBType::MYSQL:
-                    $this->dsn = 'mysql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    $this->dsn = "mysql:dbname={$this->name};host={$this->host};port={$this->port}";
                     break;
                 case DBType::PGSQL:
-                    $this->dsn = 'pgsql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    $this->dsn = "pgsql:dbname={$this->name};host={$this->host};port={$this->port}";
                     break;
                 case DBType::MSSQL:
-                    $this->dsn = 'pgsql:dbname=' . $this->name . ';host=' . $this->host . ';port=' . $this->port;
+                    $this->dsn = "sqlsrv:Server={$this->host},{$this->port};Database={$this->name}";
                     break;
                 case DBType::SQLITE:
-                    $this->dsn = 'sqlite:' . $this->settings["dbdir"] . DIRECTORY_SEPARATOR . $this->settings["dbname"];
+                    $this->dsn = "sqlite:{$this->db_file_path}" . DIRECTORY_SEPARATOR . $this->name;
                     break;
                 default:
                     Response::exception("{$this->db_type} type is not supported for the time being");

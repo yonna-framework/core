@@ -70,16 +70,16 @@ class Response
         if ($data instanceof ResponseCollector) {
             switch ($data->getResponseDataType()) {
                 case 'xml':
-                    header('Content-Type:application/xml; charset=utf-8');
+                    header('Content-Type:application/xml; charset=' . $data->getCharset());
                     break;
                 case 'json':
-                    header('Content-Type:application/json; charset=utf-8');
+                    header('Content-Type:application/json; charset=' . $data->getCharset());
                     break;
                 case 'html':
-                    header('Content-Type:text/html; charset=utf-8');
+                    header('Content-Type:text/html; charset=' . $data->getCharset());
                     break;
                 default:
-                    header('Content-Type:text/plain; charset=utf-8');
+                    header('Content-Type:text/plain; charset=' . $data->getCharset());
                     break;
             }
             exit($data->response());
@@ -89,7 +89,7 @@ class Response
         exit('Not result');
     }
 
-    public function success(string $msg = 'success', array $data = array(), $type = 'json')
+    public function success(string $msg = 'success', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
@@ -101,48 +101,52 @@ class Response
         return $HandleCollector;
     }
 
-    public function broadcast(string $msg = 'broadcast', array $data = array(), $type = 'json')
+    public function broadcast(string $msg = 'broadcast', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::BROADCAST)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
     }
 
-    public function goon(string $msg = 'goon', array $data = array(), $type = 'json')
+    public function goon(string $msg = 'goon', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::GOON)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
     }
 
-    public function error(string $msg = 'error', array $data = array(), $type = 'json')
+    public function error(string $msg = 'error', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::ERROR)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
     }
 
-    public function exception(string $msg = 'exception', array $data = array(), $type = 'json')
+    public function exception(string $msg = 'exception', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::EXCEPTION)
             ->setMsg($msg)
             ->setData($data)
@@ -152,12 +156,13 @@ class Response
         $this->end($HandleCollector);
     }
 
-    public function abort(string $msg = 'abort', array $data = array(), $type = 'json')
+    public function abort(string $msg = 'abort', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::ABORT)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
@@ -166,12 +171,13 @@ class Response
         $this->end($HandleCollector);
     }
 
-    public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json')
+    public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::NOT_PERMISSION)
             ->setMsg($msg)
             ->setData($data)
@@ -181,12 +187,13 @@ class Response
         $this->end($HandleCollector);
     }
 
-    public function notFound(string $msg = 'not found', array $data = array(), $type = 'json')
+    public function notFound(string $msg = 'not found', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
         $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::NOT_FOUND)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'

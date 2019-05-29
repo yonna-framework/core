@@ -4,10 +4,14 @@ namespace PhpureCore\Database;
 
 use Exception;
 use PhpureCore\Glue\Response;
+use PhpureCore\Mapping\DBType;
 use Redis as RedisDriver;
 
 class Redis extends AbstractDB
 {
+
+    protected $db_type = DBType::REDIS;
+
     const TYPE_FLAG = '|t|';
 
     const TYPE_JSON = 'json';
@@ -23,16 +27,13 @@ class Redis extends AbstractDB
     /**
      * 架构函数 取得模板对象实例
      * @access public
-     * @param $host
-     * @param $port
-     * @param $password
-     * @throws Exception
+     * @param array $setting
      */
-    public function __construct(string $host, string $port, string $password = '')
+    public function __construct(array $setting)
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->password = $password;
+        $this->host = $setting['host'] ?? null;
+        $this->port = $setting['port'] ?? null;
+        $this->password = $setting['password'] ?? '';
         if ($this->redis == null) {
             if (class_exists('\\Redis')) {
                 try {
