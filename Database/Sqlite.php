@@ -11,35 +11,8 @@ use PDO;
 use PDOException;
 use PhpureCore\Mapping\DBType;
 
-class Sqlite extends AbstractDB
+class Sqlite extends AbstractPDO
 {
-
-    protected $db_type = DBType::SQLITE;
-
-    /**
-     * 查询表达式
-     *
-     * @var string
-     */
-    private $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-
-    /**
-     * where 条件类型设置
-     */
-    const equalTo = 'equalTo';                              //等于
-    const notEqualTo = 'notEqualTo';                        //不等于
-    const greaterThan = 'greaterThan';                      //大于
-    const greaterThanOrEqualTo = 'greaterThanOrEqualTo';    //大于等于
-    const lessThan = 'lessThan';                            //小于
-    const lessThanOrEqualTo = 'lessThanOrEqualTo';          //小于等于
-    const like = 'like';                                    //包含
-    const notLike = 'notLike';                              //不包含
-    const isNull = 'isNull';                                //为空
-    const isNotNull = 'isNotNull';                          //不为空
-    const between = 'between';                              //在值之内
-    const notBetween = 'notBetween';                        //在值之外
-    const in = 'in';                                        //在或集
-    const notIn = 'notIn';                                  //不在或集
 
     /**
      * 构造方法
@@ -52,6 +25,9 @@ class Sqlite extends AbstractDB
         $this->name = $setting['name'];
         $this->charset = $setting['charset'] ?: 'utf8';
         $this->auto_cache = $setting['auto_cache'];
+
+        $this->db_type = DBType::SQLITE;
+        $this->selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
     }
 
     /**
@@ -63,174 +39,6 @@ class Sqlite extends AbstractDB
         parent::__destruct();
     }
 
-
-
-
-
-
-    
-
-    /**
-     * table分析
-     * @access private
-     * @param mixed $tables
-     * @return string
-     */
-    private function parseTable($tables)
-    {
-        if (is_array($tables)) {// 支持别名定义
-            $array = array();
-            foreach ($tables as $table => $alias) {
-                if (!is_numeric($table))
-                    $array[] = $this->parseKey($table) . ' ' . $this->parseKey($alias);
-                else
-                    $array[] = $this->parseKey($alias);
-            }
-            $tables = $array;
-        } elseif (is_string($tables)) {
-            $tables = explode(',', $tables);
-            return $this->parseTable($tables);
-        }
-        return implode(',', $tables);
-    }
-
-    /**
-     * limit分析
-     * @access private
-     * @param mixed $limit
-     * @return string
-     */
-    private function parseLimit($limit)
-    {
-        return !empty($limit) ? ' LIMIT ' . $limit . ' ' : '';
-    }
-
-    /**
-     * join分析
-     * @access private
-     * @param mixed $join
-     * @return string
-     */
-    private function parseJoin($join)
-    {
-        $joinStr = '';
-        if (!empty($join)) {
-            $joinStr = ' ' . implode(' ', $join) . ' ';
-        }
-        return $joinStr;
-    }
-
-    /**
-     * order分析
-     * @access private
-     * @param mixed $order
-     * @return string
-     */
-    private function parseOrder($order)
-    {
-        if (is_array($order)) {
-            $array = array();
-            foreach ($order as $key => $val) {
-                if (is_numeric($key)) {
-                    $array[] = $this->parseKey($val);
-                } else {
-                    $array[] = $this->parseKey($key) . ' ' . $val;
-                }
-            }
-            $order = implode(',', $array);
-        }
-        return !empty($order) ? ' ORDER BY ' . $order : '';
-    }
-
-    /**
-     * group分析
-     * @access private
-     * @param mixed $group
-     * @return string
-     */
-    private function parseGroup($group)
-    {
-        return !empty($group) ? ' GROUP BY ' . $group : '';
-    }
-
-    /**
-     * having分析
-     * @access private
-     * @param string $having
-     * @return string
-     */
-    private function parseHaving($having)
-    {
-        return !empty($having) ? ' HAVING ' . $having : '';
-    }
-
-    /**
-     * comment分析
-     * @access private
-     * @param string $comment
-     * @return string
-     */
-    private function parseComment($comment)
-    {
-        return !empty($comment) ? ' /* ' . $comment . ' */' : '';
-    }
-
-    /**
-     * distinct分析
-     * @access private
-     * @param mixed $distinct
-     * @return string
-     */
-    private function parseDistinct($distinct)
-    {
-        return !empty($distinct) ? ' DISTINCT ' : '';
-    }
-
-    /**
-     * union分析
-     * @access private
-     * @param mixed $union
-     * @return string
-     */
-    private function parseUnion($union)
-    {
-        if (empty($union)) return '';
-        if (isset($union['_all'])) {
-            $str = 'UNION ALL ';
-            unset($union['_all']);
-        } else {
-            $str = 'UNION ';
-        }
-        $sql = array();
-        foreach ($union as $u) {
-            $sql[] = $str . (is_array($u) ? $this->buildSelectSql($u) : $u);
-        }
-        return implode(' ', $sql);
-    }
-
-    /**
-     * 设置锁机制
-     * @access private
-     * @param bool $lock
-     * @return string
-     */
-    private function parseLock($lock = false)
-    {
-        return $lock ? ' FOR UPDATE ' : '';
-    }
-
-    /**
-     * index分析，可在操作链中指定需要强制使用的索引
-     * @access private
-     * @param mixed $index
-     * @return string
-     */
-    private function parseForce($index)
-    {
-        if (empty($index)) return '';
-        if (is_array($index)) $index = join(",", $index);
-        return sprintf(" FORCE INDEX ( %s ) ", $index);
-    }
 
     /**
      * where分析
@@ -260,36 +68,6 @@ class Sqlite extends AbstractDB
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
     }
 
-    /**
-     * sql过滤
-     * @param $sql
-     * @return bool
-     */
-    private function sqlFilter($sql)
-    {
-        $result = true;
-        if ($sql) {
-            if (is_array($sql)) {
-                foreach ($sql as $v) {
-                    if (!$v) continue;
-                    if (is_array($v)) {
-                        return $this->sqlFilter($v);
-                    } else {
-                        $preg = preg_match('/(.*?((select)|(from)|(count)|(delete)|(update)|(drop)|(truncate)).*?)+/i', $v);
-                        if ($preg) {
-                            $result = false;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                if ($sql) {
-                    $result = preg_match('/(.*?((select)|(from)|(count)|(delete)|(update)|(drop)|(truncate)).*?)+/i', $sql) ? false : true;
-                }
-            }
-        }
-        return $result;
-    }
 
     private function builtWhereSql($closure, $sql = '', $cond = 'and')
     {
@@ -433,25 +211,6 @@ class Sqlite extends AbstractDB
         return $sql;
     }
 
-    /**
-     * 生成查询SQL
-     * @access private
-     * @param array $options 表达式
-     * @return string
-     */
-    private function buildSelectSql($options = array())
-    {
-        if (isset($options['page'])) {
-            // 根据页数计算limit
-            list($page, $listRows) = $options['page'];
-            $page = $page > 0 ? $page : 1;
-            $listRows = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset = $listRows * ($page - 1);
-            $options['limit'] = $listRows . ' OFFSET ' . $offset;
-        }
-        $sql = $this->parseSql($this->selectSql, $options);
-        return $sql;
-    }
 
     /**
      * 替换SQL语句中表达式
@@ -460,7 +219,7 @@ class Sqlite extends AbstractDB
      * @param array $options 表达式
      * @return string
      */
-    private function parseSql($sql, $options = array())
+    protected function parseSql($sql, $options = array())
     {
         $sql = str_replace(
             array('%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
@@ -471,9 +230,9 @@ class Sqlite extends AbstractDB
                 $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
                 $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
                 $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
-                $this->parseGroup(!empty($options['group']) ? $options['group'] : ''),
+                $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
                 $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
-                $this->parseOrder(!empty($options['order']) ? $options['order'] : ''),
+                $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
                 $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
                 $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
                 $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
@@ -483,127 +242,7 @@ class Sqlite extends AbstractDB
         return $sql;
     }
 
-    /**
-     * 获取表字段类型
-     * @param $table
-     * @return mixed|null
-     */
-    private function getFieldType($table = null)
-    {
-        if (!$table) return $this->currentFieldType;
-        if (empty($this->tempFieldType[$table])) {
-            $alia = false;
-            $originTable = null;
-            if (!empty($this->options['alia'][$table])) {
-                $originTable = $table;
-                $table = $this->options['alia'][$table];
-                $alia = true;
-            }
-            $sql = "select sql from sqlite_master where tbl_name = '{$table}' and type='table';";
-            $result = null;
-            try {
-                $result = $this->redis()->get($sql);
-            } catch (Exception $e) {
-            }
-            if (!$result) {
-                $PDOStatement = $this->execute($sql);
-                if ($PDOStatement) {
-                    $result = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
-                    try {
-                        $this->redis()->set($sql, $result, 600);
-                    } catch (Exception $e) {
-                    }
-                }
-            }
-            $result = reset($result)['sql'];
-            $result = trim(str_replace(["CREATE TABLE {$table}", "create table {$table}"], '', $result));
-            $result = substr($result, 1, strlen($result) - 1);
-            $result = substr($result, 0, strlen($result) - 1);
-            $result = explode(',', $result);
-            $fields = array();
-            foreach ($result as $v) {
-                $v = explode(' ', trim($v));
-                $fields[] = array(
-                    'field' => $v[0],
-                    'fieldtype' => strtolower($v[1]),
-                );
-            }
-            $ft = array();
-            foreach ($fields as $v) {
-                if ($alia && $originTable) {
-                    $ft[$originTable . '_' . $v['field']] = $v['fieldtype'];
-                } else {
-                    $ft[$table . '_' . $v['field']] = $v['fieldtype'];
-                }
-            }
-            $this->tempFieldType[$table] = $ft;
-            $this->currentFieldType = array_merge($this->currentFieldType, $ft);
-        }
-        return $this->currentFieldType;
-    }
 
-
-    /**
-     * 开始事务
-     */
-    public function beginTrans()
-    {
-        if ($this->_transTrace <= 0) {
-            if ($this->pdo()->inTransaction()) {
-                $this->pdo()->commit();
-            }
-            $this->_transTrace = 1;
-        } else {
-            $this->_transTrace++;
-            return true;
-        }
-        try {
-            return $this->pdo()->beginTransaction();
-        } catch (PDOException $e) {
-            // 服务端断开时重连一次
-            if ($e->errorInfo[1] == 2006 || $e->errorInfo[1] == 2013) {
-                $this->pdoClose();
-                return $this->pdo()->beginTransaction();
-            } else {
-                throw $e;
-            }
-        }
-    }
-
-    /**
-     * 提交事务
-     */
-    public function commitTrans()
-    {
-        $this->_transTrace > 0 && $this->_transTrace--;
-        if ($this->_transTrace > 0) {
-            return true;
-        }
-        return $this->pdo()->commit();
-    }
-
-    /**
-     * 事务回滚
-     */
-    public function rollBackTrans()
-    {
-        $this->_transTrace > 0 && $this->_transTrace--;
-        if ($this->_transTrace > 0) {
-            return true;
-        }
-        if ($this->pdo()->inTransaction()) {
-            return $this->pdo()->rollBack();
-        }
-    }
-
-    /**
-     * 检测是否在一个事务内
-     * @return bool
-     */
-    public function inTransaction()
-    {
-        return $this->pdo()->inTransaction();
-    }
 
     /**
      * 获取当前table

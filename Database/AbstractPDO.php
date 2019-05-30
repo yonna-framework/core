@@ -48,6 +48,13 @@ abstract class AbstractPDO extends AbstractDB
     protected $tempFieldType = array();
 
     /**
+     * 查询表达式
+     *
+     * @var string
+     */
+    protected $selectSql = null;
+
+    /**
      * 最后一条执行的 sql
      *
      * @var string
@@ -57,7 +64,33 @@ abstract class AbstractPDO extends AbstractDB
     /**
      * 多重嵌套事务处理堆栈
      */
-    protected $_transTrace = 0;
+    protected $transTrace = 0;
+
+
+    /**
+     * where 条件类型设置
+     */
+    const equalTo = 'equalTo';                              //等于
+    const notEqualTo = 'notEqualTo';                        //不等于
+    const greaterThan = 'greaterThan';                      //大于
+    const greaterThanOrEqualTo = 'greaterThanOrEqualTo';    //大于等于
+    const lessThan = 'lessThan';                            //小于
+    const lessThanOrEqualTo = 'lessThanOrEqualTo';          //小于等于
+    const like = 'like';                                    //包含
+    const notLike = 'notLike';                              //不包含
+    const isNull = 'isNull';                                //为空
+    const isNotNull = 'isNotNull';                          //不为空
+    const between = 'between';                              //在值之内
+    const notBetween = 'notBetween';                        //在值之外
+    const in = 'in';                                        //在或集
+    const notIn = 'notIn';                                  //不在或集
+    const any = 'any';                                      //any
+    const contains = 'contains';                            //contains
+    const notContains = 'notContains';                      //notContains
+    const containsAnd = 'containsAnd';                      //containsAnd
+    const notContainsAnd = 'notContainsAnd';                //notContainsAnd
+    const isContainsBy = 'isContainsBy';                    //isContainsBy
+
 
     /**
      * 析构方法
@@ -241,6 +274,69 @@ abstract class AbstractPDO extends AbstractDB
     }
 
     /**
+     * 开始事务
+     */
+    public function beginTrans()
+    {
+        if ($this->transTrace <= 0) {
+            if ($this->pdo()->inTransaction()) {
+                $this->pdo()->commit();
+            }
+            $this->transTrace = 1;
+        } else {
+            $this->transTrace++;
+            return true;
+        }
+        try {
+            return $this->pdo()->beginTransaction();
+        } catch (PDOException $e) {
+            // 服务端断开时重连一次
+            if ($e->errorInfo[1] == 2006 || $e->errorInfo[1] == 2013) {
+                $this->pdoClose();
+                return $this->pdo()->beginTransaction();
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * 提交事务
+     */
+    public function commitTrans()
+    {
+        $this->transTrace > 0 && $this->transTrace--;
+        if ($this->transTrace > 0) {
+            return true;
+        }
+        return $this->pdo()->commit();
+    }
+
+    /**
+     * 事务回滚
+     */
+    public function rollBackTrans()
+    {
+        $this->transTrace > 0 && $this->transTrace--;
+        if ($this->transTrace > 0) {
+            return true;
+        }
+        if ($this->pdo()->inTransaction()) {
+            return $this->pdo()->rollBack();
+        }
+        return false;
+    }
+
+    /**
+     * 检测是否在一个事务内
+     * @return bool
+     */
+    public function inTransaction()
+    {
+        return $this->pdo()->inTransaction();
+    }
+
+    /**
      * 获取表字段类型
      * @param $table
      * @return mixed|null
@@ -286,7 +382,14 @@ abstract class AbstractPDO extends AbstractDB
                     if (!$result) {
                         $PDOStatement = $this->execute($sql);
                         if ($PDOStatement) {
-                            $result = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
+                            $temp = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
+                            $result = array();
+                            foreach ($temp as $v) {
+                                $result[] = array(
+                                    'field' => $v['COLUMN_NAME'],
+                                    'fieldtype' => strtolower($v['TYPE_NAME']),
+                                );
+                            }
                             Cache::set($sql, $result, 600);
                         }
                     }
@@ -297,16 +400,16 @@ abstract class AbstractPDO extends AbstractDB
                     if (!$result) {
                         $PDOStatement = $this->execute($sql);
                         if ($PDOStatement) {
-                            $result = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
-                            $result = reset($result)['sql'];
-                            $result = trim(str_replace(["CREATE TABLE {$table}", "create table {$table}"], '', $result));
-                            $result = substr($result, 1, strlen($result) - 1);
-                            $result = substr($result, 0, strlen($result) - 1);
-                            $result = explode(',', $result);
-                            $fields = array();
-                            foreach ($result as $v) {
+                            $temp = $PDOStatement->fetchAll(PDO::FETCH_ASSOC);
+                            $temp = reset($temp)['sql'];
+                            $temp = trim(str_replace(["CREATE TABLE {$table}", "create table {$table}"], '', $temp));
+                            $temp = substr($temp, 1, strlen($temp) - 1);
+                            $temp = substr($temp, 0, strlen($temp) - 1);
+                            $temp = explode(',', $temp);
+                            $result = array();
+                            foreach ($temp as $v) {
                                 $v = explode(' ', trim($v));
-                                $fields[] = array(
+                                $result[] = array(
                                     'field' => $v[0],
                                     'fieldtype' => strtolower($v[1]),
                                 );
@@ -490,10 +593,12 @@ abstract class AbstractPDO extends AbstractDB
                 }
                 break;
             default:
+                if ($this->db_type === DBType::PGSQL) {
+                    if (strpos($ft, 'numeric') !== false) {
+                        $val = round($val, 10);
+                    }
+                }
                 break;
-        }
-        if (strpos($ft, 'numeric') !== false) {
-            $val = round($val, 10);
         }
         return $val;
     }
@@ -546,10 +651,12 @@ abstract class AbstractPDO extends AbstractDB
                 }
                 break;
             default:
+                if ($this->db_type === DBType::PGSQL) {
+                    if (strpos($ft, 'numeric') !== false) {
+                        $val = round($val, 10);
+                    }
+                }
                 break;
-        }
-        if (strpos($ft, 'numeric') !== false) {
-            $val = round($val, 10);
         }
         return $val;
     }
@@ -623,6 +730,37 @@ abstract class AbstractPDO extends AbstractDB
     }
 
     /**
+     * sql过滤
+     * @param $sql
+     * @return bool
+     */
+    protected function sqlFilter($sql)
+    {
+        $result = true;
+        if ($sql) {
+            if (is_array($sql)) {
+                foreach ($sql as $v) {
+                    if (!$v) continue;
+                    if (is_array($v)) {
+                        return $this->sqlFilter($v);
+                    } else {
+                        $preg = preg_match('/(.*?((select)|(from)|(count)|(delete)|(update)|(drop)|(truncate)).*?)+/i', $v);
+                        if ($preg) {
+                            $result = false;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                if ($sql) {
+                    $result = preg_match('/(.*?((select)|(from)|(count)|(delete)|(update)|(drop)|(truncate)).*?)+/i', $sql) ? false : true;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * 递归式格式化数据
      * @param $result
      * @return mixed
@@ -637,6 +775,7 @@ abstract class AbstractPDO extends AbstractDB
                 } elseif (isset($ft[$k])) {
                     switch ($ft[$k]) {
                         case 'json':
+                        case 'jsonb':
                             $result[$k] = json_decode($v, true);
                             if ($this->isUseCrypto()) {
                                 $crypto = $result[$k]['crypto'] ?? '';
@@ -646,13 +785,15 @@ abstract class AbstractPDO extends AbstractDB
                             $result[$k] = $this->parseKSort($result[$k]);
                             break;
                         case 'tinyint':
-                        case 'bigint':
                         case 'smallint':
                         case 'int':
+                        case 'integer':
+                        case 'bigint':
                             $result[$k] = intval($v);
                             break;
                         case 'numeric':
                         case 'decimal':
+                        case 'money':
                             $result[$k] = round($v, 10);
                             break;
                         case 'char':
@@ -663,31 +804,23 @@ abstract class AbstractPDO extends AbstractDB
                             }
                             break;
                         default:
+                            if ($this->db_type === DBType::PGSQL) {
+                                if (strpos($ft[$k], '[]') !== false) {
+                                    $result[$k] = json_decode($v, true);
+                                    if ($this->isUseCrypto()) {
+                                        $crypto = $result[$k]['crypto'] ?? '';
+                                        $crypto = Crypto::decrypt($crypto);
+                                        $result[$k] = json_decode($crypto, true);
+                                    }
+                                    $result[$k] = $this->parseKSort($result[$k]);
+                                } elseif (strpos($ft[$k], 'numeric') !== false) {
+                                    $result[$k] = round($v, 10);
+                                }
+                            }
                             break;
                     }
                     if (strpos($v, ',,,,,') === 0) {
                         $result[$k] = $this->comma2arr($v, $ft);
-                    }
-                    if ($this->db_type === DBType::PGSQL) {
-                        if ($ft[$k] == 'json' || $ft[$k] == 'jsonb' || strpos($ft[$k], '[]') !== false) {
-                            $result[$k] = json_decode($v, true);
-                            if ($this->isUseCrypto()) {
-                                $crypto = $result[$k]['crypto'] ?? '';
-                                $crypto = Crypto::decrypt($crypto);
-                                $result[$k] = json_decode($crypto, true);
-                            }
-                            $result[$k] = $this->parseKSort($result[$k]);
-                        } elseif (strpos($ft[$k], 'numeric') !== false) {
-                            $result[$k] = round($v, 10);
-                        } elseif ($ft[$k] === 'money') {
-                            $result[$k] = round($v, 10);
-                        } elseif (in_array($ft[$k], ['smallint', 'bigint', 'integer'])) {
-                            $result[$k] = intval($v);
-                        } elseif (in_array($ft[$k], ['text', 'char'])) {
-                            if ($this->isUseCrypto()) {
-                                $result[$k] = Crypto::decrypt($v);
-                            }
-                        }
                     }
                 }
             }
@@ -695,28 +828,350 @@ abstract class AbstractPDO extends AbstractDB
         return $result;
     }
 
+
     /**
-     * 分析表达式
-     * @access protected
-     * @param array $options 表达式参数
-     * @return array
+     * schemas分析
+     * @access private
+     * @param mixed $schemas
+     * @return string
      */
-    protected function parseOptions($options = array())
+    protected function parseSchemas($schemas)
     {
-        if (empty($this->options['field'])) {
-            $this->field('*');
+        if (is_array($schemas)) {// 支持别名定义
+            $array = array();
+            foreach ($schemas as $schema => $alias) {
+                if (!is_numeric($schema))
+                    $array[] = $this->parseKey($schema) . ' ' . $this->parseKey($alias);
+                else
+                    $array[] = $this->parseKey($alias);
+            }
+            $schemas = $array;
+        } elseif (is_string($schemas)) {
+            $schemas = explode(',', $schemas);
+            return $this->parseSchemas($schemas);
         }
-        if (is_array($options)) {
-            $options = array_merge($this->options, $options);
+        return implode(',', $schemas);
+    }
+
+    /**
+     * table分析
+     * @access private
+     * @param mixed $tables
+     * @return string
+     */
+    protected function parseTable($tables)
+    {
+        if (is_array($tables)) {// 支持别名定义
+            $array = array();
+            foreach ($tables as $table => $alias) {
+                if (!is_numeric($table))
+                    $array[] = $this->parseKey($table) . ' ' . $this->parseKey($alias);
+                else
+                    $array[] = $this->parseKey($alias);
+            }
+            $tables = $array;
+        } elseif (is_string($tables)) {
+            $tables = explode(',', $tables);
+            return $this->parseTable($tables);
         }
-        if (!isset($options['table'])) {
-            $options['table'] = $this->getTable();
+        return implode(',', $tables);
+    }
+
+    /**
+     * limit分析
+     * @access private
+     * @param mixed $limit
+     * @return string
+     */
+    protected function parseLimit($limit)
+    {
+        $l = '';
+        switch ($this->db_type) {
+            case DBType::MSSQL:
+                if (!empty($this->options['offset'])) {
+                    return $l;
+                }
+                $l = !empty($limit) ? ' TOP ' . $limit . ' ' : '';
+                break;
+            default:
+                $l = !empty($limit) ? ' LIMIT ' . $limit . ' ' : '';
+                break;
         }
-        //别名
-        if (!empty($options['alias'])) {
-            $options['table'] .= ' ' . $options['alias'];
+        return $l;
+    }
+
+    /**
+     * offset分析
+     * @access private
+     * @param mixed $offset
+     * @return string
+     */
+    protected function parseOffset($offset)
+    {
+        if ($offset > 0 || $offset === 0) {
+            if (empty($this->options['order'])) {
+                Response::exception('OFFSET should used ORDER BY');
+            }
+            return " offset {$offset} rows fetch next {$this->options['limit']} rows only";
         }
-        return $options;
+        return '';
+    }
+
+    /**
+     * join分析
+     * @access private
+     * @param mixed $join
+     * @return string
+     */
+    protected function parseJoin($join)
+    {
+        $joinStr = '';
+        if (!empty($join)) {
+            $joinStr = ' ' . implode(' ', $join) . ' ';
+        }
+        return $joinStr;
+    }
+
+    /**
+     * order分析
+     * @access private
+     * @param mixed $order
+     * @return string
+     */
+    protected function parseOrderBy($order)
+    {
+        if (is_array($order)) {
+            $array = array();
+            foreach ($order as $key => $val) {
+                if (is_numeric($key)) {
+                    $array[] = $this->parseKey($val);
+                } else {
+                    $array[] = $this->parseKey($key) . ' ' . $val;
+                }
+            }
+            $order = implode(',', $array);
+        }
+        return !empty($order) ? ' ORDER BY ' . $order : '';
+    }
+
+    /**
+     * group分析
+     * @access private
+     * @param mixed $group
+     * @return string
+     */
+    protected function parseGroupBy($group)
+    {
+        return !empty($group) ? ' GROUP BY ' . $group : '';
+    }
+
+    /**
+     * having分析
+     * @access private
+     * @param string $having
+     * @return string
+     */
+    protected function parseHaving($having)
+    {
+        return !empty($having) ? ' HAVING ' . $having : '';
+    }
+
+    /**
+     * comment分析
+     * @access private
+     * @param string $comment
+     * @return string
+     */
+    protected function parseComment($comment)
+    {
+        return !empty($comment) ? ' /* ' . $comment . ' */' : '';
+    }
+
+    /**
+     * distinct分析
+     * @access private
+     * @param mixed $distinct
+     * @return string
+     */
+    protected function parseDistinct($distinct)
+    {
+        return !empty($distinct) ? ' DISTINCT ' : '';
+    }
+
+    /**
+     * union分析
+     * @access private
+     * @param mixed $union
+     * @return string
+     */
+    protected function parseUnion($union)
+    {
+        if (empty($union)) return '';
+        if (isset($union['_all'])) {
+            $str = 'UNION ALL ';
+            unset($union['_all']);
+        } else {
+            $str = 'UNION ';
+        }
+        $sql = array();
+        foreach ($union as $u) {
+            $sql[] = $str . (is_array($u) ? $this->buildSelectSql($u) : $u);
+        }
+        return implode(' ', $sql);
+    }
+
+    /**
+     * 设置锁机制
+     * @access private
+     * @param bool $lock
+     * @return string
+     */
+    protected function parseLock($lock = false)
+    {
+        return $lock ? ' FOR UPDATE ' : '';
+    }
+
+    /**
+     * index分析，可在操作链中指定需要强制使用的索引
+     * @access private
+     * @param mixed $index
+     * @return string
+     */
+    protected function parseForce($index)
+    {
+        if (empty($index)) return '';
+        if (is_array($index)) $index = join(",", $index);
+        return sprintf(" FORCE INDEX ( %s ) ", $index);
+    }
+
+    /**
+     * where分析
+     * @access private
+     * @param mixed $where
+     * @return string
+     */
+    protected function parseWhere($where)
+    {
+        $whereStr = '';
+        if ($this->where) {
+            //闭包形式
+            $whereStr = $this->builtWhereSql($this->where);
+        } elseif ($where) {
+            if (is_string($where)) {
+                //直接字符串
+                $whereStr = $where;
+            } elseif (is_array($where)) {
+                //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
+                $this->where = array();
+                foreach ($where as $k => $v) {
+                    $this->equalTo($k, $v);
+                }
+                $whereStr = $this->builtWhereSql($this->where);
+            }
+        }
+        return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
+    }
+
+    /**
+     * @param $sql
+     * @param array $options
+     */
+    protected function parseSql($sql, $options = array()){}
+
+    /**
+     * 生成查询SQL
+     * @access private
+     * @param array $options 表达式
+     * @return string
+     */
+    protected function buildSelectSql($options = array())
+    {
+        if (isset($options['page'])) {
+            // 根据页数计算limit
+            list($page, $listRows) = $options['page'];
+            $page = $page > 0 ? $page : 1;
+            $listRows = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset = $listRows * ($page - 1);
+            switch ($this->db_type){
+                case DBType::MSSQL:
+                    $options['limit'] = $listRows;
+                    $options['offset'] = $offset;
+                    break;
+                default:
+                    $options['limit'] = $listRows . ' OFFSET ' . $offset;
+                    break;
+            }
+        }
+        $sql = $this->parseSql($this->selectSql, $options);
+        return $sql;
+    }
+
+    /**
+     * @param string $operat see self
+     * @param string $field
+     * @param null $value
+     * @return self
+     */
+    protected function whereOperat($operat, $field, $value = null)
+    {
+        if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
+            if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
+                $this->where[] = array(
+                    'operat' => $operat,
+                    'table' => $this->where_table,
+                    'field' => $field,
+                    'value' => $value,
+                );
+            }
+        }
+        return $this;
+    }
+
+    public function clearWhere()
+    {
+        $this->where = array();
+        $this->where_table = '';
+        return $this;
+    }
+
+    public function whereTable($table)
+    {
+        $this->where_table = $table;
+        return $this;
+    }
+
+    /**
+     * 条件闭包
+     * @param string $cond 'and' || 'or'
+     * @param boolean $isGlobal 'field or total'
+     * @return self
+     */
+    public function closure($cond = 'and', $isGlobal = false)
+    {
+        if ($this->where) {
+            $o = array();
+            $f = array();
+            foreach ($this->where as $v) {
+                if ($v['operat'] === 'closure') {
+                    $o[] = $v;
+                } elseif ($v['field']) {
+                    $f[] = $v;
+                }
+            }
+            if ($o && $f) {
+                if ($isGlobal === false) {
+                    $this->where = $o;
+                    $this->where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
+                } else {
+                    $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
+                }
+            } elseif ($o && !$f) {
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->where));
+            } elseif (!$o && $f) {
+                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
+            }
+        }
+        return $this;
     }
 
     /**

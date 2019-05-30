@@ -14,6 +14,7 @@ abstract class AbstractDB
     const ASC = 'asc';
 
     protected $db_type = null;
+
     protected $host = null;
     protected $port = null;
     protected $account = null;
