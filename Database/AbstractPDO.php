@@ -9,6 +9,7 @@ use PDOException;
 use PDOStatement;
 use PhpureCore\Glue\Response;
 use PhpureCore\Mapping\DBType;
+use Str;
 
 abstract class AbstractPDO extends AbstractDB
 {
@@ -90,8 +91,6 @@ abstract class AbstractPDO extends AbstractDB
     const containsAnd = 'containsAnd';                      //containsAnd
     const notContainsAnd = 'notContainsAnd';                //notContainsAnd
     const isContainsBy = 'isContainsBy';                    //isContainsBy
-
-    protected function parseSql($sql, $options = array()){}
 
     /**
      * 析构方法
@@ -1129,7 +1128,7 @@ abstract class AbstractPDO extends AbstractDB
      * @param string $operat see self
      * @param string $field
      * @param null $value
-     * @return self
+     * @return self | Mysql | Pgsql | Mssql | Sqlite
      */
     protected function whereOperat($operat, $field, $value = null)
     {
@@ -1384,6 +1383,61 @@ abstract class AbstractPDO extends AbstractDB
     }
 
     /**
+     * 替换SQL语句中表达式
+     * @access private
+     * @param string $sql
+     * @param array $options 表达式
+     * @return string
+     */
+    protected function parseSql($sql, $options = array())
+    {
+        switch ($this->db_type){
+            case DBType::MYSQL:
+                $sql = str_replace(
+                    array('%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
+                    array(
+                        $this->parseTable(!empty($options['table_origin']) ? $options['table_origin'] : (isset($options['table']) ? $options['table'] : false)),
+                        !empty($options['table_origin']) ? $this->parseTable(' AS ' . $options['table']) : null,
+                        $this->parseDistinct(isset($options['distinct']) ? $options['distinct'] : false),
+                        $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
+                        $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
+                        $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
+                        $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
+                        $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
+                        $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
+                        $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
+                        $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
+                        $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
+                        $this->parseComment(!empty($options['comment']) ? $options['comment'] : ''),
+                        $this->parseForce(!empty($options['force']) ? $options['force'] : '')
+                    ), $sql);
+                break;
+            case DBType::PGSQL:
+                $sql = str_replace(
+                    array('%SCHEMAS%', '%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
+                    array(
+                        $this->parseSchemas(isset($options['schemas']) ? $options['schemas'] : false),
+                        $this->parseTable(!empty($options['table_origin']) ? $options['table_origin'] : (isset($options['table']) ? $options['table'] : false)),
+                        !empty($options['table_origin']) ? $this->parseTable(' AS ' . $options['table']) : null,
+                        $this->parseDistinct(isset($options['distinct']) ? $options['distinct'] : false),
+                        $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
+                        $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
+                        $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
+                        $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
+                        $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
+                        $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
+                        $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
+                        $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
+                        $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
+                        $this->parseComment(!empty($options['comment']) ? $options['comment'] : ''),
+                        $this->parseForce(!empty($options['force']) ? $options['force'] : '')
+                    ), $sql);
+                break;
+        }
+        return $sql;
+    }
+
+    /**
      * 条件闭包
      * @param string $cond 'and' || 'or'
      * @param boolean $isGlobal 'field or total'
@@ -1471,4 +1525,93 @@ abstract class AbstractPDO extends AbstractDB
         }
     }
 
+    /**
+     * 获取当前模式 schemas
+     * @return string
+     */
+    protected function getSchemas()
+    {
+        return $this->options['schemas'];
+    }
+
+    /**
+     * 获取当前table
+     * @return string
+     */
+    protected function getTable()
+    {
+        return $this->options['table'] ?? null;
+    }
+
+    /**
+     * 指定查询字段
+     * @access protected
+     * @param mixed $field
+     * @param string | null $table
+     * @param null $function
+     * @return self
+     */
+    public function field($field, $table = null, $function = null)
+    {
+        if ($table === null) {
+            $table = $this->getTable();
+        }
+        $tableLen = mb_strlen($table, 'utf-8');
+        if (!$table) {
+            return $this;
+        }
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
+        if (is_array($field)) {
+            $field = array_filter($field);
+            $ft = $this->getFieldType($table);
+            $fk = array_keys($ft);
+            $parseTable = $this->parseTable($table);
+            foreach ($field as $k => $v) {
+                $v = trim($v);
+                if ($v === '*') {
+                    unset($field[$k]);
+                    foreach ($fk as $kk) {
+                        if ($table === substr($kk, 0, $tableLen)) {
+                            $field[] = "{$parseTable}." . Str::replaceFirst("{$table}_", '', $kk) . " as {$kk}";
+                        }
+                    }
+                } else {
+                    $from = $v;
+                    $to = $v;
+                    $v = str_replace([' AS ', ' As ', ' => ', ' as '], ' as ', $v);
+                    $aspos = strpos($v, ' as ');
+                    if ($aspos > 0) {
+                        $as = explode(' as ', $v);
+                        $from = $as[0];
+                        $to = $as[1];
+                        $jsonPos = strpos($from, '#>>');
+                        if ($jsonPos > 0) {
+                            $jpos = explode('#>>', $v);
+                            $ft[$table . '_' . $to] = $ft[$table . '_' . trim($jpos[0])];
+                        } elseif (!empty($this->currentFieldType[$table . '_' . $from])) {
+                            $this->currentFieldType[$table . '_' . $to] = $this->currentFieldType[$table . '_' . $from];
+                            $ft[$table . '_' . $to] = $ft[$table . '_' . $from];
+                        }
+                    }
+
+                    if (!isset($ft[$table . '_' . $to])) {
+                        continue;
+                    }
+                    // check function
+                    $tempParseTableForm = $parseTable . '.' . $from;
+                    if ($function) {
+                        $tempParseTableForm = str_replace('%' . $k, $tempParseTableForm, $function);
+                    }
+                    $field[$k] = "{$tempParseTableForm} as {$table}_{$to}";
+                }
+            }
+            if (!isset($this->options['field'])) {
+                $this->options['field'] = array();
+            }
+            $this->options['field'] = array_merge_recursive($this->options['field'], $field);
+        }
+        return $this;
+    }
 }

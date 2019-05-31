@@ -3,6 +3,7 @@
 namespace PhpureCore\Config;
 
 use PhpureCore\Glue\Response;
+use PhpureCore\Mapping\AutoCache;
 use PhpureCore\Mapping\DBType;
 
 class Database extends Arrow
@@ -24,7 +25,8 @@ class Database extends Arrow
         $name = $setting['name'] ?? null;
         $charset = $setting['charset'] ?? null;
         $db_file_path = $setting['db_file_path'] ?? null;
-        $auto_cache = $setting['auto_cache'] === 'true';
+        $auto_cache = isset($setting['auto_cache']) ? strtolower($setting['auto_cache'])  : AutoCache::FALSE;
+        // check
         if (empty($type)) Response::exception('no type');
         if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL || $type === DBType::MONGO || $type === DBType::REDIS) {
             if (empty($host)) Response::exception('no host');
@@ -36,6 +38,14 @@ class Database extends Arrow
         }
         if ($type === DBType::SQLITE) {
             if (empty($db_file_path)) Response::exception('no db file path');
+        }
+        // cache
+        if ($auto_cache === 'true' || $auto_cache === 'false') {
+            $auto_cache = $auto_cache === 'true';
+        }
+        elseif (is_numeric($auto_cache)) {
+            $auto_cache = (int)$auto_cache;
+            if($auto_cache < 10) $auto_cache = 10;
         }
         static::$stack[static::$name][$tag] = [
             'type' => $type,

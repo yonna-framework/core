@@ -22,7 +22,7 @@ abstract class AbstractDB
     protected $name = null;
     protected $charset = null;
     protected $db_file_path = null;
-    protected $auto_cache = false;
+    protected $auto_cache = null;
     protected $project_key = null;
 
     /**
@@ -84,7 +84,7 @@ abstract class AbstractDB
         $this->password = null;
         $this->name = null;
         $this->charset = null;
-        $this->auto_cache = false;
+        $this->auto_cache = null;
         $this->project_key = null;
         $this->dsn = null;
         $this->use_crypto = false;

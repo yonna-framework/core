@@ -41,7 +41,7 @@ class Coupling
             $link['name'] = $conf['name'] ?? null;
             $link['charset'] = $conf['charset'] ?? null;
             $link['db_file_path'] = $conf['db_file_path'] ?? null;
-            $link['auto_cache'] = $conf['auto_cache'] ?? false;
+            $link['auto_cache'] = $conf['auto_cache'] ?? null;
         }
         if (empty($link['type'])) Response::exception('Lack type of database');
         if ($dbtc && $dbtc !== $link['type']) Response::exception('Database type check no pass');

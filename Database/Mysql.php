@@ -41,56 +41,6 @@ class Mysql extends AbstractPDO
         parent::__destruct();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * 替换SQL语句中表达式
-     * @access private
-     * @param string $sql
-     * @param array $options 表达式
-     * @return string
-     */
-    protected function parseSql($sql, $options = array())
-    {
-        $sql = str_replace(
-            array('%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
-            array(
-                $this->parseTable(!empty($options['table_origin']) ? $options['table_origin'] : (isset($options['table']) ? $options['table'] : false)),
-                !empty($options['table_origin']) ? $this->parseTable(' AS ' . $options['table']) : null,
-                $this->parseDistinct(isset($options['distinct']) ? $options['distinct'] : false),
-                $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
-                $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
-                $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
-                $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
-                $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
-                $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
-                $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
-                $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
-                $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
-                $this->parseComment(!empty($options['comment']) ? $options['comment'] : ''),
-                $this->parseForce(!empty($options['force']) ? $options['force'] : '')
-            ), $sql);
-        return $sql;
-    }
-
-    /**
-     * 获取当前table
-     * @return string
-     */
-    protected function getTable()
-    {
-        return $this->options['table'] ?? null;
-    }
-
     /**
      * 哪个表
      *
@@ -618,79 +568,6 @@ class Mysql extends AbstractPDO
         return $this;
     }
 
-
-    /**
-     * 指定查询字段
-     * @access protected
-     * @param mixed $field
-     * @param string | null $table
-     * @param null $function
-     * @return self
-     */
-    public function field($field, $table = null, $function = null)
-    {
-        if ($table === null) {
-            $table = $this->getTable();
-        }
-        $tableLen = mb_strlen($table, 'utf-8');
-        if (!$table) {
-            return $this;
-        }
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-        if (is_array($field)) {
-            $field = array_filter($field);
-            $ft = $this->getFieldType($table);
-            $fk = array_keys($ft);
-            $parseTable = $this->parseTable($table);
-            foreach ($field as $k => $v) {
-                $v = trim($v);
-                if ($v === '*') {
-                    unset($field[$k]);
-                    foreach ($fk as $kk) {
-                        if ($table === substr($kk, 0, $tableLen)) {
-                            $field[] = "{$parseTable}." . Str::replaceFirst("{$table}_", '', $kk) . " as {$kk}";
-                        }
-                    }
-                } else {
-                    $from = $v;
-                    $to = $v;
-                    $v = str_replace([' AS ', ' As ', ' => ', ' as '], ' as ', $v);
-                    $aspos = strpos($v, ' as ');
-                    if ($aspos > 0) {
-                        $as = explode(' as ', $v);
-                        $from = $as[0];
-                        $to = $as[1];
-                        $jsonPos = strpos($from, '#>>');
-                        if ($jsonPos > 0) {
-                            $jpos = explode('#>>', $v);
-                            $ft[$table . '_' . $to] = $ft[$table . '_' . trim($jpos[0])];
-                        } elseif (!empty($this->currentFieldType[$table . '_' . $from])) {
-                            $this->currentFieldType[$table . '_' . $to] = $this->currentFieldType[$table . '_' . $from];
-                            $ft[$table . '_' . $to] = $ft[$table . '_' . $from];
-                        }
-                    }
-
-                    if (!isset($ft[$table . '_' . $to])) {
-                        continue;
-                    }
-                    // check function
-                    $tempParseTableForm = $parseTable . '.' . $from;
-                    if ($function) {
-                        $tempParseTableForm = str_replace('%' . $k, $tempParseTableForm, $function);
-                    }
-                    $field[$k] = "{$tempParseTableForm} as {$table}_{$to}";
-                }
-            }
-            if (!isset($this->options['field'])) {
-                $this->options['field'] = array();
-            }
-            $this->options['field'] = array_merge_recursive($this->options['field'], $field);
-        }
-        return $this;
-    }
-
     /**
      * group by
      * @access protected
@@ -822,58 +699,6 @@ class Mysql extends AbstractPDO
         return $this;
     }
 
-    /**
-     * 统计设定
-     * @param $statTimeRange
-     * @param $timeField
-     * @param string $groupBy
-     * @return self
-     */
-    public function statRange($statTimeRange, $timeField, $groupBy = null)
-    {
-        if (!$timeField) {
-            return $this;
-        }
-        if ($groupBy) {
-            $groupBy = (array)$groupBy;
-            foreach ($groupBy as $k => $v) {
-                $this->field($v);
-                $this->groupBy($v);
-            }
-        }
-        $this->field("COUNT(0) AS 'qty'");
-        switch ($statTimeRange) {
-            case 'Y':
-                $this->field("SUBSTR({$timeField}, 1, 4) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 4)");
-                break;
-            case 'm':
-                $this->field("SUBSTR({$timeField}, 1, 7) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 7)");
-                break;
-            case 'd':
-                $this->field("SUBSTR({$timeField}, 1, 10) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 10)");
-                break;
-            case 'H':
-                $this->field("SUBSTR({$timeField}, 1, 13) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 13)");
-                break;
-            case 'i':
-                $this->field("SUBSTR({$timeField}, 1, 16) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 16)");
-                break;
-            case 's':
-                $this->field("SUBSTR({$timeField}, 1, 19) AS 't'");
-                $this->groupBy("SUBSTR({$timeField}, 1, 19)");
-                break;
-            default:
-                break;
-        }
-        return $this;
-    }
-
-    ///TODO 终结操作
 
     /**
      * 查找记录多条
@@ -882,7 +707,7 @@ class Mysql extends AbstractPDO
      */
     public function multi()
     {
-        $options = $this->_parseOptions();
+        $options = $this->parseOptions();
         $sql = $this->buildSelectSql($options);
         return $this->query($sql);
     }
@@ -899,75 +724,6 @@ class Mysql extends AbstractPDO
     }
 
     /**
-     * 当前时间（只能用于insert 和 update）
-     * @return array
-     */
-    public function now()
-    {
-        return array('exp', 'now()');
-    }
-
-    /**
-     * 统计
-     * @param int $field
-     * @return int
-     */
-    public function count($field = 0)
-    {
-        $this->field("COUNT(" . ($field === 0 ? '0' : $this->parseKey($field)) . ") AS \"hcount\"");
-        $result = $this->one();
-        return (int)$result['hcount'];
-    }
-
-    /**
-     * 求和
-     * @param string $field
-     * @return int
-     */
-    public function sum($field)
-    {
-        $this->field("SUM(" . $this->parseKey($field) . ") AS \"hsum\"");
-        $result = $this->one();
-        return round($result['hsum'], 10);
-    }
-
-    /**
-     * 求均
-     * @param $field
-     * @return int
-     */
-    public function avg($field)
-    {
-        $this->field("AVG(" . $this->parseKey($field) . ") AS \"havg\"");
-        $result = $this->one();
-        return round($result['havg'], 10);
-    }
-
-    /**
-     * 求最小
-     * @param $field
-     * @return int
-     */
-    public function min($field)
-    {
-        $this->field("MIN(" . $this->parseKey($field) . ") AS \"hmin\"");
-        $result = $this->one();
-        return round($result['hmin'], 10);
-    }
-
-    /**
-     * 求最大
-     * @param $field
-     * @return int
-     */
-    public function max($field)
-    {
-        $this->field("MAX(" . $this->parseKey($field) . ") AS \"hmax\"");
-        $result = $this->one();
-        return round($result['hmax'], 10);
-    }
-
-    /**
      * 分页查找
      * @param int $current
      * @param int $per
@@ -979,20 +735,20 @@ class Mysql extends AbstractPDO
         $offset = (int)($current) * $limit;
         $this->limit($offset, $limit);
 
-        $options = $this->_parseOptions();
+        $options = $this->parseOptions();
         $sql = $this->buildSelectSql($options);
         $options['order'] = null;
         $options['limit'] = 1;
         if (!empty($options['group'])) {
-            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "hcount"';
+            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "pure_count"';
             $options['group'] = null;
         } else {
-            $options['field'] = 'count(0) as "hcount"';
+            $options['field'] = 'count(0) as "pure_count"';
         }
         $sqlCount = $this->buildSelectSql($options);
         $data = $this->query($sql);
         $count = $this->query($sqlCount);
-        $count = reset($count)['hcount'];
+        $count = reset($count)['pure_count'];
         $count = (int)$count;
         //
         $result = array();
@@ -1134,7 +890,7 @@ class Mysql extends AbstractPDO
         $sql .= $where;
         if (!strpos($table, ',')) {
             //  单表更新支持order和limit
-            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
                 . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
@@ -1165,11 +921,80 @@ class Mysql extends AbstractPDO
         $sql .= $where;
         if (!strpos($table, ',')) {
             // 单表删除支持order和limit
-            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
                 . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
         return $this->query($sql);
+    }
+
+    /**
+     * 当前时间（只能用于insert 和 update）
+     * @return array
+     */
+    public function now()
+    {
+        return array('exp', 'now()');
+    }
+
+    /**
+     * 统计
+     * @param int $field
+     * @return int
+     */
+    public function count($field = 0)
+    {
+        $this->field("COUNT(" . ($field === 0 ? '0' : $this->parseKey($field)) . ") AS \"pure_count\"");
+        $result = $this->one();
+        return (int)$result['pure_count'];
+    }
+
+    /**
+     * 求和
+     * @param string $field
+     * @return int
+     */
+    public function sum($field)
+    {
+        $this->field("SUM(" . $this->parseKey($field) . ") AS \"hsum\"");
+        $result = $this->one();
+        return round($result['hsum'], 10);
+    }
+
+    /**
+     * 求均
+     * @param $field
+     * @return int
+     */
+    public function avg($field)
+    {
+        $this->field("AVG(" . $this->parseKey($field) . ") AS \"havg\"");
+        $result = $this->one();
+        return round($result['havg'], 10);
+    }
+
+    /**
+     * 求最小
+     * @param $field
+     * @return int
+     */
+    public function min($field)
+    {
+        $this->field("MIN(" . $this->parseKey($field) . ") AS \"hmin\"");
+        $result = $this->one();
+        return round($result['hmin'], 10);
+    }
+
+    /**
+     * 求最大
+     * @param $field
+     * @return int
+     */
+    public function max($field)
+    {
+        $this->field("MAX(" . $this->parseKey($field) . ") AS \"hmax\"");
+        $result = $this->one();
+        return round($result['hmax'], 10);
     }
 
     /**
@@ -1186,34 +1011,6 @@ class Mysql extends AbstractPDO
             return $this->query($sqlStr);
         }
         return $this;
-    }
-
-    /**
-     * 国际化表数据处理
-     * @param string $response 字符串
-     * @param string $language 语言
-     * @return string
-     */
-    public function responseTranslate($language, $response)
-    {
-        if (!$response || !$language) return $response;
-        try {
-            $result = $this->table('system_tips_i18n')->query("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema='{$this->settings['dbname']}' and table_name='system_tips_i18n'");
-            if (!$result) return $response;
-            $translate = array_column($result, 'column_name');
-            if ($translate && in_array($language, $translate)) {
-                $model = $this->table('system_tips_i18n');
-                $lang = $model->field($language)->equalTo('default', $response)->one();
-                if (!$lang) {
-                    $model->insert(array('default' => $response));
-                    $lang = $model->field($language)->equalTo('default', $response)->one();
-                }
-                $response = $lang['system_tips_i18n_' . $language] ?? $response;
-            }
-        } catch (Exception $e) {
-            //exit($e->getMessage());
-        }
-        return $response;
     }
 
 }

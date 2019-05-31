@@ -245,47 +245,8 @@ class Pgsql extends AbstractPDO
     }
 
 
-    /**
-     * 替换SQL语句中表达式
-     * @access private
-     * @param string $sql
-     * @param array $options 表达式
-     * @return string
-     */
-    protected function parseSql($sql, $options = array())
-    {
-        $sql = str_replace(
-            array('%SCHEMAS%', '%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
-            array(
-                $this->parseSchemas(isset($options['schemas']) ? $options['schemas'] : false),
-                $this->parseTable(!empty($options['table_origin']) ? $options['table_origin'] : (isset($options['table']) ? $options['table'] : false)),
-                !empty($options['table_origin']) ? $this->parseTable(' AS ' . $options['table']) : null,
-                $this->parseDistinct(isset($options['distinct']) ? $options['distinct'] : false),
-                $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
-                $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
-                $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
-                $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
-                $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
-                $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
-                $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
-                $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
-                $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
-                $this->parseComment(!empty($options['comment']) ? $options['comment'] : ''),
-                $this->parseForce(!empty($options['force']) ? $options['force'] : '')
-            ), $sql);
-        return $sql;
-    }
 
 
-
-    /**
-     * 获取当前模式 schemas
-     * @return string
-     */
-    protected function getSchemas()
-    {
-        return $this->options['schemas'];
-    }
 
     /**
      * 哪个模式
@@ -298,15 +259,6 @@ class Pgsql extends AbstractPDO
         $this->resetAll();
         $this->options['schemas'] = $schemas;
         return $this;
-    }
-
-    /**
-     * 获取当前table
-     * @return string
-     */
-    protected function getTable()
-    {
-        return $this->options['table'] ?? null;
     }
 
     /**
