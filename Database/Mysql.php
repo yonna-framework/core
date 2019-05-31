@@ -237,40 +237,6 @@ class Mysql extends AbstractPDO
         return $this;
     }
 
-    /**
-     * @param string $operat see self
-     * @param string $field
-     * @param null $value
-     * @return self
-     */
-    private function whereOperat($operat, $field, $value = null)
-    {
-        if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
-            if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
-                $this->where[] = array(
-                    'operat' => $operat,
-                    'table' => $this->where_table,
-                    'field' => $field,
-                    'value' => $value,
-                );
-            }
-        }
-        return $this;
-    }
-
-    public function clearWhere()
-    {
-        $this->where = array();
-        $this->where_table = '';
-        return $this;
-    }
-
-    public function whereTable($table)
-    {
-        $this->where_table = $table;
-        return $this;
-    }
-
 
     /**
      * @param $field

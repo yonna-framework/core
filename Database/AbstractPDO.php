@@ -91,6 +91,7 @@ abstract class AbstractPDO extends AbstractDB
     const notContainsAnd = 'notContainsAnd';                //notContainsAnd
     const isContainsBy = 'isContainsBy';                    //isContainsBy
 
+    protected function parseSql($sql, $options = array()){}
 
     /**
      * 析构方法
@@ -1067,13 +1068,6 @@ abstract class AbstractPDO extends AbstractDB
         if (is_array($index)) $index = join(",", $index);
         return sprintf(" FORCE INDEX ( %s ) ", $index);
     }
-
-
-    /**
-     * @param $sql
-     * @param array $options
-     */
-    protected function parseSql($sql, $options = array()){}
 
     /**
      * 生成查询SQL
