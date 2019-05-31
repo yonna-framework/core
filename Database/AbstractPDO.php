@@ -8,6 +8,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use PhpureCore\Glue\Response;
+use PhpureCore\Mapping\AutoCache;
 use PhpureCore\Mapping\DBType;
 use Str;
 
@@ -1082,7 +1083,7 @@ abstract class AbstractPDO extends AbstractDB
             $page = $page > 0 ? $page : 1;
             $listRows = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
             $offset = $listRows * ($page - 1);
-            switch ($this->db_type){
+            switch ($this->db_type) {
                 case DBType::MSSQL:
                     $options['limit'] = $listRows;
                     $options['offset'] = $offset;
@@ -1391,7 +1392,7 @@ abstract class AbstractPDO extends AbstractDB
      */
     protected function parseSql($sql, $options = array())
     {
-        switch ($this->db_type){
+        switch ($this->db_type) {
             case DBType::MYSQL:
                 $sql = str_replace(
                     array('%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
@@ -1493,10 +1494,10 @@ abstract class AbstractPDO extends AbstractDB
         //read model,check cache
         if ($statement === 'select' || $statement === 'show') {
             $result = false;
-            if ($this->getRedisType() === 'forever') {
-                $result = $this->redis()->hGet($table, $query);
-            } elseif (is_numeric($this->getRedisType())) {
-                $result = $this->redis()->get($table . $query);
+            if ($this->auto_cache === AutoCache::FOREVER) {
+                $result = Cache::uGet($table, $query);
+            } elseif ($this->auto_cache) {
+                $result = Cache::get($table . $query);
             }
             if ($result) return $result;
         }
@@ -1508,17 +1509,21 @@ abstract class AbstractPDO extends AbstractDB
         if ($statement === 'select' || $statement === 'show') {
             $result = $this->PDOStatement->fetchAll($fetchMode);
             $result = $this->fetchFormat($result);
-            if ($this->getRedisType() === 'forever') {
-                $this->redis()->hSet($table, $query, $result);
-            } elseif (is_numeric($this->getRedisType())) {
-                $this->redis()->set($table . $query, $result, (int)$this->getRedisType());
+            if ($this->auto_cache === AutoCache::FOREVER) {
+                Cache::uSet($table, $query, $result);
+            } elseif (is_numeric($this->auto_cache)) {
+                Cache::set($table . $query, $result, (int)$this->auto_cache);
             }
             return $result;
         } elseif ($statement === 'update' || $statement === 'delete') {
-            if ($this->getRedisType() === 'forever') $this->redis()->delete($table);
+            if ($this->auto_cache === 'forever') {
+                Cache::clear($table);
+            }
             return $this->PDOStatement->rowCount();
         } elseif ($statement === 'insert') {
-            if ($this->getRedisType() === 'forever') $this->redis()->delete($table);
+            if ($this->auto_cache === AutoCache::FOREVER) {
+                Cache::clear($table);
+            }
             return $this->PDOStatement->rowCount();
         } else {
             return null;
