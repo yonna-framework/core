@@ -42,9 +42,12 @@ abstract class Mapping
      * @param $optKey
      * @return mixed
      */
-    private static function getOption($value, $optKey)
+    public static function getOption($value, $optKey)
     {
-        return static::$map_data[static::getClassName()][$value][$optKey] ?? null;
+        $self = new static();
+        $map_data = $self::$map_data;
+        return isset($map_data[$self::getClassName()][$value][$optKey])
+            ? $map_data[$self::getClassName()][$value][$optKey] : null;
     }
 
     /**
