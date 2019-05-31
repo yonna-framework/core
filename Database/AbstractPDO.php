@@ -1123,12 +1123,33 @@ abstract class AbstractPDO extends AbstractDB
                 //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
                 $this->where = array();
                 foreach ($where as $k => $v) {
-                    $this->equalTo($k, $v);
+                    $this->whereOperat(self::equalTo, $k, $v);
                 }
                 $whereStr = $this->builtWhereSql($this->where);
             }
         }
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
+    }
+
+    /**
+     * @param string $operat see self
+     * @param string $field
+     * @param null $value
+     * @return self
+     */
+    protected function whereOperat($operat, $field, $value = null)
+    {
+        if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
+            if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
+                $this->where[] = array(
+                    'operat' => $operat,
+                    'table' => $this->where_table,
+                    'field' => $field,
+                    'value' => $value,
+                );
+            }
+        }
+        return $this;
     }
 
     private function builtWhereSql($closure, $sql = '', $cond = 'and')
@@ -1353,27 +1374,6 @@ abstract class AbstractPDO extends AbstractDB
             }
         }
         return $sql;
-    }
-
-    /**
-     * @param string $operat see self
-     * @param string $field
-     * @param null $value
-     * @return self
-     */
-    protected function whereOperat($operat, $field, $value = null)
-    {
-        if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
-            if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
-                $this->where[] = array(
-                    'operat' => $operat,
-                    'table' => $this->where_table,
-                    'field' => $field,
-                    'value' => $value,
-                );
-            }
-        }
-        return $this;
     }
 
     public function clearWhere()
