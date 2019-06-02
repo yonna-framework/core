@@ -45,35 +45,6 @@ class Pgsql extends AbstractPDO
 
 
 
-    /**
-     * where分析
-     * @access private
-     * @param mixed $where
-     * @return string
-     */
-    private function parseWhere($where)
-    {
-        $whereStr = '';
-        if ($this->where) {
-            //闭包形式
-            $whereStr = $this->builtWhereSql($this->where);
-        } elseif ($where) {
-            if (is_string($where)) {
-                //直接字符串
-                $whereStr = $where;
-            } elseif (is_array($where)) {
-                //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
-                $this->where = array();
-                foreach ($where as $k => $v) {
-                    $this->equalTo($k, $v);
-                }
-                $whereStr = $this->builtWhereSql($this->where);
-            }
-        }
-        return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
-    }
-
-
     private function builtWhereSql($closure, $sql = '', $cond = 'and')
     {
         foreach ($closure as $v) {

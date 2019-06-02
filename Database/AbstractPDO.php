@@ -64,6 +64,13 @@ abstract class AbstractPDO extends AbstractDB
     protected $lastSql = '';
 
     /**
+     * 是否不执行sql直接返回sql
+     *
+     * @var string
+     */
+    protected $fetchSql = false;
+
+    /**
      * 多重嵌套事务处理堆栈
      */
     protected $transTrace = 0;
@@ -94,6 +101,17 @@ abstract class AbstractPDO extends AbstractDB
     const isContainsBy = 'isContainsBy';                    //isContainsBy
 
     /**
+     * 构造方法
+     *
+     * @param array $setting
+     */
+    public function __construct(array $setting)
+    {
+        parent::__construct($setting);
+        return $this;
+    }
+
+    /**
      * 析构方法
      * @access public
      */
@@ -111,6 +129,7 @@ abstract class AbstractPDO extends AbstractDB
     {
         $this->options = array();
         $this->parameters = array();
+        $this->fetchSql = false;
         $this->lastSql = '';
         $this->currentFieldType = array();
         $this->tempFieldType = array();
@@ -558,7 +577,7 @@ abstract class AbstractPDO extends AbstractDB
             case 'jsonb':
                 $val = json_encode($val);
                 if ($this->isUseCrypto()) {
-                    $json = array('crypto' => Crypto::encrypt($val));
+                    $json = array('crypto' => $this->Crypto::encrypt($val));
                     $val = json_encode($json);
                 }
                 if ($this->db_type === DBType::MYSQL) {
@@ -590,7 +609,7 @@ abstract class AbstractPDO extends AbstractDB
             case 'ntext':
                 $val = trim($val);
                 if ($this->isUseCrypto()) {
-                    $val = Crypto::encrypt($val);
+                    $val = $this->Crypto::encrypt($val);
                 }
                 break;
             default:
@@ -648,7 +667,7 @@ abstract class AbstractPDO extends AbstractDB
             case 'ntext':
                 $val = trim($val);
                 if ($this->isUseCrypto()) {
-                    $val = Crypto::encrypt($val);
+                    $val = $this->Crypto::encrypt($val);
                 }
                 break;
             default:
@@ -699,7 +718,7 @@ abstract class AbstractPDO extends AbstractDB
                 $arr = explode(',', $arr);
                 if ($this->isUseCrypto()) {
                     foreach ($arr as $ak => $a) {
-                        $arr[$ak] = Crypto::decrypt($a);
+                        $arr[$ak] = $this->Crypto::decrypt($a);
                     }
                 }
             } else {
@@ -780,7 +799,7 @@ abstract class AbstractPDO extends AbstractDB
                             $result[$k] = json_decode($v, true);
                             if ($this->isUseCrypto()) {
                                 $crypto = $result[$k]['crypto'] ?? '';
-                                $crypto = Crypto::decrypt($crypto);
+                                $crypto = $this->Crypto::decrypt($crypto);
                                 $result[$k] = json_decode($crypto, true);
                             }
                             $result[$k] = $this->parseKSort($result[$k]);
@@ -801,7 +820,7 @@ abstract class AbstractPDO extends AbstractDB
                         case 'varchar':
                         case 'text':
                             if (strpos($v, ',,,,,') === false && $this->isUseCrypto()) {
-                                $result[$k] = Crypto::decrypt($v);
+                                $result[$k] = $this->Crypto::decrypt($v);
                             }
                             break;
                         default:
@@ -810,7 +829,7 @@ abstract class AbstractPDO extends AbstractDB
                                     $result[$k] = json_decode($v, true);
                                     if ($this->isUseCrypto()) {
                                         $crypto = $result[$k]['crypto'] ?? '';
-                                        $crypto = Crypto::decrypt($crypto);
+                                        $crypto = $this->Crypto::decrypt($crypto);
                                         $result[$k] = json_decode($crypto, true);
                                     }
                                     $result[$k] = $this->parseKSort($result[$k]);
@@ -886,6 +905,7 @@ abstract class AbstractPDO extends AbstractDB
      */
     protected function parseTable($tables)
     {
+        if (!$tables) Response::exception('no table');
         if (is_array($tables)) {// 支持别名定义
             $array = array();
             foreach ($tables as $table => $alias) {
@@ -1441,10 +1461,10 @@ abstract class AbstractPDO extends AbstractDB
     /**
      * 条件闭包
      * @param string $cond 'and' || 'or'
-     * @param boolean $isGlobal 'field or total'
+     * @param bool $isGlobal 'field or total'
      * @return self
      */
-    public function closure($cond = 'and', $isGlobal = false)
+    public function closure(string $cond = 'and', bool $isGlobal = false)
     {
         if ($this->where) {
             $o = array();
@@ -1473,6 +1493,16 @@ abstract class AbstractPDO extends AbstractDB
     }
 
     /**
+     * 设定为直接输出sql
+     * @return self | Mysql | Pgsql | Mssql | Sqlite
+     */
+    public function fetchSql()
+    {
+        $this->fetchSql = true;
+        return $this;
+    }
+
+    /**
      * 执行 SQL
      *
      * @param string $query
@@ -1488,6 +1518,9 @@ abstract class AbstractPDO extends AbstractDB
         }
         $query = trim($query);
         $this->lastSql = $query;
+        if ($this->fetchSql === true) {
+            return $this->lastSql;
+        }
 
         $rawStatement = explode(" ", $query);
         $statement = strtolower(trim($rawStatement[0]));
@@ -1496,7 +1529,7 @@ abstract class AbstractPDO extends AbstractDB
             $result = false;
             if ($this->auto_cache === AutoCache::FOREVER) {
                 $result = Cache::uGet($table, $query);
-            } elseif ($this->auto_cache) {
+            } elseif (is_numeric($this->auto_cache)) {
                 $result = Cache::get($table . $query);
             }
             if ($result) return $result;

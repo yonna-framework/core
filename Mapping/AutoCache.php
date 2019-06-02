@@ -13,8 +13,6 @@ namespace PhpureCore\Mapping;
 class AutoCache extends Mapping
 {
 
-    const TRUE = 'true';
-    const FALSE = 'false';
     const FOREVER = 'forever';
     const ONE_MINUTE = '60';
     const FIVE_MINUTE = '300';

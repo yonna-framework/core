@@ -8,7 +8,6 @@ namespace PhpureCore\Database;
 
 use Exception;
 use PhpureCore\Mapping\DBType;
-use Str;
 
 class Mysql extends AbstractPDO
 {
@@ -20,16 +19,11 @@ class Mysql extends AbstractPDO
      */
     public function __construct(array $setting)
     {
-        $this->host = $setting['host'];
-        $this->port = $setting['port'];
-        $this->account = $setting['account'];
-        $this->password = $setting['password'];
-        $this->name = $setting['name'];
+        parent::__construct($setting);
         $this->charset = $setting['charset'] ?: 'utf8mb4';
-        $this->auto_cache = $setting['auto_cache'];
-
         $this->db_type = DBType::MYSQL;
         $this->selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
+        return $this;
     }
 
     /**

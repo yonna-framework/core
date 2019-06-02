@@ -31,9 +31,7 @@ class Redis extends AbstractDB
      */
     public function __construct(array $setting)
     {
-        $this->host = $setting['host'] ?? null;
-        $this->port = $setting['port'] ?? null;
-        $this->password = $setting['password'] ?? '';
+        parent::__construct($setting);
         if ($this->redis == null) {
             if (class_exists('\\Redis')) {
                 try {

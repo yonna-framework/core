@@ -13,7 +13,17 @@ abstract class AbstractDB
     const DESC = 'desc';
     const ASC = 'asc';
 
+    /**
+     * 数据库驱动类型
+     * @var null
+     */
     protected $db_type = null;
+
+    /**
+     * 项目key，用于区分不同项目的缓存key
+     * @var mixed|string|null
+     */
+    protected $project_key = null;
 
     protected $host = null;
     protected $port = null;
@@ -23,7 +33,10 @@ abstract class AbstractDB
     protected $charset = null;
     protected $db_file_path = null;
     protected $auto_cache = null;
-    protected $project_key = null;
+    protected $auto_crypto = null;
+    protected $crypto_type = null;
+    protected $crypto_secret = null;
+    protected $crypto_iv = null;
 
     /**
      * where条件对象，实现无敌闭包
@@ -58,11 +71,41 @@ abstract class AbstractDB
     private $dsn = null;
 
     /**
+     * 加密对象
+     * @var Crypto
+     */
+    protected $Crypto = null;
+
+    /**
      * 是否对内容加密
      * @var bool
      */
     private $use_crypto = false;
 
+    /**
+     * 构造方法
+     *
+     * @param array $setting
+     */
+    public function __construct(array $setting)
+    {
+        $this->project_key = $setting['project_key'];
+        $this->host = $setting['host'];
+        $this->port = $setting['port'];
+        $this->account = $setting['account'];
+        $this->password = $setting['password'];
+        $this->name = $setting['name'];
+        $this->charset = $setting['charset'] ?: 'utf8';
+        $this->db_file_path = $setting['db_file_path'];
+        $this->auto_cache = $setting['auto_cache'];
+        $this->auto_crypto = $setting['auto_crypto'];
+        $this->crypto_type = $setting['crypto_type'];
+        $this->crypto_secret = $setting['crypto_secret'];
+        $this->crypto_iv = $setting['crypto_iv'];
+        //
+        $this->Crypto = new Crypto($this->crypto_type, $this->crypto_secret, $this->crypto_iv);
+        return $this;
+    }
 
     /**
      * 析构方法
@@ -78,15 +121,6 @@ abstract class AbstractDB
      */
     protected function resetAll()
     {
-        $this->host = null;
-        $this->port = null;
-        $this->account = null;
-        $this->password = null;
-        $this->name = null;
-        $this->charset = null;
-        $this->auto_cache = null;
-        $this->project_key = null;
-        $this->dsn = null;
         $this->use_crypto = false;
         $this->error = null;
         $this->where = array();
