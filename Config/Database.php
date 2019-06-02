@@ -45,7 +45,6 @@ class Database extends Arrow
         }
         elseif (is_numeric($auto_cache)) {
             $auto_cache = (int)$auto_cache;
-            if($auto_cache < 10) $auto_cache = 10;
         }
         static::$stack[static::$name][$tag] = [
             'type' => $type,

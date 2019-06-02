@@ -110,7 +110,7 @@ class Redis extends AbstractDB
      * @param int $timeout <= 0 not expire
      * @return void
      */
-    public function set($key, $value, $timeout = 0)
+    public function set($key, $value, int $timeout = 0)
     {
         if ($this->redis !== null && $key) {
             $key = $this->parse($key);

@@ -2,8 +2,10 @@
 /**
  * 自动缓存机制
  * 除下面常用类型外可自由设置数字字符串如：'90' 代表90秒
- * 特别注意，当设置的时间少于 10 秒时，会重设为 10 秒
+ * 特别注意，当设置的时间大于0(不限时)并少于最小缓存时间(def.10s)，会重设为最小缓存时间
  * you can always set a number
+ * @see \PhpureCore\Config\Database
+ * @see \PhpureCore\Database\Cache
  */
 
 namespace PhpureCore\Mapping;
