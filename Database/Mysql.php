@@ -23,7 +23,6 @@ class Mysql extends AbstractPDO
         $this->charset = $setting['charset'] ?: 'utf8mb4';
         $this->db_type = DBType::MYSQL;
         $this->selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-        return $this;
     }
 
     /**
@@ -34,6 +33,7 @@ class Mysql extends AbstractPDO
     {
         parent::__destruct();
     }
+
 
     /**
      * 哪个表
@@ -329,17 +329,13 @@ class Mysql extends AbstractPDO
     }
 
     /**
-     * @param array $where
+     * @param $field
+     * @param $value
      * @return self
      */
-    public function where(array $where)
+    public function findInSetOr($field, $value)
     {
-        if ($where) {
-            foreach ($where as $k => $v) {
-                $this->equalTo($k, $v);
-            }
-        }
-        return $this;
+        return $this->whereOperat(self::findInSetOr, $field, $value);
     }
 
     /**
@@ -347,9 +343,9 @@ class Mysql extends AbstractPDO
      * @param $value
      * @return self
      */
-    public function any($field, $value)
+    public function notFindInSetOr($field, $value)
     {
-        return $this->whereOperat(self::any, $field, $value);
+        return $this->whereOperat(self::notFindInSetOr, $field, $value);
     }
 
     /**
@@ -357,9 +353,9 @@ class Mysql extends AbstractPDO
      * @param $value
      * @return self
      */
-    public function contains($field, $value)
+    public function findInSetAnd($field, $value)
     {
-        return $this->whereOperat(self::contains, $field, $value);
+        return $this->whereOperat(self::findInSetAnd, $field, $value);
     }
 
     /**
@@ -367,29 +363,9 @@ class Mysql extends AbstractPDO
      * @param $value
      * @return self
      */
-    public function notContains($field, $value)
+    public function notFindInSetAnd($field, $value)
     {
-        return $this->whereOperat(self::notContains, $field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return self
-     */
-    public function containsAnd($field, $value)
-    {
-        return $this->whereOperat(self::containsAnd, $field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return self
-     */
-    public function notContainsAnd($field, $value)
-    {
-        return $this->whereOperat(self::notContainsAnd, $field, $value);
+        return $this->whereOperat(self::notFindInSetAnd, $field, $value);
     }
 
     /**
@@ -448,7 +424,6 @@ class Mysql extends AbstractPDO
                     )
                 );
             }
-            //todo
             if ($isOver) {
                 return $closure;
             }
@@ -535,9 +510,6 @@ class Mysql extends AbstractPDO
                         break;
                     case '!^':
                         $this->notIn($matchField, explode(',', $matchValue));
-                        break;
-                    case '*':
-                        $this->any($matchField, explode(',', $matchValue));
                         break;
                     default:
                         break;
@@ -694,6 +666,17 @@ class Mysql extends AbstractPDO
     }
 
 
+    /**  @tips 终结操作 */
+
+    /**
+     * 当前时间（只能用于insert 和 update）
+     * @return array
+     */
+    public function now()
+    {
+        return array('exp', 'now()');
+    }
+
     /**
      * 查找记录多条
      * @access public
@@ -734,17 +717,16 @@ class Mysql extends AbstractPDO
         $options['order'] = null;
         $options['limit'] = 1;
         if (!empty($options['group'])) {
-            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "pure_count"';
+            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "hcount"';
             $options['group'] = null;
         } else {
-            $options['field'] = 'count(0) as "pure_count"';
+            $options['field'] = 'count(0) as "hcount"';
         }
         $sqlCount = $this->buildSelectSql($options);
         $data = $this->query($sql);
         $count = $this->query($sqlCount);
-        $count = reset($count)['pure_count'];
+        $count = reset($count)['hcount'];
         $count = (int)$count;
-        //
         $result = array();
         $per = !$per ? 10 : $per;
         $end = ceil($count / $per);
@@ -758,189 +740,15 @@ class Mysql extends AbstractPDO
     }
 
     /**
-     * 插入记录
-     * @access public
-     * @param mixed $data 数据
-     * @return integer
-     * @throws Exception
-     */
-    public function insert($data)
-    {
-        $values = $fields = array();
-        $table = $this->getTable();
-        $ft = $this->getFieldType($table);
-        foreach ($data as $key => $val) {
-            if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
-                if (is_array($val) && isset($val[0]) && 'exp' == $val[0]) {
-                    $fields[] = $this->parseKey($key);
-                    $values[] = $val[1] ?? null;
-                } elseif (is_null($val)) {
-                    $fields[] = $this->parseKey($key);
-                    $values[] = 'NULL';
-                } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                    //todo 跟据表字段处理数据
-                    if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
-                    } else {
-                        $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
-                    }
-                    if ($val !== null) {
-                        $fields[] = $this->parseKey($key);
-                        $values[] = $this->parseValue($val);
-                    }
-                }
-            }
-        }
-        // 兼容数字传入方式
-        $sql = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') VALUES (' . implode(',', $values) . ')';
-        $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->query($sql);
-    }
-
-    /**
-     * 批量插入记录
-     * @access public
-     * @param mixed $dataSet 数据集
-     * @return false | integer
-     * @throws Exception
-     */
-    public function insertAll($dataSet)
-    {
-        $values = array();
-        if (!is_array($dataSet[0])) return false;
-        $fields = array_map(array($this, 'parseKey'), array_keys($dataSet[0]));
-        $table = $this->getTable();
-        $ft = $this->getFieldType($table);
-        foreach ($dataSet as $data) {
-            $value = array();
-            foreach ($data as $key => $val) {
-                if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
-                    if (is_array($val) && isset($val[0]) && 'exp' == $val[0]) {
-                        $value[] = $val[1];
-                    } elseif (is_null($val)) {
-                        $value[] = 'NULL';
-                    } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                        //todo 跟据表字段处理数据
-                        if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                            $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
-                            if ($val === null) $value[] = 'NULL';
-                        } else {
-                            $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
-                        }
-                        if ($val !== null) {
-                            $value[] = $this->parseValue($val);
-                        }
-                    }
-                }
-            }
-            $values[] = '(' . implode(',', $value) . ')';
-        }
-        $sql = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') VALUES ' . implode(' , ', $values);
-        $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->query($sql);
-    }
-
-    /**
-     * 更新记录
-     * @access public
-     * @param mixed $data 数据
-     * @param bool $sure
-     * @return false | integer
-     * @throws Exception
-     */
-    public function update($data, $sure = false)
-    {
-        $table = $this->getTable();
-        $sql = 'UPDATE ' . $this->parseTable($table);
-        $ft = $this->getFieldType($table);
-        $set = array();
-        foreach ($data as $key => $val) {
-            if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
-                if (is_array($val) && !empty($val[0]) && 'exp' == $val[0]) {
-                    $set[] = $this->parseKey($key) . '=' . $val[1];
-                } elseif (is_null($val)) {
-                    $set[] = $this->parseKey($key) . '= NULL';
-                } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                    //todo 跟据表字段处理数据
-                    if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
-                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
-                    } else {
-                        $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
-                    }
-                    if ($val !== null) {
-                        $set[] = $this->parseKey($key) . '=' . $this->parseValue($val);
-                    }
-                }
-            }
-        }
-        $sql .= ' SET ' . implode(',', $set);
-        if (strpos($table, ',')) {// 多表更新支持JOIN操作
-            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
-        }
-        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
-        if (!$where && $sure !== true) {
-            throw new Exception('update must be sure when without where：' . $sql);
-        }
-        $sql .= $where;
-        if (!strpos($table, ',')) {
-            //  单表更新支持order和limit
-            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
-                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
-        }
-        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
-        return $this->query($sql);
-    }
-
-    /**
-     * 删除记录
-     * @access public
-     * @param bool $sure
-     * @return false | integer
-     * @throws Exception
-     */
-    public function delete($sure = false)
-    {
-        $table = $this->parseTable($this->options['table']);
-        $sql = 'DELETE FROM ' . $table;
-        if (strpos($table, ',')) {// 多表删除支持USING和JOIN操作
-            if (!empty($this->options['using'])) {
-                $sql .= ' USING ' . $this->parseTable($this->options['using']) . ' ';
-            }
-            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
-        }
-        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
-        if (!$where && $sure !== true) {
-            throw new Exception('delete must be sure when without where');
-        }
-        $sql .= $where;
-        if (!strpos($table, ',')) {
-            // 单表删除支持order和limit
-            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
-                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
-        }
-        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
-        return $this->query($sql);
-    }
-
-    /**
-     * 当前时间（只能用于insert 和 update）
-     * @return array
-     */
-    public function now()
-    {
-        return array('exp', 'now()');
-    }
-
-    /**
      * 统计
      * @param int $field
      * @return int
      */
     public function count($field = 0)
     {
-        $this->field("COUNT(" . ($field === 0 ? '0' : $this->parseKey($field)) . ") AS \"pure_count\"");
+        $this->field("COUNT(" . ($field === 0 ? '0' : $this->parseKey($field)) . ") AS \"hcount\"");
         $result = $this->one();
-        return (int)$result['pure_count'];
+        return (int)$result['hcount'];
     }
 
     /**
@@ -989,6 +797,171 @@ class Mysql extends AbstractPDO
         $this->field("MAX(" . $this->parseKey($field) . ") AS \"hmax\"");
         $result = $this->one();
         return round($result['hmax'], 10);
+    }
+
+    /**
+     * 插入记录
+     * @access public
+     * @param mixed $data 数据
+     * @return integer
+     * @throws Exception
+     */
+    public function insert($data)
+    {
+        $values = $fields = array();
+        $table = $this->getTable();
+        $ft = $this->getFieldType($table);
+        foreach ($data as $key => $val) {
+            if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
+                if (is_array($val) && isset($val[0]) && 'exp' == $val[0]) {
+                    $fields[] = $this->parseKey($key);
+                    $values[] = $val[1] ?? null;
+                } elseif (is_null($val)) {
+                    $fields[] = $this->parseKey($key);
+                    $values[] = 'NULL';
+                } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
+                    // 跟据表字段处理数据
+                    if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
+                    } else {
+                        $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
+                    }
+                    if ($val !== null) {
+                        $fields[] = $this->parseKey($key);
+                        $values[] = $this->parseValue($val);
+                    }
+                }
+            }
+        }
+        // 兼容数字传入方式
+        $sql = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') VALUES (' . implode(',', $values) . ')';
+        $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
+        return $this->query($sql);
+    }
+
+    /**
+     * 批量插入记录
+     * @access public
+     * @param mixed $dataSet 数据集
+     * @return false | integer
+     * @throws Exception
+     */
+    public function insertAll($dataSet)
+    {
+        $values = array();
+        if (!is_array($dataSet[0])) return false;
+        $fields = array_map(array($this, 'parseKey'), array_keys($dataSet[0]));
+        $table = $this->getTable();
+        $ft = $this->getFieldType($table);
+        foreach ($dataSet as $data) {
+            $value = array();
+            foreach ($data as $key => $val) {
+                if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
+                    if (is_array($val) && isset($val[0]) && 'exp' == $val[0]) {
+                        $value[] = $val[1];
+                    } elseif (is_null($val)) {
+                        $value[] = 'NULL';
+                    } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
+                        // 跟据表字段处理数据
+                        if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
+                            $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
+                            if ($val === null) $value[] = 'NULL';
+                        } else {
+                            $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
+                        }
+                        if ($val !== null) {
+                            $value[] = $this->parseValue($val);
+                        }
+                    }
+                }
+            }
+            $values[] = '(' . implode(',', $value) . ')';
+        }
+        $sql = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') VALUES ' . implode(' , ', $values);
+        $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
+        return $this->query($sql);
+    }
+
+    /**
+     * 更新记录
+     * @access public
+     * @param mixed $data 数据
+     * @param bool $sure
+     * @return false | integer
+     * @throws Exception
+     */
+    public function update($data, $sure = false)
+    {
+        $table = $this->getTable();
+        $sql = 'UPDATE ' . $this->parseTable($table);
+        $ft = $this->getFieldType($table);
+        $set = array();
+        foreach ($data as $key => $val) {
+            if (!empty($ft[$table . '_' . $key])) { // 根据表字段过滤无效key
+                if (is_array($val) && !empty($val[0]) && 'exp' == $val[0]) {
+                    $set[] = $this->parseKey($key) . '=' . $val[1];
+                } elseif (is_null($val)) {
+                    $set[] = $this->parseKey($key) . '= NULL';
+                } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
+                    // 跟据表字段处理数据
+                    if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
+                        $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
+                    } else {
+                        $val = $this->parseValueByFieldType($val, $ft[$table . '_' . $key]);
+                    }
+                    if ($val !== null) {
+                        $set[] = $this->parseKey($key) . '=' . $this->parseValue($val);
+                    }
+                }
+            }
+        }
+        $sql .= ' SET ' . implode(',', $set);
+        if (strpos($table, ',')) {// 多表更新支持JOIN操作
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
+        }
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
+        if (!$where && $sure !== true) {
+            throw new Exception('update must be sure when without where：' . $sql);
+        }
+        $sql .= $where;
+        if (!strpos($table, ',')) {
+            // 单表更新支持order和limit
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
+        }
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
+        return $this->query($sql);
+    }
+
+    /**
+     * 删除记录
+     * @access public
+     * @param bool $sure
+     * @return false | integer
+     * @throws Exception
+     */
+    public function delete($sure = false)
+    {
+        $table = $this->parseTable($this->options['table']);
+        $sql = 'DELETE FROM ' . $table;
+        if (strpos($table, ',')) {// 多表删除支持USING和JOIN操作
+            if (!empty($this->options['using'])) {
+                $sql .= ' USING ' . $this->parseTable($this->options['using']) . ' ';
+            }
+            $sql .= $this->parseJoin(!empty($this->options['join']) ? $this->options['join'] : '');
+        }
+        $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
+        if (!$where && $sure !== true) {
+            throw new Exception('delete must be sure when without where');
+        }
+        $sql .= $where;
+        if (!strpos($table, ',')) {
+            // 单表删除支持order和limit
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
+                . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
+        }
+        $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
+        return $this->query($sql);
     }
 
     /**

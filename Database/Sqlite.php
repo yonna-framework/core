@@ -7,8 +7,7 @@
 namespace PhpureCore\Database;
 
 use Exception;
-use PDO;
-use PDOException;
+use PhpureCore\Glue\Response;
 use PhpureCore\Mapping\DBType;
 
 class Sqlite extends AbstractPDO
@@ -21,11 +20,8 @@ class Sqlite extends AbstractPDO
      */
     public function __construct(array $setting)
     {
-        $this->db_file_path = $setting['db_file_path'];
-        $this->name = $setting['name'];
+        parent::__construct($setting);
         $this->charset = $setting['charset'] ?: 'utf8';
-        $this->auto_cache = $setting['auto_cache'];
-
         $this->db_type = DBType::SQLITE;
         $this->selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE% %ALIA% %FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
     }
@@ -39,219 +35,6 @@ class Sqlite extends AbstractPDO
         parent::__destruct();
     }
 
-
-    /**
-     * where分析
-     * @access private
-     * @param mixed $where
-     * @return string
-     */
-    private function parseWhere($where)
-    {
-        $whereStr = '';
-        if ($this->where) {
-            //闭包形式
-            $whereStr = $this->builtWhereSql($this->where);
-        } elseif ($where) {
-            if (is_string($where)) {
-                //直接字符串
-                $whereStr = $where;
-            } elseif (is_array($where)) {
-                //数组形式,只支持field=>value形式 AND 逻辑 和 equalTo 条件
-                $this->where = array();
-                foreach ($where as $k => $v) {
-                    $this->equalTo($k, $v);
-                }
-                $whereStr = $this->builtWhereSql($this->where);
-            }
-        }
-        return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
-    }
-
-
-    private function builtWhereSql($closure, $sql = '', $cond = 'and')
-    {
-        foreach ($closure as $v) {
-            $table = isset($v['table']) && $v['table'] ? $v['table'] : $this->getTable();
-            if (!$table) {
-                return null;
-            }
-            $ft = $this->getFieldType($table);
-            if ($v['operat'] === 'closure') {
-                $innerSql = '(' . $this->builtWhereSql($v['closure'], '', $v['cond']) . ')';
-                $sql .= $sql ? " {$cond}{$innerSql} " : $innerSql;
-            } else {
-                $si = strpos($v['field'], '#>>');
-                if ($si > 0) {
-                    preg_match("/\(?(.*)#>>/", $v['field'], $siField);
-                    $ft_type = $ft[$table . '_' . $siField[1]] ?? null;
-                } else {
-                    $ft_type = $ft[$table . '_' . $v['field']] ?? null;
-                }
-                if (empty($ft_type)) { // 根据表字段过滤无效field
-                    continue;
-                }
-                if ($this->sqlFilter($v['value'])) {
-                    $innerSql = ' ';
-                    $field = $this->parseKey($v['field']);
-                    if ($si > 0 && strpos($v['field'], '(') === 0) {
-                        $innerSql .= '(' . $this->parseKey($table) . '.';
-                        $innerSql .= substr($field, 1, strlen($field));
-                    } else {
-                        $innerSql .= $this->parseKey($table) . '.';
-                        $innerSql .= $field;
-                    }
-                    $isContinue = false;
-                    switch ($v['operat']) {
-                        case self::equalTo:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " = {$value}";
-                            break;
-                        case self::notEqualTo:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " <> {$value}";
-                            break;
-                        case self::greaterThan:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " > {$value}";
-                            break;
-                        case self::greaterThanOrEqualTo:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " >= {$value}";
-                            break;
-                        case self::lessThan:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " < {$value}";
-                            break;
-                        case self::lessThanOrEqualTo:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " <= {$value}";
-                            break;
-                        case self::like:
-                            if ($this->isCrypto()) {
-                                $likeO = '';
-                                $likeE = '';
-                                $vspllit = str_split($v['value']);
-                                if ($vspllit[0] === '%') {
-                                    $likeO = array_shift($vspllit);
-                                }
-                                if ($vspllit[count($vspllit) - 1] === '%') {
-                                    $likeE = array_pop($vspllit);
-                                }
-                                $value = $this->parseWhereByFieldType(implode('', $vspllit), $ft_type);
-                                $value = $likeO . $value . $likeE;
-                            } else {
-                                $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            }
-                            $value = $this->parseValue($value);
-                            $innerSql .= " like {$value}";
-                            break;
-                        case self::notLike:
-                            if ($this->isCrypto()) {
-                                $likeO = '';
-                                $likeE = '';
-                                $vspllit = str_split($v['value']);
-                                if ($vspllit[0] === '%') {
-                                    $likeO = array_shift($vspllit);
-                                }
-                                if ($vspllit[count($vspllit) - 1] === '%') {
-                                    $likeE = array_pop($vspllit);
-                                }
-                                $value = $this->parseWhereByFieldType(implode('', $vspllit), $ft_type);
-                                $value = $likeO . $value . $likeE;
-                            } else {
-                                $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            }
-                            $value = $this->parseValue($value);
-                            $innerSql .= " not like {$value}";
-                            break;
-                        case self::isNull:
-                            $innerSql .= " is null ";
-                            break;
-                        case self::isNotNull:
-                            $innerSql .= " is not null ";
-                            break;
-                        case self::between:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " between {$value[0]} and {$value[1]}";
-                            break;
-                        case self::notBetween:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $innerSql .= " not between {$value[0]} and {$value[1]}";
-                            break;
-                        case self::in:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $value = implode(',', (array)$value);
-                            $innerSql .= " in ({$value})";
-                            break;
-                        case self::notIn:
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $value = implode(',', (array)$value);
-                            $innerSql .= " not in ({$value})";
-                            break;
-                        default:
-                            $isContinue = true;
-                            break;
-                    }
-                    if ($isContinue) continue;
-                    $sql .= $sql ? " {$cond}{$innerSql} " : $innerSql;
-                }
-            }
-        }
-        return $sql;
-    }
-
-
-    /**
-     * 替换SQL语句中表达式
-     * @access private
-     * @param string $sql
-     * @param array $options 表达式
-     * @return string
-     */
-    protected function parseSql($sql, $options = array())
-    {
-        $sql = str_replace(
-            array('%TABLE%', '%ALIA%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'),
-            array(
-                $this->parseTable(!empty($options['table_origin']) ? $options['table_origin'] : (isset($options['table']) ? $options['table'] : false)),
-                !empty($options['table_origin']) ? $this->parseTable(' AS ' . $options['table']) : null,
-                $this->parseDistinct(isset($options['distinct']) ? $options['distinct'] : false),
-                $this->parseField(!empty($options['field']) ? $options['field'] : '*'),
-                $this->parseJoin(!empty($options['join']) ? $options['join'] : ''),
-                $this->parseWhere(!empty($options['where']) ? $options['where'] : ''),
-                $this->parseGroupBy(!empty($options['group']) ? $options['group'] : ''),
-                $this->parseHaving(!empty($options['having']) ? $options['having'] : ''),
-                $this->parseOrderBy(!empty($options['order']) ? $options['order'] : ''),
-                $this->parseLimit(!empty($options['limit']) ? $options['limit'] : ''),
-                $this->parseUnion(!empty($options['union']) ? $options['union'] : ''),
-                $this->parseLock(isset($options['lock']) ? $options['lock'] : false),
-                $this->parseComment(!empty($options['comment']) ? $options['comment'] : ''),
-                $this->parseForce(!empty($options['force']) ? $options['force'] : '')
-            ), $sql);
-        return $sql;
-    }
-
-
-
-    /**
-     * 获取当前table
-     * @return string
-     */
-    protected function getTable()
-    {
-        return $this->options['table'] ?? null;
-    }
 
     /**
      * 哪个表
@@ -358,9 +141,11 @@ class Sqlite extends AbstractPDO
      * @param string $type INNER | LEFT
      * @return self
      */
-    public function join($target, $join, $req = array(), $type = 'INNER')
+    public function join($target, $join, $req = [], $type = 'INNER')
     {
-        if ($type === 'OUTER' || $type === 'RIGHT') return $this;
+        if (!in_array($type, ['INNER', 'LEFT'])) {
+            Response::abort("Join not support {$type} yet");
+        }
         if ($target && $join) {
             $join = str_replace([' as ', ' AS ', ' As ', ' aS ', ' => '], ' ', trim($join));
             $originJoin = $join = explode(' ', $join);
@@ -400,73 +185,6 @@ class Sqlite extends AbstractPDO
         return $this;
     }
 
-    /**
-     * @param string $operat see self
-     * @param string $field
-     * @param null $value
-     * @return self
-     */
-    private function whereOperat($operat, $field, $value = null)
-    {
-        if ($operat == self::isNull || $operat == self::isNotNull || $value !== null) {//排除空值
-            if ($operat != self::like || $operat != self::notLike || ($value != '%' && $value != '%%')) {//排除空like
-                $this->where[] = array(
-                    'operat' => $operat,
-                    'table' => $this->where_table,
-                    'field' => $field,
-                    'value' => $value,
-                );
-            }
-        }
-        return $this;
-    }
-
-    public function clearWhere()
-    {
-        $this->where = array();
-        $this->where_table = '';
-        return $this;
-    }
-
-    public function whereTable($table)
-    {
-        $this->where_table = $table;
-        return $this;
-    }
-
-    /**
-     * 条件闭包
-     * @param string $cond 'and' || 'or'
-     * @param boolean $isGlobal 'field or total'
-     * @return self
-     */
-    public function closure($cond = 'and', $isGlobal = false)
-    {
-        if ($this->where) {
-            $o = array();
-            $f = array();
-            foreach ($this->where as $v) {
-                if ($v['operat'] === 'closure') {
-                    $o[] = $v;
-                } elseif ($v['field']) {
-                    $f[] = $v;
-                }
-            }
-            if ($o && $f) {
-                if ($isGlobal === false) {
-                    $this->where = $o;
-                    $this->where[] = array('operat' => 'closure', 'cond' => $cond, 'closure' => $f);
-                } else {
-                    $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => array_merge($o, $f)));
-                }
-            } elseif ($o && !$f) {
-                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $this->where));
-            } elseif (!$o && $f) {
-                $this->where = array(array('operat' => 'closure', 'cond' => $cond, 'closure' => $f));
-            }
-        }
-        return $this;
-    }
 
     /**
      * @param $field
@@ -684,7 +402,6 @@ class Sqlite extends AbstractPDO
                     )
                 );
             }
-            //todo
             if ($isOver) {
                 return $closure;
             }
@@ -792,79 +509,6 @@ class Sqlite extends AbstractPDO
             $value = $this->jsonClosure($value);
         }
         $this->jsonWhere($field, $value);
-        return $this;
-    }
-
-
-    /**
-     * 指定查询字段
-     * @access protected
-     * @param mixed $field
-     * @param string | null $table
-     * @param null $function
-     * @return self
-     */
-    public function field($field, $table = null, $function = null)
-    {
-        if ($table === null) {
-            $table = $this->getTable();
-        }
-        $tableLen = mb_strlen($table, 'utf-8');
-        if (!$table) {
-            return $this;
-        }
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-        if (is_array($field)) {
-            $field = array_filter($field);
-            $ft = $this->getFieldType($table);
-            $fk = array_keys($ft);
-            $parseTable = $this->parseTable($table);
-            foreach ($field as $k => $v) {
-                $v = trim($v);
-                if ($v === '*') {
-                    unset($field[$k]);
-                    foreach ($fk as $kk) {
-                        if ($table === substr($kk, 0, $tableLen)) {
-                            $field[] = "{$parseTable}." . mb_str_replace_once("{$table}_", '', $kk) . " as {$kk}";
-                        }
-                    }
-                } else {
-                    $from = $v;
-                    $to = $v;
-                    $v = str_replace([' AS ', ' As ', ' => ', ' as '], ' as ', $v);
-                    $aspos = strpos($v, ' as ');
-                    if ($aspos > 0) {
-                        $as = explode(' as ', $v);
-                        $from = $as[0];
-                        $to = $as[1];
-                        $jsonPos = strpos($from, '#>>');
-                        if ($jsonPos > 0) {
-                            $jpos = explode('#>>', $v);
-                            $ft[$table . '_' . $to] = $ft[$table . '_' . trim($jpos[0])];
-                        } elseif (!empty($this->currentFieldType[$table . '_' . $from])) {
-                            $this->currentFieldType[$table . '_' . $to] = $this->currentFieldType[$table . '_' . $from];
-                            $ft[$table . '_' . $to] = $ft[$table . '_' . $from];
-                        }
-                    }
-
-                    if (!isset($ft[$table . '_' . $to])) {
-                        continue;
-                    }
-                    // check function
-                    $tempParseTableForm = $parseTable . '.' . $from;
-                    if ($function) {
-                        $tempParseTableForm = str_replace('%' . $k, $tempParseTableForm, $function);
-                    }
-                    $field[$k] = "{$tempParseTableForm} as {$table}_{$to}";
-                }
-            }
-            if (!isset($this->options['field'])) {
-                $this->options['field'] = array();
-            }
-            $this->options['field'] = array_merge_recursive($this->options['field'], $field);
-        }
         return $this;
     }
 
@@ -1050,7 +694,16 @@ class Sqlite extends AbstractPDO
         return $this;
     }
 
-    ///TODO 终结操作
+    /**  @tips 终结操作 */
+
+    /**
+     * 当前时间（只能用于insert 和 update）
+     * @return array
+     */
+    public function now()
+    {
+        return array('exp', "select datetime(CURRENT_TIMESTAMP,'localtime')");
+    }
 
     /**
      * 查找记录多条
@@ -1059,7 +712,7 @@ class Sqlite extends AbstractPDO
      */
     public function multi()
     {
-        $options = $this->_parseOptions();
+        $options = $this->parseOptions();
         $sql = $this->buildSelectSql($options);
         return $this->query($sql);
     }
@@ -1076,14 +729,45 @@ class Sqlite extends AbstractPDO
     }
 
     /**
-     * 当前时间（只能用于insert 和 update）
-     * @return array
+     * 分页查找
+     * @param int $current
+     * @param int $per
+     * @return mixed
      */
-    public function now()
+    public function page($current = 0, $per = 10)
     {
-        return array('exp', 'now()');
-    }
+        $limit = (int)$per;
+        $offset = (int)($current) * $limit;
+        $this->limit($offset, $limit);
 
+        $options = $this->parseOptions();
+        $sql = $this->buildSelectSql($options);
+        $options['order'] = null;
+        $options['limit'] = 1;
+        if (!empty($options['group'])) {
+            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "hcount"';
+            $options['group'] = null;
+        } else {
+            $options['field'] = 'count(0) as "hcount"';
+        }
+        $sqlCount = $this->buildSelectSql($options);
+        $data = $this->query($sql);
+        $count = $this->query($sqlCount);
+        $count = reset($count)['hcount'];
+        $count = (int)$count;
+        //
+        $result = array();
+        $per = !$per ? 10 : $per;
+        $end = ceil($count / $per);
+        $result['data'] = $data;
+        $result['page'] = [];
+        $result['page']['total'] = $count;
+        $result['page']['current'] = (int)$current;
+        $result['page']['per'] = $per;
+        $result['page']['end'] = (int)$end;
+        return $result;
+    }
+    
     /**
      * 统计
      * @param int $field
@@ -1145,46 +829,6 @@ class Sqlite extends AbstractPDO
     }
 
     /**
-     * 分页查找
-     * @param int $current
-     * @param int $per
-     * @return mixed
-     */
-    public function page($current = 0, $per = 10)
-    {
-        $limit = (int)$per;
-        $offset = (int)($current) * $limit;
-        $this->limit($offset, $limit);
-
-        $options = $this->_parseOptions();
-        $sql = $this->buildSelectSql($options);
-        $options['order'] = null;
-        $options['limit'] = 1;
-        if (!empty($options['group'])) {
-            $options['field'] = 'count(DISTINCT ' . $options['group'] . ') as "hcount"';
-            $options['group'] = null;
-        } else {
-            $options['field'] = 'count(0) as "hcount"';
-        }
-        $sqlCount = $this->buildSelectSql($options);
-        $data = $this->query($sql);
-        $count = $this->query($sqlCount);
-        $count = reset($count)['hcount'];
-        $count = (int)$count;
-        //
-        $result = array();
-        $per = !$per ? 10 : $per;
-        $end = ceil($count / $per);
-        $result['data'] = $data;
-        $result['page'] = [];
-        $result['page']['total'] = $count;
-        $result['page']['current'] = (int)$current;
-        $result['page']['per'] = $per;
-        $result['page']['end'] = (int)$end;
-        return $result;
-    }
-
-    /**
      * 插入记录
      * @access public
      * @param mixed $data 数据
@@ -1205,7 +849,7 @@ class Sqlite extends AbstractPDO
                     $fields[] = $this->parseKey($key);
                     $values[] = 'NULL';
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                    //todo 跟据表字段处理数据
+                    // 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
                         $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
@@ -1247,7 +891,7 @@ class Sqlite extends AbstractPDO
                     } elseif (is_null($val)) {
                         $value[] = 'NULL';
                     } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                        //todo 跟据表字段处理数据
+                        // 跟据表字段处理数据
                         if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
                             $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                             if ($val === null) $value[] = 'NULL';
@@ -1288,7 +932,7 @@ class Sqlite extends AbstractPDO
                 } elseif (is_null($val)) {
                     $set[] = $this->parseKey($key) . '= NULL';
                 } elseif (is_array($val) || is_scalar($val)) { // 过滤非标量数据
-                    //todo 跟据表字段处理数据
+                    // 跟据表字段处理数据
                     if (is_array($val) && strpos($ft[$table . '_' . $key], 'char') !== false) { // 字符串型数组
                         $val = $this->arr2comma($val, $ft[$table . '_' . $key]);
                     } else {
@@ -1306,12 +950,12 @@ class Sqlite extends AbstractPDO
         }
         $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
-            throw new \Exception('update must be sure when without where：' . $sql);
+            throw new Exception('update must be sure when without where：' . $sql);
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             //  单表更新支持order和limit
-            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
                 . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
@@ -1337,12 +981,12 @@ class Sqlite extends AbstractPDO
         }
         $where = $this->parseWhere(!empty($this->options['where']) ? $this->options['where'] : '');
         if (!$where && $sure !== true) {
-            throw new \Exception('delete must be sure when without where');
+            throw new Exception('delete must be sure when without where');
         }
         $sql .= $where;
         if (!strpos($table, ',')) {
             // 单表删除支持order和limit
-            $sql .= $this->parseOrder(!empty($this->options['order']) ? $this->options['order'] : '')
+            $sql .= $this->parseOrderBy(!empty($this->options['order']) ? $this->options['order'] : '')
                 . $this->parseLimit(!empty($this->options['limit']) ? $this->options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($this->options['comment']) ? $this->options['comment'] : '');
@@ -1363,34 +1007,6 @@ class Sqlite extends AbstractPDO
             return $this->query($sqlStr);
         }
         return $this;
-    }
-
-    /**
-     * 国际化表数据处理
-     * @param string $response 字符串
-     * @param string $language 语言
-     * @return string
-     */
-    public function responseTranslate($language, $response)
-    {
-        if (!$response || !$language) return $response;
-        try {
-            $result = $this->table('system_tips_i18n')->query("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema='{$this->settings['dbname']}' and table_name='system_tips_i18n'");
-            if (!$result) return $response;
-            $translate = array_column($result, 'column_name');
-            if ($translate && in_array($language, $translate)) {
-                $model = $this->table('system_tips_i18n');
-                $lang = $model->field($language)->equalTo('default', $response)->one();
-                if (!$lang) {
-                    $model->insert(array('default' => $response));
-                    $lang = $model->field($language)->equalTo('default', $response)->one();
-                }
-                $response = $lang['system_tips_i18n_' . $language] ?? $response;
-            }
-        } catch (\Exception $e) {
-            //exit($e->getMessage());
-        }
-        return $response;
     }
 
 }

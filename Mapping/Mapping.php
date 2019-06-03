@@ -94,7 +94,7 @@ abstract class Mapping
      * 反射mapping的数据
      * @return mixed
      */
-    protected static function fetch()
+    public static function fetch()
     {
         $class = static::getClassName();
         if (!isset(static::$fetch_cache[$class])) {
@@ -111,7 +111,9 @@ abstract class Mapping
 
     public static function toArray()
     {
-        return static::fetch();
+        $arr = static::fetch();
+        sort($arr);
+        return $arr;
     }
 
     public static function toJson()
