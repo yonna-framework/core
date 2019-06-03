@@ -93,12 +93,13 @@ abstract class AbstractPDO extends AbstractDB
     const notBetween = 'notBetween';                        //在值之外
     const in = 'in';                                        //在或集
     const notIn = 'notIn';                                  //不在或集
-    const any = 'any';                                      //any
-    const contains = 'contains';                            //contains
-    const notContains = 'notContains';                      //notContains
-    const containsAnd = 'containsAnd';                      //containsAnd
-    const notContainsAnd = 'notContainsAnd';                //notContainsAnd
-    const isContainsBy = 'isContainsBy';                    //isContainsBy
+    const findInSetOr = 'findInSetOr';                      //findInSetOr (mysql)
+    const notFindInSetOr = 'notFindInSetOr';                //notFindInSetOr (mysql)
+    const findInSetAnd = 'findInSetAnd';                    //findInSetAnd (mysql)
+    const notFindInSetAnd = 'notFindInSetAnd';              //notFindInSetAnd (mysql)
+    const any = 'any';                                      //any (pgsql)
+    const contains = 'contains';                            //contains (pgsql)
+    const isContainsBy = 'isContainsBy';                    //isContainsBy (pgsql)
 
     /**
      * 构造方法
@@ -155,6 +156,21 @@ abstract class AbstractPDO extends AbstractDB
         return $error;
     }
 
+
+    /**
+     * 检查数据库
+     * @param $type
+     * @param $msg
+     * @return mixed
+     */
+    protected function mustDBType($type, $msg)
+    {
+        if ($this->db_type !== $type) {
+            Response::abort("{$msg} not support {$this->db_type} yet");
+        }
+    }
+
+
     /**
      * 获取 PDO
      * @return PDO
@@ -200,7 +216,7 @@ abstract class AbstractPDO extends AbstractDB
                         );
                         break;
                     default:
-                        Response::exception("{$this->db_type} type is not supported for the time being");
+                        $this->mustDBType($this->db_type, 'PDO');
                         break;
                 }
             } catch (PDOException $e) {
@@ -439,7 +455,7 @@ abstract class AbstractPDO extends AbstractDB
                     }
                     break;
                 default:
-                    Response::exception("{$this->db_type} type is not supported for the time being");
+                    $this->mustDBType($this->db_type, 'Field Type');
                     break;
             }
             if (!$result) Response::exception("{$this->db_type} get type fail");
@@ -825,7 +841,7 @@ abstract class AbstractPDO extends AbstractDB
                             break;
                         default:
                             if ($this->db_type === DBType::PGSQL) {
-                                if (strpos($ft[$k], '[]') !== false) {
+                                if (substr($ft[$k], -2) === '[]') {
                                     $result[$k] = json_decode($v, true);
                                     if ($this->isUseCrypto()) {
                                         $crypto = $result[$k]['crypto'] ?? '';
@@ -1166,6 +1182,13 @@ abstract class AbstractPDO extends AbstractDB
         return $this;
     }
 
+    /**
+     * 构建where的SQL语句
+     * @param $closure
+     * @param string $sql
+     * @param string $cond
+     * @return string|null
+     */
     private function builtWhereSql($closure, $sql = '', $cond = 'and')
     {
         foreach ($closure as $v) {
@@ -1250,6 +1273,9 @@ abstract class AbstractPDO extends AbstractDB
                             $innerSql .= " like {$value}";
                             break;
                         case self::notLike:
+                            if (substr($ft_type, -2) === '[]') {
+                                $innerSql = "array_to_string({$innerSql},'')";
+                            }
                             if ($this->isUseCrypto()) {
                                 $likeO = '';
                                 $likeE = '';
@@ -1296,13 +1322,10 @@ abstract class AbstractPDO extends AbstractDB
                             $value = implode(',', (array)$value);
                             $innerSql .= " not in ({$value})";
                             break;
-                        case self::any: // rename in
-                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
-                            $value = $this->parseValue($value);
-                            $value = implode(',', (array)$value);
-                            $innerSql .= " in ({$value})";
-                            break;
-                        case self::contains: // rename find_in_set
+                        case self::findInSetOr:
+                            if ($this->db_type !== DBType::MYSQL) {
+                                Response::exception("{$v['operat']} not support {$this->db_type}");
+                            }
                             if ($v['value']) {
                                 $v['value'] = (array)$v['value'];
                                 foreach ($v['value'] as $vfisk => $vfis) {
@@ -1321,7 +1344,8 @@ abstract class AbstractPDO extends AbstractDB
                                 $isContinue = true;
                             }
                             break;
-                        case self::notContains:
+                        case self::notFindInSetOr:
+                            $this->mustDBType(DBType::MYSQL, $v['operat']);
                             if ($v['value']) {
                                 $v['value'] = (array)$v['value'];
                                 foreach ($v['value'] as $vfisk => $vfis) {
@@ -1340,7 +1364,8 @@ abstract class AbstractPDO extends AbstractDB
                                 $isContinue = true;
                             }
                             break;
-                        case self::containsAnd: // rename find_in_set
+                        case self::findInSetAnd:
+                            $this->mustDBType(DBType::MYSQL, $v['operat']);
                             if ($v['value']) {
                                 $v['value'] = (array)$v['value'];
                                 foreach ($v['value'] as $vfisk => $vfis) {
@@ -1359,7 +1384,8 @@ abstract class AbstractPDO extends AbstractDB
                                 $isContinue = true;
                             }
                             break;
-                        case self::notContainsAnd:
+                        case self::notFindInSetAnd:
+                            $this->mustDBType(DBType::MYSQL, $v['operat']);
                             if ($v['value']) {
                                 $v['value'] = (array)$v['value'];
                                 foreach ($v['value'] as $vfisk => $vfis) {
@@ -1378,6 +1404,31 @@ abstract class AbstractPDO extends AbstractDB
                                 $isContinue = true;
                             }
                             break;
+                        case self::any:
+                            $this->mustDBType(DBType::PGSQL, $v['operat']);
+                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
+                            $value = $this->parseValue($value);
+                            $value = (array)$value;
+                            array_walk($value, function (&$value) {
+                                $value = "({$value})";
+                            });
+                            $value = implode(',', $value);
+                            $innerSql .= " = any (values {$value})";
+                            break;
+                        case self::contains:
+                            $this->mustDBType(DBType::PGSQL, $v['operat']);
+                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
+                            $value = $this->toPGArray((array)$value, str_replace('[]', '', $ft_type));
+                            $value = $this->parseValue($value);
+                            $innerSql .= " @> {$value}";
+                            break;
+                        case self::isContainsBy:
+                            $this->mustDBType(DBType::PGSQL, $v['operat']);
+                            $value = $this->parseWhereByFieldType($v['value'], $ft_type);
+                            $value = $this->toPGArray((array)$value, str_replace('[]', '', $ft_type));
+                            $value = $this->parseValue($value);
+                            $innerSql .= " <@ {$value}";
+                            break;
                         default:
                             $isContinue = true;
                             break;
@@ -1390,6 +1441,10 @@ abstract class AbstractPDO extends AbstractDB
         return $sql;
     }
 
+    /**
+     * 清理where条件
+     * @return $this
+     */
     public function clearWhere()
     {
         $this->where = array();
@@ -1397,6 +1452,11 @@ abstract class AbstractPDO extends AbstractDB
         return $this;
     }
 
+    /**
+     * 锁定为哪一个表的搜索条件
+     * @param $table
+     * @return $this
+     */
     public function whereTable($table)
     {
         $this->where_table = $table;
