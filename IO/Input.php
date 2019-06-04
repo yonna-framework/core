@@ -9,9 +9,9 @@ namespace PhpureCore\IO;
 class Input
 {
 
-    public $data = array();
-    public $file = null;
-    public $stack = '';
+    private $data = array();
+    private $file = null;
+    private $stack = '';
 
     /**
      * @return array
