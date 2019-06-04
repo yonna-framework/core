@@ -10,12 +10,21 @@ use PhpureCore\Core;
  */
 abstract class Event
 {
+
     private $params = null;
     private $listeners = [];
 
     public function __construct($params)
     {
         $this->params = $params;
+    }
+
+    /**
+     * 获取参数
+     * @return null
+     */
+    public function getParams(){
+        return $this->params;
     }
 
     /**

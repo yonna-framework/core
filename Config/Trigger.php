@@ -49,18 +49,7 @@ class Trigger extends Arrow
         if (empty(self::$stack[self::name][$eventClass])) {
             return;
         }
-        /**
-         * @var \PhpureCore\Event\Event $eventClass
-         */
-        $eventClass = Core::get($eventClass, $params);
-        $eventClass->listener(self::$stack[self::name][$eventClass]);
-        if (is_array(self::$stack[self::name][$eventClass])) {
-            foreach (self::$stack[self::name][$eventClass] as $eIdx => $call) {
-                if ($call instanceof Closure) {
-                    $call($params[$eIdx] ?? null);
-                }
-            }
-        }
+        Core::get($eventClass, $params)->listener(self::$stack[self::name][$eventClass]);
     }
 
 }
