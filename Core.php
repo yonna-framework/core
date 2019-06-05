@@ -74,9 +74,9 @@ class Core
      * @param $root
      * @param null $env_name
      * @param null $boot_type
-     * @return \PhpureCore\IO\ResponseCollector
+     * @param null $extend
      */
-    public static function bootstrap($root, $env_name = null, $boot_type = null)
+    public static function bootstrap($root, $env_name, $boot_type, $extend = null)
     {
         // autoload
         spl_autoload_register(function ($res) use ($root) {
@@ -98,7 +98,7 @@ class Core
         Glue::relating(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
         Glue::relating(\PhpureCore\Glue\Scope::class, \PhpureCore\Config\Scope::class);
         // boot
-        return Bootstrap::boot($root, $env_name, $boot_type);
+        Bootstrap::boot($root, $env_name, $boot_type, $extend);
     }
 
 }

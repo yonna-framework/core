@@ -8,7 +8,7 @@ use PhpureCore\Core\Glue;
 /**
  * Class Bootstrap
  *
- * @method static boot($root, $env_name = null, $boot_type = null)
+ * @method static boot($root, $env_name, $boot_type, $extend = null)
  *
  * @see \PhpureCore\Bootstrap\Bootstrap
  */

@@ -10,6 +10,7 @@ use Closure;
 use Exception;
 use Str;
 use PhpureCore\Glue\Response;
+use PhpureCore\Mapping\BootType;
 
 class IO
 {
@@ -22,6 +23,18 @@ class IO
     public function __construct()
     {
         return $this;
+    }
+
+    /**
+     * @param \PhpureCore\IO\ResponseCollector $response
+     */
+    private function end($response)
+    {
+        switch ($this->request->cargo->boot_type) {
+            case BootType::AJAX_HTTP:
+                $response->end();
+                break;
+        }
     }
 
     public function response(object $request)

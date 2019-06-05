@@ -68,7 +68,13 @@ class SwooleHttp extends Console
             Core::bootstrap(
                 realpath($root_path),
                 'example',
-                BootType::SWOOLE_HTTP
+                BootType::SWOOLE_HTTP,
+                array(
+                    'server' => $server,
+                    'task_id' => $task_id,
+                    'from_id' => $from_id,
+                    'request' => $request,
+                ),
             );
             $data = $this->io($request);
             $this->server->finish($data);

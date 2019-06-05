@@ -19,6 +19,8 @@ class Cargo
     public $boot_type = '';
     public $env_name = '';
 
+    public $extend = null;
+
     public $function_qty = 0;
     public $foundation_qty = 0;
 
@@ -82,6 +84,14 @@ class Cargo
     public function getPureCorePath(): string
     {
         return $this->pure_core_path;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtend()
+    {
+        return $this->extend;
     }
 
 

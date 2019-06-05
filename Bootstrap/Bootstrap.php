@@ -5,12 +5,11 @@
 
 namespace PhpureCore\Bootstrap;
 
-use Exception;
 use PhpureCore\Core;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Glue\Cargo;
 use PhpureCore\Glue\IO;
 use PhpureCore\Glue\Request;
-use PhpureCore\Glue\Response;
 use PhpureCore\Mapping\BootType;
 
 class Bootstrap
@@ -26,8 +25,9 @@ class Bootstrap
      * @param $root
      * @param null $env_name
      * @param null $boot_type
+     * @param null $extend
      */
-    public function boot($root, $env_name = null, $boot_type = null)
+    public function boot($root, $env_name, $boot_type, $extend = null)
     {
         /**
          * @var $Cargo \PhpureCore\Bootstrap\Cargo
@@ -37,6 +37,8 @@ class Bootstrap
             'env_name' => $env_name ?? 'example',
             'boot_type' => $boot_type ?? BootType::AJAX_HTTP,
         ]);
+        // extend
+        $Cargo->extend = $extend;
         try {
 
             // 环境
@@ -48,8 +50,8 @@ class Bootstrap
             // 自定义函数
             $Cargo = Functions::install($Cargo);
 
-        } catch (Exception $e) {
-            Response::exception($e->getMessage())->end();
+        } catch (\Exception $e) {
+            Exception::abort($e->getMessage());
         }
         IO::response(Core::singleton(Request::class, $Cargo));
     }
