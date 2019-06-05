@@ -1,7 +1,9 @@
-#!/usr/bin/env php
 <?php
 
 namespace PhpureCore\Console;
+
+use Exception;
+use PhpureCore\Core;
 
 /**
  * pure 的命令窗体
@@ -10,13 +12,13 @@ namespace PhpureCore\Console;
 class Exec
 {
 
-    const HEAD = '>hPHP: ';
+    const HEAD = '>Pure<: ';
     const CLS = "\e[H\e[J";
 
     private static $commands = [
         array('key' => ['cls', 'clear'], 'options' => '', 'desc' => 'clean screen'),
         array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
-        array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit hPHP'),
+        array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit exec'),
         array('key' => ['-h', 'help'], 'options' => '', 'desc' => 'get command list'),
         array('key' => ['swh'], 'options' => '-p [PORT]', 'desc' => 'start a swoole http server'),
         array('key' => ['swws'], 'options' => '-p [PORT]', 'desc' => 'start a swoole websocket server'),
@@ -50,8 +52,11 @@ class Exec
         self::$help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
     }
 
-    public static function run()
+    public static function run($root_path)
     {
+        if(empty($root_path)){
+            exit('not root path');
+        }
         while (true) {
             fwrite(STDOUT, "\n" . self::HEAD);
             $stdin = fgets(STDIN);
@@ -64,56 +69,59 @@ class Exec
             $command = array_shift($stdin);
             $options = trim(implode(' ', $stdin));
             if (!in_array($command, self::$commandKeys)) {
-                self::c("not command named: {$command},type \"help\" to get the command list");
+                self::c(Color::lightRed("not command named: {$command},type \"help\" to get the command list"));
                 continue;
             }
-            switch ($command) {
-                case 'swh':
-                    if (!$options) {
-                        self::c('not port');
+            try {
+                switch ($command) {
+                    case 'swh':
+                        if (!$options) {
+                            self::c('not port');
+                            break;
+                        }
+                        Core::get(SwooleHttp::class)->run($root_path);
                         break;
-                    }
-                    system("php hSwoole.http.php {$options}");
-                    break;
-                case 'swws':
-                    if (!$options) {
-                        self::c('not port');
+                    case 'swws':
+                        if (!$options) {
+                            self::c('not port');
+                            break;
+                        }
+                        Core::get(SwooleWebsocket::class)->run($root_path);
                         break;
-                    }
-                    system("php hSwoole.websocket.php {$options}");
-                    break;
-                case 'swt':
-                    if (!$options) {
-                        self::c('not port');
+                    case 'swt':
+                        if (!$options) {
+                            Core::get(SwooleTcp::class)->run($root_path);
+                            break;
+                        }
                         break;
-                    }
-                    system("php hSwoole.tcp.php {$options}");
-                    break;
-                case 'pkg':
-                    if (!$options) {
-                        self::c('not config path');
+                    case 'pkg':
+                        if (!$options) {
+                            self::c('not config path');
+                            break;
+                        }
+                        system("php hPackage.php {$options}");
                         break;
-                    }
-                    system("php hPackage.php {$options}");
-                    break;
-                case 'cls':
-                case 'clear':
-                    echo self::CLS;
-                    break;
-                case 'ls':
-                case 'dir':
-                    system('dir');
-                    break;
-                case '-h':
-                case 'help':
-                    self::c(self::$help);
-                    break;
-                case 'exit':
-                case 'die':
-                    exit;
-                default:
-                    self::c("command is {$command}");
-                    break;
+                    case 'cls':
+                    case 'clear':
+                        echo self::CLS;
+                        break;
+                    case 'ls':
+                    case 'dir':
+                        system('dir');
+                        break;
+                    case '-h':
+                    case 'help':
+                        self::c(Color::lightBlue(self::$help));
+                        break;
+                    case 'exit':
+                    case 'die':
+                        exit;
+                    default:
+                        self::c(Color::lightCyan("Not support command {$command} yet."));
+                        break;
+                }
+            } catch (Exception $e) {
+                self::c(Color::red($e->getMessage()));
             }
         }
     }

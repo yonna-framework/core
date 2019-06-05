@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Bootstrap;
 
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 
 class Config
 {
@@ -14,7 +14,7 @@ class Config
     private static function checkPath($path)
     {
         $realpath = realpath($path);
-        if (!$realpath) Response::exception("Config Error: $path not found");
+        if (!$realpath) Exception::throw("Config Error: $path not found");
         if (is_file($realpath)) require($realpath);
         return $realpath;
     }

@@ -6,7 +6,7 @@ namespace {
     {
 
         /**
-         * TODO 记录和统计时间（微秒）和内存使用情况
+         * 记录和统计时间（微秒）和内存使用情况
          * 使用方法:
          * rem('begin'); // 记录开始标记位
          * // ... 区间运行代码
@@ -50,7 +50,7 @@ namespace {
         public static function fileExistsCase($filename)
         {
             if (is_file($filename)) {
-                if (IS_WINDOW) {
+                if (Is::windows()) {
                     if (basename(realpath($filename)) != basename($filename))
                         return false;
                 }
@@ -166,13 +166,5 @@ namespace {
         }
 
     }
-
-    function phpure_system_handler($exception)
-    {
-        \PhpureCore\Glue\Response::exception($exception->getMessage(), $exception->getTrace());
-    }
-
-    error_reporting(-1);
-    set_exception_handler('phpure_system_handler');
 
 }

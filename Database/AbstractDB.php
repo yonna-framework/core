@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Database;
 
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
 
 abstract class AbstractDB
@@ -135,7 +135,9 @@ abstract class AbstractDB
      */
     protected function dsn()
     {
-        if (empty($this->db_type)) Response::exception('Dsn type is Empty');
+        if (empty($this->db_type)) {
+            Exception::throw('Dsn type is Empty');
+        }
         if (!$this->dsn) {
             switch ($this->db_type) {
                 case DBType::MYSQL:
@@ -151,7 +153,7 @@ abstract class AbstractDB
                     $this->dsn = "sqlite:{$this->db_file_path}" . DIRECTORY_SEPARATOR . $this->name;
                     break;
                 default:
-                    Response::exception("{$this->db_type} type is not supported for the time being");
+                    Exception::throw("{$this->db_type} type is not supported for the time being");
                     break;
             }
         }

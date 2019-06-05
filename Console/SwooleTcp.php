@@ -1,25 +1,41 @@
 <?php
-require "hPhp.php";
 
-use library\IO;
+namespace PhpureCore\Console;
+
+use Exception;
+
 
 /**
- * TODO *启动
- * php ?.php -p [:port]
+ * Class Main
+ * @package PhpureCore\Console
  */
-class Main extends IO
+class SwooleTcp extends Console
 {
 
     private $server = null;
+    private $params = null;
 
-    public function __construct($port)
+
+    /**
+     * SwooleHttp constructor.
+     * @throws Exception
+     */
+    public function __construct()
     {
+        if (!function_exists('swoole_server')) {
+            throw new Exception('function swoole_server not exists');
+        }
+        $this->params = $this->getParams(['port']);
+        return $this;
+    }
 
-        $this->server = new swoole_server("0.0.0.0", $port);
+    public function run($root_path)
+    {
+        $this->server = new swoole_server("0.0.0.0", $this->params['port']);
 
         $this->server->set(array(
-            'worker_num' => 10,
-            'task_worker_num' => 4, //task数量
+            'worker_num' => 4,
+            'task_worker_num' => 10,
             'heartbeat_check_interval' => 10,
             'heartbeat_idle_time' => 180,
         ));
@@ -40,7 +56,7 @@ class Main extends IO
             /**
              * 处理数据
              */
-            $this->server->task($request, -1, function($server, $task_id, $result) use ($fd) {
+            $this->server->task($request, -1, function ($server, $task_id, $result) use ($fd) {
                 if ($result !== false) {
                     $server->send($fd, $result);
                     return;
@@ -67,9 +83,3 @@ class Main extends IO
         $this->server->start();
     }
 }
-
-$params = getopt('p:');
-if (!isset($params['p'])) {
-    exit('-p set port!');
-}
-new Main($params['p']);

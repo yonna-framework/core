@@ -61,34 +61,6 @@ class Response
         return $Collector->response();
     }
 
-    /**
-     * @param ResponseCollector | string $data
-     * @return false|string
-     */
-    public function end($data)
-    {
-        if ($data instanceof ResponseCollector) {
-            switch ($data->getResponseDataType()) {
-                case 'xml':
-                    header('Content-Type:application/xml; charset=' . $data->getCharset());
-                    break;
-                case 'json':
-                    header('Content-Type:application/json; charset=' . $data->getCharset());
-                    break;
-                case 'html':
-                    header('Content-Type:text/html; charset=' . $data->getCharset());
-                    break;
-                default:
-                    header('Content-Type:text/plain; charset=' . $data->getCharset());
-                    break;
-            }
-            exit($data->response());
-        } else if (is_array($data)) {
-            exit($data);
-        }
-        exit('Not result');
-    }
-
     public function success(string $msg = 'success', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
@@ -153,7 +125,7 @@ class Response
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(0, $data) : $this->debug_backtrace(1, $data),
             ));
-        $this->end($HandleCollector);
+        return $HandleCollector;
     }
 
     public function abort(string $msg = 'abort', array $data = array(), $type = 'json', $charset = 'utf-8')
@@ -168,7 +140,7 @@ class Response
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(1, $data) : $this->debug_backtrace(2, $data),
             ));
-        $this->end($HandleCollector);
+        return $HandleCollector;
     }
 
     public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json', $charset = 'utf-8')
@@ -184,7 +156,7 @@ class Response
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(2, $data) : $this->debug_backtrace(3, $data),
             ));
-        $this->end($HandleCollector);
+        return $HandleCollector;
     }
 
     public function notFound(string $msg = 'not found', array $data = array(), $type = 'json', $charset = 'utf-8')
@@ -199,7 +171,7 @@ class Response
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(2, $data) : $this->debug_backtrace(3, $data),
             ));
-        $this->end($HandleCollector);
+        return $HandleCollector;
     }
 
 }

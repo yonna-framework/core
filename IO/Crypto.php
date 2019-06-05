@@ -19,7 +19,7 @@ class Crypto
         $secret = ConfigCrypto::get('io_request_secret');
         $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            Response::abort('Crypto encrypt error');
+            Exception::abort('Crypto encrypt error');
         }
         return openssl_encrypt($str, $type, $secret, 0, $iv);
     }
@@ -34,7 +34,7 @@ class Crypto
         $secret = ConfigCrypto::get('io_request_secret');
         $iv = ConfigCrypto::get('io_request_iv');
         if (!$type || !$secret || !$iv) {
-            Response::abort('Crypto encrypt error');
+            Exception::abort('Crypto encrypt error');
         }
         return openssl_decrypt($str, $type, $secret, 0, $iv);
     }

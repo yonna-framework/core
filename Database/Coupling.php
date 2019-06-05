@@ -5,6 +5,7 @@ namespace PhpureCore\Database;
 use PhpureCore\Config\Arrow;
 use PhpureCore\Core;
 use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 
 class Coupling
 {
@@ -37,9 +38,9 @@ class Coupling
                 $link[$ck] = $cv ?? null;
             }
         }
-        if (empty($link['type'])) Response::exception('Lack type of database');
-        if ($mustDbType && $mustDbType !== $link['type']) Response::exception('Database type check no pass');
-        if (empty($link['host']) || empty($link['port'])) Response::exception('Lack of host/port address');
+        if (empty($link['type'])) Exception::throw('Lack type of database');
+        if ($mustDbType && $mustDbType !== $link['type']) Exception::throw('Database type check no pass');
+        if (empty($link['host']) || empty($link['port'])) Exception::throw('Lack of host/port address');
         $u = md5(var_export($link, true));
         if (empty(static::$db[$u])) {
             static::$db[$u] = Core::singleton("\\PhpureCore\\Database\\{$link['type']}", $link);

@@ -2,8 +2,7 @@
 
 namespace PhpureCore\Database;
 
-use Exception;
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
 use Redis as RedisDriver;
 
@@ -43,9 +42,9 @@ class Redis extends AbstractDB
                     if ($this->password) {
                         $this->redis->auth($this->password);
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->redis = null;
-                    Response::exception('Redis遇到问题或未安装，请停用Redis以减少阻塞卡顿');
+                    Exception::throw('Redis遇到问题或未安装，请停用Redis以减少阻塞卡顿');
                 }
             }
         }

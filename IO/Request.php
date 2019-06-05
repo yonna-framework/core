@@ -8,7 +8,7 @@ namespace PhpureCore\IO;
 use Parse;
 use PhpureCore\Core;
 use PhpureCore\Mapping\BootType;
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 
 /**
  * Class Request
@@ -40,7 +40,7 @@ class Request
     /**
      * build Request by BootType
      */
-    private function init()
+    public function init()
     {
         $this->input = Core::get(\PhpureCore\IO\Input::class);
         switch ($this->cargo->getBootType()) {
@@ -66,11 +66,11 @@ class Request
             case BootType::SWOOLE_TCP:
                 break;
             default:
-                Response::exception('Request invalid boot type');
+                Exception::throw('Request invalid boot type');
                 break;
         }
         if (!Crypto::checkToken($this)) {
-            Response::notPermission('welcome');
+            Exception::throw('welcome');
         }
         //
         $this->client_id = $this->header['client_id'] ?? '';
@@ -84,7 +84,7 @@ class Request
         $ip && $this->ip = $ip;
         $this->local = ($ip === '127.0.0.1');
         if (!$this->ip) {
-            Response::notPermission('iam pure');
+            Exception::throw('iam pure');
         }
         // 解密协议
         // Crypto::cipherMethods();
@@ -112,7 +112,7 @@ class Request
                 }
                 break;
             case 'DEFAULT':
-                Response::exception('method error');
+                Exception::throw('method error');
                 break;
         }
         $this->crypto = Crypto::isCrypto($this);
@@ -127,7 +127,6 @@ class Request
     public function __construct(object $cargo)
     {
         $this->cargo = $cargo;
-        $this->init();
         return $this;
     }
 

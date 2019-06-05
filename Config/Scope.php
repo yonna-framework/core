@@ -4,6 +4,7 @@ namespace PhpureCore\Config;
 
 use Closure;
 use PhpureCore\Core;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Scope\Neck;
 use PhpureCore\Scope\Tail;
 use PhpureCore\Glue\Response;
@@ -27,9 +28,9 @@ class Scope extends Arrow
      */
     private function add(string $method, string $key, $call, string $action = null)
     {
-        if (empty($method)) Response::exception('no method');
-        if (empty($key)) Response::exception('no key');
-        if (empty($call)) Response::exception('no call');
+        if (empty($method)) Exception::throw('no method');
+        if (empty($key)) Exception::throw('no key');
+        if (empty($call)) Exception::throw('no call');
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -39,7 +40,7 @@ class Scope extends Arrow
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                !$action && Response::exception("Should call a action for {$call}");
+                !$action && Exception::throw("Should call a action for {$call}");
                 $call = function ($request) use ($call, $action) {
                     return Core::get($call, $request)->$action();
                 };

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace PhpureCore;
+namespace PhpureCore\Plugins;
 
 use Elasticsearch\ClientBuilder;
 

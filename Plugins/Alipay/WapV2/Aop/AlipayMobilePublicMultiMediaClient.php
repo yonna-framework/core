@@ -23,8 +23,8 @@ class AlipayMobilePublicMultiMediaClient{
     private				$appId;
     private				$privateKey;
     private				$prodCode;
-    private				$format          = 'json'; //todo
-    private				$sign_type       = 'RSA'; //todo
+    private				$format          = 'json';
+    private				$sign_type       = 'RSA';
 
 	private				$charset;
 	private				$apiVersion    = "1.0";

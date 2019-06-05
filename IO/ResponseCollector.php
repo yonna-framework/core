@@ -215,4 +215,26 @@ class ResponseCollector
         return $response;
     }
 
+    /**
+     * @return string
+     */
+    public function end()
+    {
+        switch ($this->getResponseDataType()) {
+            case 'xml':
+                header('Content-Type:application/xml; charset=' . $this->getCharset());
+                break;
+            case 'json':
+                header('Content-Type:application/json; charset=' . $this->getCharset());
+                break;
+            case 'html':
+                header('Content-Type:text/html; charset=' . $this->getCharset());
+                break;
+            default:
+                header('Content-Type:text/plain; charset=' . $this->getCharset());
+                break;
+        }
+        exit($this->response());
+    }
+
 }

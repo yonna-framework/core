@@ -2,8 +2,8 @@
 
 namespace PhpureCore\Config;
 
-use Closure;
 use PhpureCore\Core;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Glue\Response;
 
 class Trigger extends Arrow
@@ -18,10 +18,10 @@ class Trigger extends Arrow
      */
     public static function reg(string $eventClass, array $listenerClasses)
     {
-        if (empty($eventClass)) Response::exception('not event');
-        if (empty($listenerClasses)) Response::exception('not listener');
+        if (empty($eventClass)) Exception::throw('not event');
+        if (empty($listenerClasses)) Exception::throw('not listener');
         if (!empty(self::$stack[self::name][$eventClass])) {
-            Response::abort("Event {$eventClass} already exist");
+            Exception::abort("Event {$eventClass} already exist");
         }
         self::$stack[self::name][$eventClass] = $listenerClasses;
     }
@@ -32,7 +32,7 @@ class Trigger extends Arrow
      */
     public static function del(string $eventClass)
     {
-        if (empty($eventClass)) Response::exception('not event');
+        if (empty($eventClass)) Exception::throw('not event');
         if (isset(self::$stack[self::name][$eventClass])) {
             unset(self::$stack[self::name][$eventClass]);
         }
@@ -45,7 +45,7 @@ class Trigger extends Arrow
      */
     public static function act(string $eventClass, $params)
     {
-        if (empty($eventClass)) Response::exception('not event');
+        if (empty($eventClass)) Exception::throw('not event');
         if (empty(self::$stack[self::name][$eventClass])) {
             return;
         }

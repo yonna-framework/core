@@ -10,6 +10,7 @@ use PhpureCore\Core;
 use PhpureCore\Glue\Cargo;
 use PhpureCore\Glue\IO;
 use PhpureCore\Glue\Request;
+use PhpureCore\Glue\Response;
 use PhpureCore\Mapping\BootType;
 
 class Bootstrap
@@ -25,7 +26,6 @@ class Bootstrap
      * @param $root
      * @param null $env_name
      * @param null $boot_type
-     * @return Bootstrap
      */
     public function boot($root, $env_name = null, $boot_type = null)
     {
@@ -49,10 +49,9 @@ class Bootstrap
             $Cargo = Functions::install($Cargo);
 
         } catch (Exception $e) {
-            dd($e);
+            Response::exception($e->getMessage())->end();
         }
         IO::response(Core::singleton(Request::class, $Cargo));
-        return $this;
     }
 
 }

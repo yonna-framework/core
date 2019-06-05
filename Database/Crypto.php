@@ -26,7 +26,7 @@ class Crypto
     public static function encrypt(string $str)
     {
         if (!static::$crypto_type || !static::$crypto_secret || !static::$crypto_iv) {
-            Response::abort('Crypto encrypt error');
+            Exception::abort('Crypto encrypt error');
         }
         return openssl_encrypt($str, static::$crypto_type, static::$crypto_secret, 0, static::$crypto_iv);
     }
@@ -38,7 +38,7 @@ class Crypto
     public static function decrypt(string $str)
     {
         if (!static::$crypto_type || !static::$crypto_secret || !static::$crypto_iv) {
-            Response::abort('Crypto decrypt error');
+            Exception::abort('Crypto decrypt error');
         }
         return openssl_decrypt($str, static::$crypto_type, static::$crypto_secret, 0, static::$crypto_iv);
     }

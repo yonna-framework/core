@@ -2,6 +2,7 @@
 
 namespace PhpureCore\Config;
 
+use PhpureCore\Exception\Exception;
 use PhpureCore\Glue\Response;
 
 class Crypto extends Arrow
@@ -16,8 +17,8 @@ class Crypto extends Arrow
      */
     public static function set(string $key, string $value)
     {
-        if (empty($key)) Response::exception('no key');
-        if (empty($value)) Response::exception('no value');
+        if (empty($key)) Exception::throw('no key');
+        if (empty($value)) Exception::throw('no value');
         $key = strtoupper($key);
         self::$stack[self::name][$key] = $value;
     }

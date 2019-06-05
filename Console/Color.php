@@ -4,22 +4,22 @@ namespace PhpureCore\Console;
 
 class Color
 {
-    const BLACK = "30";
-    const RED = "31";
-    const GREEN = "32";
-    const YELLOW = "33";
-    const BLUE = "34";
-    const MAGENTA = "35";
-    const CYAN = "36";
-    const LIGHT_GRAY = "37";
-    const DARK_GRAY = "90";
-    const LIGHT_RED = "91";
-    const LIGHT_GREEN = "92";
-    const LIGHT_YELLOW = "93";
-    const LIGHT_BLUE = "94";
-    const LIGHT_MAGENTA = "95";
-    const LIGHT_CYAN = "96";
-    const WHITE = "97";
+    private const BLACK = "30";
+    private const RED = "31";
+    private const GREEN = "32";
+    private const YELLOW = "33";
+    private const BLUE = "34";
+    private const MAGENTA = "35";
+    private const CYAN = "36";
+    private const LIGHT_GRAY = "37";
+    private const DARK_GRAY = "90";
+    private const LIGHT_RED = "91";
+    private const LIGHT_GREEN = "92";
+    private const LIGHT_YELLOW = "93";
+    private const LIGHT_BLUE = "94";
+    private const LIGHT_MAGENTA = "95";
+    private const LIGHT_CYAN = "96";
+    private const WHITE = "97";
     // style
     const BOLD = "1";
     const DIM = "2";
@@ -59,6 +59,11 @@ class Color
     public static function yellow($msg, $style = array())
     {
         return self::wrap($msg, self::YELLOW, $style);
+    }
+
+    public static function blue($msg, $style = array())
+    {
+        return self::wrap($msg, self::BLUE, $style);
     }
 
     public static function magenta($msg, $style = array())

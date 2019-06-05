@@ -144,7 +144,7 @@ class Sqlite extends AbstractPDO
     public function join($target, $join, $req = [], $type = 'INNER')
     {
         if (!in_array($type, ['INNER', 'LEFT'])) {
-            Response::abort("Join not support {$type} yet");
+            Exception::abort("Join not support {$type} yet");
         }
         if ($target && $join) {
             $join = str_replace([' as ', ' AS ', ' As ', ' aS ', ' => '], ' ', trim($join));

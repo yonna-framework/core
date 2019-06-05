@@ -29,7 +29,7 @@ class Sms{
      *
      * @param $accessKeyId
      * @param $accessKeySecret
-     * @return DefaultAcsClient TODO 此处需要替换成开发者自己的AK (https://ak-console.aliyun.com/)
+     * @return DefaultAcsClient 此处需要替换成开发者自己的AK (https://ak-console.aliyun.com/)
      * @throws \Exception
      */
     public static function getAcsClient($accessKeyId,$accessKeySecret){

@@ -2,6 +2,7 @@
 
 namespace PhpureCore\Mapping;
 
+use Exception;
 use PhpureCore\Glue\Response;
 use ReflectionClass;
 use ReflectionException;
@@ -93,6 +94,7 @@ abstract class Mapping
     /**
      * 反射mapping的数据
      * @return mixed
+     * @throws Exception
      */
     public static function fetch()
     {
@@ -103,7 +105,7 @@ abstract class Mapping
                 $arrConst = $objClass->getConstants();
                 static::$fetch_cache[$class] = $arrConst;
             } catch (ReflectionException $e) {
-                Response::exception($e->getMessage());
+                throw new Exception($e->getMessage());
             }
         }
         return static::$fetch_cache[$class] ?? [];

@@ -2,7 +2,7 @@
 
 namespace PhpureCore\Config;
 
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
 use System;
 
@@ -32,17 +32,17 @@ class Database extends Arrow
         $crypto_secret = $setting['crypto_secret'] ?? null;
         $crypto_iv = $setting['crypto_iv'] ?? null;
         // check
-        if (empty($type)) Response::exception('no type');
+        if (empty($type)) Exception::throw('no type');
         if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL || $type === DBType::MONGO || $type === DBType::REDIS) {
-            if (empty($host)) Response::exception('no host');
-            if (empty($port)) Response::exception('no port');
+            if (empty($host)) Exception::throw('no host');
+            if (empty($port)) Exception::throw('no port');
         }
         if ($type === DBType::MYSQL || $type === DBType::PGSQL || $type === DBType::MSSQL) {
-            if (empty($account)) Response::exception('no account');
-            if (empty($password)) Response::exception('no password');
+            if (empty($account)) Exception::throw('no account');
+            if (empty($password)) Exception::throw('no password');
         }
         if ($type === DBType::SQLITE) {
-            if (empty($db_file_path)) Response::exception('no db file path');
+            if (empty($db_file_path)) Exception::throw('no db file path');
         }
         // auto_cache
         if ($auto_cache === 'true' || $auto_cache === 'false') {
@@ -54,11 +54,11 @@ class Database extends Arrow
         if ($auto_crypto === 'true' || $auto_crypto === 'false') {
             $auto_crypto = $auto_crypto === 'true';
             if ($auto_crypto === true) {
-                if (empty($crypto_type)) Response::exception('no crypto_type');
-                if (empty($crypto_secret)) Response::exception('no crypto_secret');
-                if (empty($crypto_iv)) Response::exception('no crypto_iv');
+                if (empty($crypto_type)) Exception::throw('no crypto_type');
+                if (empty($crypto_secret)) Exception::throw('no crypto_secret');
+                if (empty($crypto_iv)) Exception::throw('no crypto_iv');
                 if (!in_array($crypto_type, System::getOpensslCipherMethods())) {
-                    Response::exception("OpensslCipherMethods not support this type: {$crypto_type}");
+                    Exception::throw("OpensslCipherMethods not support this type: {$crypto_type}");
                 }
             }
         }

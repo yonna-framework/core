@@ -1,24 +1,41 @@
 <?php
-require "hPhp.php";
 
-use library\IO;
+namespace PhpureCore\Console;
+
+use Exception;
+use PhpureCore\Core;
+use PhpureCore\Mapping\BootType;
 
 /**
- * TODO *启动
- * php ?.php -p [:port]
+ * swoole http
+ * Class SwooleHttp
  */
-class Main extends IO
+class SwooleHttp extends Console
 {
 
     private $server = null;
+    private $params = null;
 
-    public function __construct($port)
+    /**
+     * SwooleHttp constructor.
+     * @throws Exception
+     */
+    public function __construct()
     {
-        $this->server = new swoole_http_server("0.0.0.0", $port);
+        if (!function_exists('swoole_http_server')) {
+            throw new Exception('function swoole_http_server not exists');
+        }
+        $this->params = $this->getParams(['port']);
+        return $this;
+    }
+
+    public function run($root_path)
+    {
+        $this->server = new swoole_http_server("0.0.0.0", $this->params['port']);
 
         $this->server->set(array(
-            'worker_num' => 10,
-            'task_worker_num' => 4, //task数量
+            'worker_num' => 4,
+            'task_worker_num' => 10,
         ));
 
         $this->server->on("start", function () {
@@ -47,7 +64,12 @@ class Main extends IO
             });
         });
 
-        $this->server->on('task', function ($server, $task_id, $from_id, $request) {
+        $this->server->on('task', function ($server, $task_id, $from_id, $request) use ($root_path) {
+            Core::bootstrap(
+                realpath($root_path),
+                'example',
+                BootType::SWOOLE_HTTP
+            );
             $data = $this->io($request);
             $this->server->finish($data);
         });
@@ -59,9 +81,3 @@ class Main extends IO
         $this->server->start();
     }
 }
-
-$params = getopt('p:c:');
-if (!isset($params['p'])) {
-    exit('-p set port!');
-}
-new Main($params['p']);

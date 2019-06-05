@@ -21,6 +21,7 @@ use PhpureCore\Core\Glue;
  * @method static toJson()
  * @method static toXml()
  * @method static response()
+ * @method static end()
  *
  * @see \PhpureCore\IO\ResponseCollector
  */

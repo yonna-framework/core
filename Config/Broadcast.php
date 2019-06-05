@@ -3,6 +3,7 @@
 namespace PhpureCore\Config;
 
 use Closure;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Glue\Response;
 
 class Broadcast extends Arrow
@@ -16,8 +17,8 @@ class Broadcast extends Arrow
      */
     public static function scope(string $scope, Closure $call)
     {
-        if (empty($scope)) Response::exception('no scope');
-        if (empty($call)) Response::exception('no call');
+        if (empty($scope)) Exception::throw('no scope');
+        if (empty($call)) Exception::throw('no call');
         if (!isset(self::$stack[self::name][$scope])) {
             self::$stack[self::name][$scope] = array();
         }

@@ -1,5 +1,9 @@
 <?php
-require 'hColor.php';
+namespace PhpureCore\Console;
+
+class Package{
+
+}
 $Color = (new color());
 
 $params = getopt('c:');
@@ -20,7 +24,6 @@ $package_key = CONFIG['package_key'];
 $package_iv = CONFIG['package_iv'];
 $cext = '.dll';
 
-/* TODO */
 show('Package start', 'yellow');
 show('Root:' . $root);
 show('Package Key:' . $package_key);
@@ -133,7 +136,6 @@ function scanner($dir, $isCrypto = false, $count = 0)
     while ($file = readdir($files)) {
         if ($file != '.' && $file != '..') {
 
-            // TODO BAN
             if (strpos($dir, 'svn') !== false) continue;
             if (strpos($dir, 'phpunit') !== false) continue;
             if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) continue;
@@ -160,7 +162,7 @@ function scanner($dir, $isCrypto = false, $count = 0)
             }
             if ($fileData === false) continue;
             $newDir = null;
-            // TODO APP
+            //
             if (strpos($realDir, 'h-php') !== false) {
                 $newDir = str_replace($root . DIRECTORY_SEPARATOR . 'h-php', $corePath, $realDir);
             } else {
@@ -200,7 +202,6 @@ function combinePhp($dir, $data = '')
     $files = opendir($dir);
     while ($file = readdir($files)) {
         if ($file != '.' && $file != '..') {
-            // TODO BAN
             if (strpos($dir, 'svn') !== false) continue;
             if (strpos($dir, 'phpunit') !== false) continue;
             if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) continue;
