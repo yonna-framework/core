@@ -14,24 +14,29 @@ class SwooleHttp extends Console
 {
 
     private $server = null;
-    private $params = null;
+    private $root_path = null;
+    private $options = null;
 
     /**
      * SwooleHttp constructor.
+     * @param $root_path
+     * @param $options
      * @throws Exception
      */
-    public function __construct()
+    public function __construct($root_path, $options)
     {
-        if (!function_exists('swoole_http_server')) {
-            throw new Exception('function swoole_http_server not exists');
+        if (!class_exists('swoole_http_server')) {
+            throw new Exception('class swoole_http_server not exists');
         }
-        $this->params = $this->getParams(['port']);
+        $this->root_path = $root_path;
+        $this->options = $options;
+        $this->checkParams($this->options, ['port']);
         return $this;
     }
 
-    public function run($root_path)
+    public function run()
     {
-        $this->server = new swoole_http_server("0.0.0.0", $this->params['port']);
+        $this->server = new \swoole_http_server("0.0.0.0", $this->options['port']);
 
         $this->server->set(array(
             'worker_num' => 4,
@@ -64,9 +69,9 @@ class SwooleHttp extends Console
             });
         });
 
-        $this->server->on('task', function ($server, $task_id, $from_id, $request) use ($root_path) {
+        $this->server->on('task', function ($server, $task_id, $from_id, $request) {
             Core::bootstrap(
-                realpath($root_path),
+                realpath($this->root_path),
                 'example',
                 BootType::SWOOLE_HTTP,
                 array(
@@ -74,7 +79,7 @@ class SwooleHttp extends Console
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,
-                ),
+                )
             );
             $data = $this->io($request);
             $this->server->finish($data);

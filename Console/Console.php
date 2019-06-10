@@ -13,22 +13,12 @@ class Console
 {
 
     /**
-     * 获取console里的opt
-     * @param $fields
-     * @return array
-     */
-    private function getOpts(array $fields)
-    {
-        $optStr = implode(':', $fields) . ':';
-        return getopt($optStr);
-    }
-
-    /**
+     * @param $opts
      * @param $field
      * @return array|bool
      * @throws Exception
      */
-    protected function getParams($field)
+    protected function checkParams($opts, $field)
     {
         if (empty($field)) {
             return [];
@@ -36,7 +26,6 @@ class Console
         if (!is_array($field)) {
             $field = [$field];
         }
-        $opts = $this->getOpts($field);
         $err = null;
         foreach ($field as $f) {
             if (!isset($opts[$f])) {
@@ -47,7 +36,7 @@ class Console
         if ($err !== null) {
             throw new Exception($err);
         }
-        return $opts;
+        return true;
     }
 
 }

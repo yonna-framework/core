@@ -54,7 +54,7 @@ class Exec
 
     public static function run($root_path)
     {
-        if(empty($root_path)){
+        if (empty($root_path)) {
             exit('not root path');
         }
         while (true) {
@@ -67,7 +67,16 @@ class Exec
             }
             $stdin = explode(' ', $stdin);
             $command = array_shift($stdin);
-            $options = trim(implode(' ', $stdin));
+            $stdinStr = trim(implode(' ', $stdin));
+            $stdinStr = explode('-', $stdinStr);
+            $filter = array_filter($stdinStr);
+            $options = array();
+            foreach ($filter as $f) {
+                $f = explode(' ', $f);
+                $f1 = array_shift($f);
+                $f2 = trim(implode(' ', $f));
+                $options[$f1] = $f2;
+            }
             if (!in_array($command, self::$commandKeys)) {
                 self::c(Color::lightRed("not command named: {$command},type \"help\" to get the command list"));
                 continue;
@@ -75,22 +84,14 @@ class Exec
             try {
                 switch ($command) {
                     case 'swh':
-                        if (!$options) {
-                            self::c('not port');
-                            break;
-                        }
-                        Core::get(SwooleHttp::class)->run($root_path);
+                        Core::get(SwooleHttp::class, $root_path, $options)->run();
                         break;
                     case 'swws':
-                        if (!$options) {
-                            self::c('not port');
-                            break;
-                        }
-                        Core::get(SwooleWebsocket::class)->run($root_path);
+                        Core::get(SwooleWebsocket::class)->run($root_path, $options);
                         break;
                     case 'swt':
                         if (!$options) {
-                            Core::get(SwooleTcp::class)->run($root_path);
+                            Core::get(SwooleTcp::class)->run($root_path, $options);
                             break;
                         }
                         break;
