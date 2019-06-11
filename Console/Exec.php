@@ -27,6 +27,7 @@ class Exec
     ];
     private static $commandKeys = [];
     private static $help = '';
+    private static $firstOpts = null;
 
     private static function c($msg)
     {
@@ -50,6 +51,8 @@ class Exec
         self::$help .= " ┃\n ┃     (count:" . count(self::$commands) . ")\n";
         self::$help .= " ┃ Hope help you ~";
         self::$help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        //
+        self::$firstOpts = getopt('o:c:p:');
     }
 
     public static function run($root_path)
@@ -58,24 +61,33 @@ class Exec
             exit('not root path');
         }
         while (true) {
-            fwrite(STDOUT, "\n" . self::HEAD);
-            $stdin = fgets(STDIN);
-            $stdin = str_replace(["\r", "\n"], '', $stdin);
-            if (empty($stdin)) {
-                self::c("type your command please!");
-                continue;
-            }
-            $stdin = explode(' ', $stdin);
-            $command = array_shift($stdin);
-            $stdinStr = trim(implode(' ', $stdin));
-            $stdinStr = explode('-', $stdinStr);
-            $filter = array_filter($stdinStr);
             $options = array();
-            foreach ($filter as $f) {
-                $f = explode(' ', $f);
-                $f1 = array_shift($f);
-                $f2 = trim(implode(' ', $f));
-                $options[$f1] = $f2;
+            $opts = self::$firstOpts;
+            if (!empty($opts['o'])) {
+                self::$firstOpts = null;
+                $command = $opts['o'];
+                foreach ($opts as $ok => $ov) {
+                    $ok !== 'o' && $options[$ok] = $ov;
+                }
+            } else {
+                fwrite(STDOUT, "\n" . self::HEAD);
+                $stdin = fgets(STDIN);
+                $stdin = str_replace(["\r", "\n"], '', $stdin);
+                if (empty($stdin)) {
+                    self::c("type your command please!");
+                    continue;
+                }
+                $stdin = explode(' ', $stdin);
+                $command = array_shift($stdin);
+                $stdinStr = trim(implode(' ', $stdin));
+                $stdinStr = explode('-', $stdinStr);
+                $filter = array_filter($stdinStr);
+                foreach ($filter as $f) {
+                    $f = explode(' ', $f);
+                    $f1 = array_shift($f);
+                    $f2 = trim(implode(' ', $f));
+                    $options[$f1] = $f2;
+                }
             }
             if (!in_array($command, self::$commandKeys)) {
                 self::c(Color::lightRed("not command named: {$command},type \"help\" to get the command list"));

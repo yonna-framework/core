@@ -30,13 +30,13 @@ class SwooleHttp extends Console
         }
         $this->root_path = $root_path;
         $this->options = $options;
-        $this->checkParams($this->options, ['port']);
+        $this->checkParams($this->options, ['p']);
         return $this;
     }
 
     public function run()
     {
-        $this->server = new \swoole_http_server("0.0.0.0", $this->options['port']);
+        $this->server = new \swoole_http_server("0.0.0.0", $this->options['p']);
 
         $this->server->set(array(
             'worker_num' => 4,
@@ -52,13 +52,11 @@ class SwooleHttp extends Console
         });
 
         $this->server->on("request", function ($request, $response) {
-            if (!$request->post['post']) {
-                $request->post = $request->rawContent();
-            } else {
-                $request->post = $request->post['post'];
-            }
-            $request = get_object_vars($request);
-            $this->server->task($request, -1, function ($server, $task_id, $result) use ($response) {
+            $GLOBALS['swh'][$request->fd] = array(
+                'request' => $request,
+                'response' => $response
+            );
+            $this->server->task(get_object_vars($request), -1, function ($server, $task_id, $result) use ($response) {
                 if ($result !== false) {
                     $response->end($result);
                     return;
@@ -70,11 +68,14 @@ class SwooleHttp extends Console
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
+            $resp = $this->getResponse();
+            print_r($resp);
             Core::bootstrap(
                 realpath($this->root_path),
                 'example',
                 BootType::SWOOLE_HTTP,
                 array(
+                    'fd' => $request['fd'],
                     'server' => $server,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
