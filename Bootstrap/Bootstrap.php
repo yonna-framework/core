@@ -26,6 +26,7 @@ class Bootstrap
      * @param null $env_name
      * @param null $boot_type
      * @param null $extend
+     * @return \PhpureCore\IO\ResponseCollector
      */
     public function boot($root, $env_name, $boot_type, $extend = null)
     {
@@ -53,7 +54,7 @@ class Bootstrap
         } catch (\Exception $e) {
             Exception::abort($e->getMessage());
         }
-        IO::response(Core::singleton(Request::class, $Cargo));
+        return IO::response(Core::singleton(Request::class, $Cargo));
     }
 
 }

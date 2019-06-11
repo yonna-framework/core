@@ -4,6 +4,12 @@ namespace PhpureCore\Console;
 class Package{
 
 }
+
+if(!defined('____')) define('____', 'PureStream');
+if(!defined('_____')) define('_____', null);
+if(!defined('______')) define('______', null);
+if(!defined('_______')) define('_______', null);
+
 $Color = (new color());
 
 $params = getopt('c:');

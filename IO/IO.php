@@ -10,7 +10,6 @@ use Closure;
 use Exception;
 use Str;
 use PhpureCore\Glue\Response;
-use PhpureCore\Mapping\BootType;
 
 class IO
 {
@@ -26,34 +25,26 @@ class IO
     }
 
     /**
-     * @param \PhpureCore\IO\ResponseCollector $response
+     * @param object $request
+     * @return ResponseCollector
      */
-    private function end($response)
-    {
-        switch ($this->request->cargo->boot_type) {
-            case BootType::AJAX_HTTP:
-                $response->end();
-                break;
-        }
-    }
-
     public function response(object $request)
     {
         try {
             $request->init();
         } catch (Exception $e) {
-            Response::notPermission($e->getMessage())->end();
+            return Response::notPermission($e->getMessage());
         }
         $this->request = $request;
         $data = $this->request->input->getData();
         $scope = $data['scope'] ?? null;
         if (!$scope) {
-            Response::abort('no scope')->end();
+            return Response::abort('no scope');
         }
         $scope = Str::upper($scope);
         $scope = Arr::get($this->request->cargo->config, "scope.{$request->method}.{$scope}");
         if (!$scope) {
-            Response::abort('no scoped')->end();
+            return Response::abort('no scoped');
         }
         $necks = $scope['neck'];
         $call = $scope['call'];
@@ -75,9 +66,9 @@ class IO
             if (!($response instanceof ResponseCollector)) {
                 $response = Response::exception('Response must instanceof ResponseCollector');
             }
-            $response->end();
+            return $response;
         }
-        Response::abort('io destroy')->end();
+        return Response::abort('io destroy');
     }
 
 }

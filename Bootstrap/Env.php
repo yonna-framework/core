@@ -36,11 +36,13 @@ class Env
             throw new Exception("Need PHP >= {$minimum_php_version}");
         }
         $Cargo->setCurrentPhpVersion(PHP_VERSION);
-        define('____', 'PureStream');
-        define('_____', null);
-        define('______', null);
-        define('_______', null);
-        define("TIMEZONE", getenv('TIMEZONE') ?? 'PRC');
+        // define
+        if(!defined('____')) define('____', 'PureStream');
+        if(!defined('_____')) define('_____', null);
+        if(!defined('______')) define('______', null);
+        if(!defined('_______')) define('_______', null);
+        // TIME ZONE
+        if(!defined('TIMEZONE')) define("TIMEZONE", getenv('TIMEZONE') ?? 'PRC');
         // IS_DEBUG
         if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
             $whoops = new WhoopsRun;

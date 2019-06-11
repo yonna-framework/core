@@ -1584,6 +1584,10 @@ abstract class AbstractPDO extends AbstractDB
      */
     public function fetchSql()
     {
+        $table = $this->getTable();
+        if (!$table) {
+            Exception::abort('lose table');
+        }
         $this->fetchSql = true;
         return $this;
     }

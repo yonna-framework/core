@@ -4,7 +4,10 @@ namespace PhpureCore\Console;
 
 use Exception;
 use PhpureCore\Core;
+use PhpureCore\IO\ResponseCollector;
 use PhpureCore\Mapping\BootType;
+use Swoole\Http\Response;
+use swoole_http_server;
 
 /**
  * swoole http
@@ -36,11 +39,12 @@ class SwooleHttp extends Console
 
     public function run()
     {
-        $this->server = new \swoole_http_server("0.0.0.0", $this->options['p']);
+        $this->server = new swoole_http_server("0.0.0.0", $this->options['p']);
 
         $this->server->set(array(
             'worker_num' => 4,
             'task_worker_num' => 10,
+            'http_compression' => true,
         ));
 
         $this->server->on("start", function () {
@@ -51,39 +55,36 @@ class SwooleHttp extends Console
             echo "worker start" . PHP_EOL;
         });
 
-        $this->server->on("request", function ($request, $response) {
-            $GLOBALS['swh'][$request->fd] = array(
-                'request' => $request,
-                'response' => $response
-            );
-            $this->server->task(get_object_vars($request), -1, function ($server, $task_id, $result) use ($response) {
-                if ($result !== false) {
-                    $response->end($result);
-                    return;
+        $this->server->on("request", function ($request, Response $response) {
+            $this->server->task(get_object_vars($request), -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
+                $response->header('Server', 'Pure');
+                if ($responseCollector !== false) {
+                    $responseHeader = $responseCollector->getHeader('arr');
+                    foreach ($responseHeader as $hk => $hv) {
+                        $response->header($hk, $hv);
+                    }
+                    $response->status(200);
+                    $response->end($responseCollector->toJson());
                 } else {
-                    $response->status(404);
+                    $response->status(403);
                     $response->end();
                 }
             });
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
-            $resp = $this->getResponse();
-            print_r($resp);
-            Core::bootstrap(
+            $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 'example',
                 BootType::SWOOLE_HTTP,
                 array(
-                    'fd' => $request['fd'],
                     'server' => $server,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,
                 )
             );
-            $data = $this->io($request);
-            $this->server->finish($data);
+            $this->server->finish($ResponseCollector);
         });
 
         $this->server->on('finish', function ($server, $task_id, $data) {

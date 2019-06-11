@@ -8,7 +8,7 @@ use PhpureCore\Core\Glue;
 /**
  * Class IO
  *
- * @method static response(object $request)
+ * @method static \PhpureCore\IO\ResponseCollector response(object $request)
  *
  * @see \PhpureCore\IO\IO
  */

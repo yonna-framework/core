@@ -7,6 +7,7 @@ namespace PhpureCore\IO;
 
 
 use Convert;
+use MongoDB\BSON\Type;
 
 /**
  * Class Collector
@@ -216,24 +217,50 @@ class ResponseCollector
     }
 
     /**
+     * @param string $format
+     * @return mixed
+     */
+    public function getHeader($format = 'str')
+    {
+        switch ($this->getResponseDataType()) {
+            case 'xml':
+                $ContentType = 'application/xml';
+                break;
+            case 'json':
+                $ContentType = 'application/json';
+                break;
+            case 'html':
+                $ContentType = 'text/html';
+                break;
+            default:
+                $ContentType = 'text/plain';
+                break;
+        }
+        switch ($format) {
+            case 'arr':
+            case 'array':
+                $header = [
+                    'Content-Type' => $ContentType,
+                    'Charset' => $this->getCharset()
+                ];
+                break;
+            case 'str':
+            case 'string':
+            case 'text':
+            default:
+                $header = 'Content-Type:' . $ContentType;
+                $header .= ';Charset=' . $this->getCharset();
+                break;
+        }
+        return $header;
+    }
+
+    /**
      * @return string
      */
     public function end()
     {
-        switch ($this->getResponseDataType()) {
-            case 'xml':
-                header('Content-Type:application/xml; charset=' . $this->getCharset());
-                break;
-            case 'json':
-                header('Content-Type:application/json; charset=' . $this->getCharset());
-                break;
-            case 'html':
-                header('Content-Type:text/html; charset=' . $this->getCharset());
-                break;
-            default:
-                header('Content-Type:text/plain; charset=' . $this->getCharset());
-                break;
-        }
+        header($this->getHeader('str'));
         exit($this->response());
     }
 

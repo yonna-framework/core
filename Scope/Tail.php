@@ -4,7 +4,7 @@ namespace PhpureCore\Scope;
 
 use Closure;
 use PhpureCore\Core;
-use PhpureCore\Glue\Response;
+use PhpureCore\Exception\Exception;
 
 class Tail
 {
@@ -17,7 +17,7 @@ class Tail
      */
     public static function add($call)
     {
-        if (empty($call)) Response::exception('no call');
+        if (empty($call)) Exception::throw('no call');
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
