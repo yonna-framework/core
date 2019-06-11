@@ -15,10 +15,13 @@
     "ext-pdo": "*",
     "filp/whoops": "2.3.1",
     "php-amqplib/php-amqplib": "2.9.2",
-    "hunzsig-server/var-dumper": "^1.0.2",
+    "hunzsig-server/var-dumper": "@dev",
     "vlucas/phpdotenv": "3.3.3",
     "whoops/soap": "1.0.0",
     "elasticsearch/elasticsearch": "^6.7"
+  },
+  "require-dev": {
+    "swoole/ide-helper": "@dev"
   },
   "autoload": {
     "psr-4": {
