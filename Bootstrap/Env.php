@@ -37,12 +37,22 @@ class Env
         }
         $Cargo->setCurrentPhpVersion(PHP_VERSION);
         // define
-        if(!defined('____')) define('____', 'PureStream');
-        if(!defined('_____')) define('_____', null);
-        if(!defined('______')) define('______', null);
-        if(!defined('_______')) define('_______', null);
+        if (!defined('____')) {
+            define('____', 'PureStream');
+        }
+        if (!defined('_____')) {
+            define('_____', null);
+        }
+        if (!defined('______')) {
+            define('______', null);
+        }
+        if (!defined('_______')) {
+            define('_______', null);
+        }
         // TIME ZONE
-        if(!defined('TIMEZONE')) define("TIMEZONE", getenv('TIMEZONE') ?? 'PRC');
+        if (!defined('TIMEZONE')) {
+            define("TIMEZONE", getenv('TIMEZONE') ?? 'PRC');
+        }
         // IS_DEBUG
         if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
             $whoops = new WhoopsRun;

@@ -27,6 +27,7 @@ class Request
     public $cookie = null;
     public $method = null;
     public $content_type = null;
+    public $user_agent = null;
     public $body = '';
 
     public $client_id = null;
@@ -38,11 +39,22 @@ class Request
     public $input = null;
 
     /**
+     * Request constructor.
+     * @param object $cargo
+     */
+    public function __construct(object $cargo)
+    {
+        $this->cargo = $cargo;
+        return $this;
+    }
+
+    /**
      * build Request by BootType
      */
     public function init()
     {
         $this->input = Core::get(\PhpureCore\IO\Input::class);
+        $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
                 $header = array();
@@ -56,10 +68,19 @@ class Request
                 $this->header = $header;
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
+                $this->user_agent = $server['user_agent'];
                 $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($_FILES));
                 break;
             case BootType::SWOOLE_HTTP:
+                $extend = $this->cargo->getExtend();
+                $this->header = $extend['request']['header'];
+                $this->cookie = $extend['request']['cookie'];
+                $this->method = strtoupper($extend['request']['server']['request_method']);
+                $this->user_agent = $this->header['user-agent'];
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->input->setFile(Parse::fileData($extend['request']['files']));
+                $rawData = $extend['request']['rawData'];
                 break;
             case BootType::SWOOLE_WEB_SOCKET:
                 break;
@@ -84,10 +105,9 @@ class Request
         $ip && $this->ip = $ip;
         $this->local = ($ip === '127.0.0.1');
         if (!$this->ip) {
-            Exception::throw('iam pure');
+            Exception::throw('ip pure');
         }
         // 解密协议
-        // Crypto::cipherMethods();
         switch ($this->method) {
             case 'GET':
                 switch ($this->content_type) {
@@ -96,7 +116,7 @@ class Request
                         $this->body = is_string($body) ? $body : json_encode($_GET);
                         break;
                     default:
-                        $this->body = file_get_contents('php://input') ?? '';
+                        $this->body = $rawData ?? file_get_contents('php://input');
                         break;
                 }
                 break;
@@ -107,7 +127,7 @@ class Request
                         $this->body = is_string($body) ? $body : json_encode($_POST);
                         break;
                     default:
-                        $this->body = file_get_contents('php://input') ?? '';
+                        $this->body = $rawData ?? file_get_contents('php://input');
                         break;
                 }
                 break;
@@ -115,6 +135,7 @@ class Request
                 Exception::throw('method error');
                 break;
         }
+        var_dump($this->body);
         $this->crypto = Crypto::isCrypto($this);
         if ($this->crypto === true) {
             $inputData = json_decode(Crypto::input($this), true) ?? [];
@@ -122,12 +143,6 @@ class Request
             $inputData = json_decode($this->body, true) ?? [];
         }
         $this->input->setData($inputData);
-    }
-
-    public function __construct(object $cargo)
-    {
-        $this->cargo = $cargo;
-        return $this;
     }
 
 }

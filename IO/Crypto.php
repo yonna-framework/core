@@ -72,7 +72,7 @@ class Crypto
         if (ConfigCrypto::get('io_token') !== $request->header['token']) {
             return false;
         }
-        $token = strtolower(trim($request->header['user_agent'] . $request->header['platform'] . $request->header['client_id'] /*. $request->body*/));
+        $token = strtolower(trim($request->user_agent . $request->header['platform'] . $request->header['client_id']));
         $sha256 = hash_hmac('sha256', $token, ConfigCrypto::get('io_token_secret'));
         if (!$sha256 || $request->header['pure'] !== $sha256) {
             return false;

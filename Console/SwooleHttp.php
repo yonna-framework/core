@@ -56,20 +56,24 @@ class SwooleHttp extends Console
         });
 
         $this->server->on("request", function ($request, Response $response) {
-            $this->server->task(get_object_vars($request), -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
-                $response->header('Server', 'Pure');
-                if ($responseCollector !== false) {
-                    $responseHeader = $responseCollector->getHeader('arr');
-                    foreach ($responseHeader as $hk => $hv) {
-                        $response->header($hk, $hv);
+            $request->rawData = $request->rawContent();
+            $requestVars = get_object_vars($request);
+            $requestVars['rawData'] = $request->rawContent();
+            $this->server->task($requestVars, -1,
+                function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
+                    $response->header('Server', 'Pure');
+                    if ($responseCollector !== false) {
+                        $responseHeader = $responseCollector->getHeader('arr');
+                        foreach ($responseHeader as $hk => $hv) {
+                            $response->header($hk, $hv);
+                        }
+                        $response->status(200);
+                        $response->end($responseCollector->toJson());
+                    } else {
+                        $response->status(403);
+                        $response->end();
                     }
-                    $response->status(200);
-                    $response->end($responseCollector->toJson());
-                } else {
-                    $response->status(403);
-                    $response->end();
-                }
-            });
+                });
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
@@ -78,7 +82,7 @@ class SwooleHttp extends Console
                 'example',
                 BootType::SWOOLE_HTTP,
                 array(
-                    'server' => $server,
+                    'connections' => $server->connections,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,

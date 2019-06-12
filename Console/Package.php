@@ -1,20 +1,32 @@
 <?php
+
 namespace PhpureCore\Console;
 
-class Package{
+class Package
+{
 
 }
 
-if(!defined('____')) define('____', 'PureStream');
-if(!defined('_____')) define('_____', null);
-if(!defined('______')) define('______', null);
-if(!defined('_______')) define('_______', null);
+if (!defined('____')) {
+    define('____', 'PureStream');
+}
+if (!defined('_____')) {
+    define('_____', null);
+}
+if (!defined('______')) {
+    define('______', null);
+}
+if (!defined('_______')) {
+    define('_______', null);
+}
 
 $Color = (new color());
 
 $params = getopt('c:');
 $isTerminal = (empty($_COOKIE)) ? true : false;
-if (!$isTerminal) echo '<pre>';
+if (!$isTerminal) {
+    echo '<pre>';
+}
 if (!isset($params['c'])) {
     show('中断：你没有使用-c配置config文件路径，可能会造成配置错误', 'red');
     exit();
@@ -97,14 +109,19 @@ $fileData = openssl_encrypt(base64_encode($fileData), 'aes-256-cfb', $package_ke
 file_put_contents($corePath . 'hCatch' . $cext, $fileData);
 file_put_contents($corePath . 'hStatic.php', $staticCodes);
 $fileData = php_strip_whitespace(__DIR__ . DIRECTORY_SEPARATOR);
-$fileData = str_replace("define('HL', 0);", "define('____', 'HStream');define('_____', 'httpx');define('______', '{$package_key}');define('_______', '{$package_iv}');", $fileData);
-$fileData = str_replace("define('CL', 0);", "include('httpx://' . file_get_contents(PATH_H_PHP . '/hCatch{$cext}'));define('CONFIG', require('httpx://' . file_get_contents(__DIR__ . '/hPhp.config{$cext}')));", $fileData);
+$fileData = str_replace("define('HL', 0);",
+    "define('____', 'HStream');define('_____', 'httpx');define('______', '{$package_key}');define('_______', '{$package_iv}');",
+    $fileData);
+$fileData = str_replace("define('CL', 0);",
+    "include('httpx://' . file_get_contents(PATH_H_PHP . '/hCatch{$cext}'));define('CONFIG', require('httpx://' . file_get_contents(__DIR__ . '/hPhp.config{$cext}')));",
+    $fileData);
 file_put_contents($corePath . 'hPhp.php', $fileData);
 $fileData = CONFIG;
 if (isset($fileData['dev'])) {
     unset($fileData['dev']);
 }
-$fileData = openssl_encrypt(base64_encode('<?php return ' . var_export($fileData, true) . ';'), 'aes-256-cfb', $package_key, 0, $package_iv);
+$fileData = openssl_encrypt(base64_encode('<?php return ' . var_export($fileData, true) . ';'), 'aes-256-cfb',
+    $package_key, 0, $package_iv);
 file_put_contents($corePath . 'hPhp.config' . $cext, $fileData);
 file_put_contents($corePath . 'hSwoole.http.php', php_strip_whitespace(__DIR__ . DIRECTORY_SEPARATOR));
 file_put_contents($corePath . 'hSwoole.websocket.php', php_strip_whitespace(__DIR__ . DIRECTORY_SEPARATOR));
@@ -123,7 +140,9 @@ show("Cost: " . G('3', '4', 10) . "s", 'blue');
 show("Finish ! Total Cost: " . G('1', '4', 10), 'green');
 winSound('打包完成');
 
-if (!$isTerminal) echo '</pre>';
+if (!$isTerminal) {
+    echo '</pre>';
+}
 
 /**
  * @param $dir
@@ -142,14 +161,30 @@ function scanner($dir, $isCrypto = false, $count = 0)
     while ($file = readdir($files)) {
         if ($file != '.' && $file != '..') {
 
-            if (strpos($dir, 'svn') !== false) continue;
-            if (strpos($dir, 'phpunit') !== false) continue;
-            if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) continue;
-            if (strpos($file, 'example') !== false) continue;
-            if (strpos($file, '.md') !== false) continue;
-            if (strpos($file, 'LICENSE') !== false) continue;
-            if (strpos($file, 'README') !== false) continue;
-            if (strpos($file, '.log') !== false) continue;
+            if (strpos($dir, 'svn') !== false) {
+                continue;
+            }
+            if (strpos($dir, 'phpunit') !== false) {
+                continue;
+            }
+            if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) {
+                continue;
+            }
+            if (strpos($file, 'example') !== false) {
+                continue;
+            }
+            if (strpos($file, '.md') !== false) {
+                continue;
+            }
+            if (strpos($file, 'LICENSE') !== false) {
+                continue;
+            }
+            if (strpos($file, 'README') !== false) {
+                continue;
+            }
+            if (strpos($file, '.log') !== false) {
+                continue;
+            }
             $realDir = realpath($dir);
             $realFile = $realDir . DIRECTORY_SEPARATOR . $file;
             $fileData = false;
@@ -166,7 +201,9 @@ function scanner($dir, $isCrypto = false, $count = 0)
             } else {
                 $fileData = file_get_contents($realFile);
             }
-            if ($fileData === false) continue;
+            if ($fileData === false) {
+                continue;
+            }
             $newDir = null;
             //
             if (strpos($realDir, 'h-php') !== false) {
@@ -208,11 +245,21 @@ function combinePhp($dir, $data = '')
     $files = opendir($dir);
     while ($file = readdir($files)) {
         if ($file != '.' && $file != '..') {
-            if (strpos($dir, 'svn') !== false) continue;
-            if (strpos($dir, 'phpunit') !== false) continue;
-            if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) continue;
-            if (strpos($file, 'example') !== false) continue;
-            if (strpos($file, '.md') !== false) continue;
+            if (strpos($dir, 'svn') !== false) {
+                continue;
+            }
+            if (strpos($dir, 'phpunit') !== false) {
+                continue;
+            }
+            if (strpos($dir, 'test') !== false || strpos($file, 'test') !== false) {
+                continue;
+            }
+            if (strpos($file, 'example') !== false) {
+                continue;
+            }
+            if (strpos($file, '.md') !== false) {
+                continue;
+            }
             $realDir = realpath($dir);
             $realFile = $realDir . DIRECTORY_SEPARATOR . $file;
             $fileData = false;
@@ -221,7 +268,9 @@ function combinePhp($dir, $data = '')
             } elseif (strpos($file, PHP_EXT) !== false) {
                 $fileData = php_strip_whitespace($realFile);
             }
-            if ($fileData === false) continue;
+            if ($fileData === false) {
+                continue;
+            }
             $data .= $fileData;
             show("- OK - Combine {$file}", 'grey');
         }
