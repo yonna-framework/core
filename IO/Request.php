@@ -6,6 +6,7 @@
 namespace PhpureCore\IO;
 
 use Parse;
+use PhpureCore\Bootstrap\Cargo;
 use PhpureCore\Core;
 use PhpureCore\Mapping\BootType;
 use PhpureCore\Exception\Exception;
@@ -17,7 +18,7 @@ use PhpureCore\Exception\Exception;
 class Request
 {
     /**
-     * @var \PhpureCore\Bootstrap\Cargo
+     * @var Cargo
      */
     public $cargo = null;
 
@@ -34,7 +35,7 @@ class Request
     public $ip = '127.0.0.1';
 
     /**
-     * @var $input \PhpureCore\IO\Input
+     * @var $input Input
      */
     public $input = null;
 
@@ -53,7 +54,7 @@ class Request
      */
     public function init()
     {
-        $this->input = Core::get(\PhpureCore\IO\Input::class);
+        $this->input = Core::get(Input::class);
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
@@ -69,16 +70,21 @@ class Request
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->user_agent = $server['user_agent'];
-                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->content_type = !empty($server['content_type'])
+                    ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($_FILES));
                 break;
             case BootType::SWOOLE_HTTP:
                 $extend = $this->cargo->getExtend();
-                $this->header = $extend['request']['header'];
+                $this->header = array();
+                foreach ($extend['request']['header'] as $hk => $hv) {
+                    $this->header[str_replace('-','_',$hk)] = $hv;
+                }
                 $this->cookie = $extend['request']['cookie'];
                 $this->method = strtoupper($extend['request']['server']['request_method']);
-                $this->user_agent = $this->header['user-agent'];
-                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->user_agent = $this->header['user_agent'];
+                $this->content_type = !empty($server['content_type'])
+                    ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($extend['request']['files']));
                 $rawData = $extend['request']['rawData'];
                 break;
