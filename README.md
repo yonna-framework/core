@@ -4,6 +4,8 @@
 ## 如何开始
 ### 你可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
 ### 也可以通过composer安装：`composer install`
+### pure项目DEMO：[GOTO pure project](https://packagist.org/packages/hunzsig/phpure)
+
 ## 
 ### 在您的项目public 创建一个index.php
 > 并使用PhpureCore进行boot，会返回一个 ResponseCollector 对象，您可以对它进行json/xml/html等格式化输出
