@@ -2,55 +2,39 @@
 [![Latest Version](http://img.shields.io/packagist/v/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
 
 ## 如何开始
-### 你可以通过git下载：`git clone git@github.com:hunzsig/h-assets.git`
-### 也可以通过composer：`composer install`
+### 你可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
+### 也可以通过composer安装：`composer install`
 ## 
-### 建造一个index.php
-##### 你可以在根目录构建一个index.php
-###### 如果是composer你应该把 **/h-php/hHttp.php** 修改为 **/verdor/hunzsig/h-php/hHttp.php**
+### 在您的项目public 创建一个index.php
+> 并使用PhpureCore进行boot，会返回一个 ResponseCollector 对象，您可以对它进行json/xml/html等格式化输出
 ```php
 <?php
-    define('CONFIG_PATH', __DIR__ . '/config.php'); // 可宏定义一个配置文件路径，覆盖原有的config
-    $hphpPath = realpath(__DIR__ . '/h-php');
-    require __DIR__ . "/h-php/hHttp.php";
-    $hphp = new Main();
-    // 访问 http://127.0.0.1:port/external/helloWorld
-    $hphp->external('helloWorld', __DIR__ . '/myExternal/helloWorld.php');
-    $hphp->external('sql', __DIR__ . '/myExternal/sql.php');
-    $hphp->run();
+/**
+ * 加载 composer 模块
+ * 如果报错请安装 composer 并执行 composer install 安装所需要的包库
+ *
+ * Load composer modules
+ * Install composer and exec composer install in your shell when error throw.
+ */
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$ResponseCollector = PhpureCore\Core::bootstrap(
+    realpath(__DIR__ . '/../'),
+    'example',
+    PhpureCore\Mapping\BootType::AJAX_HTTP
+);
+
+/**
+ * end response
+ */
+$ResponseCollector->end();
 ?>
 ```
 
-### 打包
-#### 打包会在设定的根目录下生成一个**dist**目录，加密混淆并压缩优化
-##### 打包需要 **-c** 参数来定义你的**config文件**
-##### 根目录情况下：
-```php
-php ./h-php/hPackage.php -c ./config.php
-php ./h-php/hPackage.php -c ./h-php/hPhp.config.php // 默认情况下
-php ./h-php/hPackage.php -c ./verdor/hunzsig/h-php/hPhp.config.php // 默认composer情况下
-```
-##### composer下：
-```php
-php ./verdor/hunzsig/h-php/hPackage.php -c ./config.php
-```
+### Exec
 
-### 测试接口地址
-`
-http://host/external/test
-如果不想public接口暴露在scope列表中，函数包含“__”即可
-如：edit__ 参考 User\Model\InfoModel
-`
-
-### Map展示地址
-`
-http://host/external/map
-`
-### 测试接口地址
-
-### 你可以在index使用external方法，绑定自定义的php执行路径
-`http://host/external/sql`
-
+### JSON（pgsql）
 #### 搜索例子1
 ```sql
 select * from "default".system_data where (data#>>'{project_name,name}')::text like '%系统%';
@@ -98,53 +82,89 @@ select * from "default".system_data where ("data"->'server_pre_alert_limit'->'va
          {?,?,?} !^ #???,???,???...
 ```
 
-### 后端sql模型讲解
-##### 连贯写法 schemas table 必须在前，否则field等自动失效处理
-##### select one update insert insertAll delete count 等作为终结语，后续连贯断开
+### ORM
+> 连贯写法
+> schemas() / table() 方法会进行一次clear，所以请放在前面
+> 终结方法
+>> one() multi() page() insert() insertAll() delete() count() sum() avg() min() max()
 ```php
-$this->db()->schemas('default')->table('system_data')
+DB::connect() // 默认 'default'
+    ->table('system_data')
+    ->field('key,value')
+    ->in('key', $key)
+    ->one();
+    
+DB::connect('mysql') // mysql 没有 schemas 方法
+    ->table('system_data')
+    ->field('key,value')
+    ->in('key', $key)
+    ->one();
+    
+DB::connect('pgsql')
+    ->schemas('default')
+    ->table('system_data')
     ->field('key,value')
     ->in('key', $key)
     ->multi();
+    
+DB::connect('mssql')
+    ->schemas('default')
+    ->table('system_data')
+    ->field('key,value')
+    ->in('key', $key)
+    ->page();
+    
+DB::connect('sqlite')
+    ->table('system_data')
+    ->field('key,value')
+    ->in('key', $key)
+    ->count();
+    
+DB::connect('redis')->set('key', 1);
+DB::connect('redis')->get('key');
 ```
-##### 字段闭包（默认）
+##### 局部闭包（默认）
 ##### 等于 ( "a" = 1 or "b" = 1 ) and( "c" = 1 or "d" = 1 or "e" = 1 )
 ```php
-$this->db()->table('test')->equalTo('a',1)
-    ->equalTo('b',1)
-    ->closure('or')
-    ->equalTo('c',1)
-    ->equalTo('d',1)
-    ->equalTo('e',1)
-    ->closure('or');
-```
-##### 全局闭包
-##### 等于 (( "a" = 1 or "b" = 1 ) or "c" = 1 or "d" = 1 or "e" = 1 ) 
-```php
-$this->db()->table('test')
+DB::connect('mysql')
+    ->table('demo')
     ->equalTo('a',1)
     ->equalTo('b',1)
     ->closure('or')
     ->equalTo('c',1)
     ->equalTo('d',1)
     ->equalTo('e',1)
-    ->closure('or',true);
+    ->closure('or')
+    ->one();
 ```
-##### 直接插入bean写法（insert update delete需要try）
+##### 全局闭包
+##### 等于 (( "a" = 1 or "b" = 1 ) or "c" = 1 or "d" = 1 or "e" = 1 ) 
+```php
+DB::connect('pgsql')
+    ->schemas('default')
+    ->table('demo')
+    ->equalTo('a',1)
+    ->equalTo('b',1)
+    ->closure('or')
+    ->equalTo('c',1)
+    ->equalTo('d',1)
+    ->equalTo('e',1)
+    ->closure('or',true)
+    ->one();
+```
+
+
+##### 插入后可以获取 lastInsertId（在无序列表中自动获取可能会产生严重的错误）
 ```php
 try {
-    $this->db()->schemas('default')->table('system_data')->insert($bean->toArray());
+    DB::connect('pgsql')->schemas('default')->table('data')->insert(['data' => 1]);
+    $lastId = DB::lastInsertId();
 } catch (\Exception $e) {
     return $this->error($e->getMessage());
 }
 ```
 
-##### 插入可以手动获取lastID（在无序列表中自动获取可能会产生严重的错误）
+##### 如果你只是想获取sql而不请求数据库，请使用 fetchSql()
 ```php
-try {
-    $this->db()->schemas('default')->table('system_data')->insert($bean->toArray());
-    $lastId = $this->db()->lastInsertId();
-} catch (\Exception $e) {
-    return $this->error($e->getMessage());
-}
+DB::connect()->table('demo')->equalTo('status',1)->fetchSql()->multi();
 ```
