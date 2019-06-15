@@ -32,7 +32,10 @@ class Request
     public $body = '';
 
     public $client_id = null;
+    public $host = null;
+    public $ssl = false;
     public $ip = '127.0.0.1';
+    public $port = 80;
 
     /**
      * @var $input Input
@@ -70,21 +73,22 @@ class Request
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->user_agent = $this->header['user_agent'];
-                $this->content_type = !empty($server['content_type'])
-                    ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';',
+                    $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($_FILES));
+                $rawData = file_get_contents('php://input');
                 break;
             case BootType::SWOOLE_HTTP:
                 $extend = $this->cargo->getExtend();
                 $this->header = array();
                 foreach ($extend['request']['header'] as $hk => $hv) {
-                    $this->header[str_replace('-','_',$hk)] = $hv;
+                    $this->header[str_replace('-', '_', $hk)] = $hv;
                 }
                 $this->cookie = $extend['request']['cookie'];
                 $this->method = strtoupper($extend['request']['server']['request_method']);
                 $this->user_agent = $this->header['user_agent'];
-                $this->content_type = !empty($server['content_type'])
-                    ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';',
+                    $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($extend['request']['files']));
                 $rawData = $extend['request']['rawData'];
                 break;
@@ -113,6 +117,22 @@ class Request
         if (!$this->ip) {
             Exception::throw('ip pure');
         }
+        // SSL
+        if ($this->ssl === false && ($server['request_scheme'] ?? '') === 'https') {
+            $this->ssl = true;
+        }
+        if ($this->ssl === false && strpos(($server['server_protocol'] ?? ''), 'https') !== false) {
+            $this->ssl = true;
+        }
+        // HOST / PORT
+        $this->host = $header['x_host'] ?? $header['host'] ?? $server['server_name'] ?? null;
+        if ($this->host) {
+            $this->port = explode(':', $this->host);
+            $this->port = $this->port[1] ?? 80;
+            if (strpos($this->host, ':') === false || strpos($this->host, ':') > 6) {
+                $this->host = ($this->ssl ? 'http' : 'https') . '://' . $this->host;
+            }
+        }
         // 解密协议
         switch ($this->method) {
             case 'GET':
@@ -122,7 +142,7 @@ class Request
                         $this->body = is_string($body) ? $body : json_encode($_GET);
                         break;
                     default:
-                        $this->body = $rawData ?? file_get_contents('php://input');
+                        $this->body = $rawData;
                         break;
                 }
                 break;
@@ -133,7 +153,7 @@ class Request
                         $this->body = is_string($body) ? $body : json_encode($_POST);
                         break;
                     default:
-                        $this->body = $rawData ?? file_get_contents('php://input');
+                        $this->body = $rawData;
                         break;
                 }
                 break;

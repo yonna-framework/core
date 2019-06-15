@@ -33,7 +33,7 @@ class SwooleHttp extends Console
         }
         $this->root_path = $root_path;
         $this->options = $options;
-        $this->checkParams($this->options, ['p']);
+        $this->checkParams($this->options, ['p', 'e']);
         return $this;
     }
 
@@ -59,27 +59,26 @@ class SwooleHttp extends Console
             $request->rawData = $request->rawContent();
             $requestVars = get_object_vars($request);
             $requestVars['rawData'] = $request->rawContent();
-            $this->server->task($requestVars, -1,
-                function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
-                    $response->header('Server', 'Pure');
-                    if ($responseCollector !== false) {
-                        $responseHeader = $responseCollector->getHeader('arr');
-                        foreach ($responseHeader as $hk => $hv) {
-                            $response->header($hk, $hv);
-                        }
-                        $response->status(200);
-                        $response->end($responseCollector->toJson());
-                    } else {
-                        $response->status(403);
-                        $response->end();
+            $this->server->task($requestVars, -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
+                $response->header('Server', 'Pure');
+                if ($responseCollector !== false) {
+                    $responseHeader = $responseCollector->getHeader('arr');
+                    foreach ($responseHeader as $hk => $hv) {
+                        $response->header($hk, $hv);
                     }
-                });
+                    $response->status(200);
+                    $response->end($responseCollector->toJson());
+                } else {
+                    $response->status(403);
+                    $response->end();
+                }
+            });
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
             $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
-                'example',
+                $this->options['e'],
                 BootType::SWOOLE_HTTP,
                 array(
                     'connections' => $server->connections,

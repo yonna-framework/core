@@ -3,6 +3,11 @@
 namespace PhpureCore\Console;
 
 use Exception;
+use PhpureCore\Core;
+use PhpureCore\IO\ResponseCollector;
+use PhpureCore\Mapping\BootType;
+use Swoole\Http\Response;
+use swoole_websocket_server;
 
 /**
  * swoole http
@@ -12,25 +17,30 @@ class SwooleWebsocket extends Console
 {
 
     private $server = null;
-    private $params = null;
+    private $root_path = null;
+    private $options = null;
     private $clients = array();
 
     /**
      * SwooleHttp constructor.
+     * @param $root_path
+     * @param $options
      * @throws Exception
      */
-    public function __construct()
+    public function __construct($root_path, $options)
     {
-        if (!function_exists('swoole_websocket_server')) {
+        if (!class_exists('swoole_websocket_server')) {
             throw new Exception('function swoole_websocket_server not exists');
         }
-        $this->params = $this->getParams(['port']);
+        $this->root_path = $root_path;
+        $this->options = $options;
+        $this->checkParams($this->options, ['p', 'e']);
         return $this;
     }
 
     public function run($root_path)
     {
-        $this->server = new swoole_websocket_server("0.0.0.0", $this->params['port']);
+        $this->server = new swoole_websocket_server("0.0.0.0", $this->options['p']);
 
         $this->server->set(array(
             'worker_num' => 4,
@@ -54,19 +64,31 @@ class SwooleWebsocket extends Console
 
         $this->server->on('message', function ($server, $frame) {
             $request = $this->clients[$frame->fd];
-            if (!$request) return;
-            $request['post'] = $frame->data;
-            $this->server->task($request, -1, function ($server, $task_id, $result) use ($request) {
-                if ($result !== false) {
-                    $server->push($request['fd'], $result);
-                    return;
+            if (!$request) {
+                return;
+            }
+            $requestVars['rawData'] = $frame->data;
+            $this->server->task($requestVars, -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($request) {
+                if ($responseCollector !== false) {
+                    $server->push($request['fd'], $responseCollector->toJson());
                 }
             });
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
-            $data = $this->io($request);
-            $this->server->finish($data);
+            $ResponseCollector = Core::bootstrap(
+                realpath($this->root_path),
+                $this->options['e'],
+                BootType::SWOOLE_WEB_SOCKET,
+                array(
+                    'connections' => $server->connections,
+                    'clients' => $server->clients,
+                    'task_id' => $task_id,
+                    'from_id' => $from_id,
+                    'request' => $request,
+                )
+            );
+            $this->server->finish($ResponseCollector);
         });
 
         $this->server->on('finish', function ($server, $task_id, $data) {

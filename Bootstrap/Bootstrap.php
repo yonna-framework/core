@@ -10,6 +10,7 @@ use PhpureCore\Exception\Exception;
 use PhpureCore\Glue\Cargo;
 use PhpureCore\Glue\IO;
 use PhpureCore\Glue\Request;
+use PhpureCore\Glue\Response;
 use PhpureCore\Mapping\BootType;
 
 class Bootstrap
@@ -52,7 +53,11 @@ class Bootstrap
             $Cargo = Functions::install($Cargo);
 
         } catch (\Exception $e) {
-            Exception::abort($e->getMessage());
+            if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
+                Exception::abort($e->getMessage());
+            } else {
+                return Response::abort($e->getMessage());
+            }
         }
         return IO::response(Core::singleton(Request::class, $Cargo));
     }

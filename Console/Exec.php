@@ -20,9 +20,9 @@ class Exec
         array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
         array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit exec'),
         array('key' => ['-h', 'help'], 'options' => '', 'desc' => 'get command list'),
-        array('key' => ['swh'], 'options' => '-p [PORT]', 'desc' => 'start a swoole http server'),
-        array('key' => ['swws'], 'options' => '-p [PORT]', 'desc' => 'start a swoole websocket server'),
-        array('key' => ['swt'], 'options' => '-p [PORT]', 'desc' => 'start a swoole tcp server'),
+        array('key' => ['swh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole http server'),
+        array('key' => ['swws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole websocket server'),
+        array('key' => ['swt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole tcp server'),
         array('key' => ['pkg'], 'options' => '-c [CONFIG PATH]', 'desc' => 'package project'),
     ];
     private static $commandKeys = [];
@@ -52,7 +52,7 @@ class Exec
         self::$help .= " ┃ Hope help you ~";
         self::$help .= "\n ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         //
-        self::$firstOpts = getopt('o:c:p:');
+        self::$firstOpts = getopt('o:c:e:p:');
     }
 
     public static function run($root_path)
@@ -99,13 +99,10 @@ class Exec
                         Core::get(SwooleHttp::class, $root_path, $options)->run();
                         break;
                     case 'swws':
-                        Core::get(SwooleWebsocket::class)->run($root_path, $options);
+                        Core::get(SwooleWebsocket::class)->run($root_path, $options)->run();
                         break;
                     case 'swt':
-                        if (!$options) {
-                            Core::get(SwooleTcp::class)->run($root_path, $options);
-                            break;
-                        }
+                        Core::get(SwooleTcp::class)->run($root_path, $options)->run();
                         break;
                     case 'pkg':
                         if (!$options) {
