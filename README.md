@@ -3,7 +3,7 @@
 
 ## 如何开始
 ### 你可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
-### 也可以通过composer安装：`composer install`
+### 也可以通过composer安装：`composer require hunzsig-server/phpure-core`
 ### pure项目DEMO：[GOTO pure project](https://packagist.org/packages/hunzsig/phpure)
 
 ## 
