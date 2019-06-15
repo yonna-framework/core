@@ -85,10 +85,10 @@ select * from "default".system_data where ("data"->'server_pre_alert_limit'->'va
 ```
 
 ### ORM
-> 连贯写法
-> schemas() / table() 方法会进行一次clear，所以请放在前面
-> 终结方法
->> one() multi() page() insert() insertAll() delete() count() sum() avg() min() max()
+
+> 连贯写法，全解耦，autoload后随意使用
+>> DB自带各种分析优化，所以不再需要 Model层进行优化，可专心编写你的service(scope)
+
 ```php
 DB::connect() // 默认 'default'
     ->table('system_data')
@@ -125,6 +125,12 @@ DB::connect('sqlite')
 DB::connect('redis')->set('key', 1);
 DB::connect('redis')->get('key');
 ```
+
+> 终结方法
+>> one() multi() page() insert() insertAll() delete() count() sum() avg() min() max()
+
+> schemas() / table() 方法会进行一次clear，所以请放在前面
+
 ##### 局部闭包（默认）
 ##### 等于 ( "a" = 1 or "b" = 1 ) and( "c" = 1 or "d" = 1 or "e" = 1 )
 ```php
