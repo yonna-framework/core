@@ -69,7 +69,7 @@ class Request
                 $this->header = $header;
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
-                $this->user_agent = $server['user_agent'];
+                $this->user_agent = $this->header['user_agent'];
                 $this->content_type = !empty($server['content_type'])
                     ? strtolower(explode(';', $server['content_type'])[0]) : null;
                 $this->input->setFile(Parse::fileData($_FILES));
@@ -141,7 +141,6 @@ class Request
                 Exception::throw('method error');
                 break;
         }
-        var_dump($this->body);
         $this->crypto = Crypto::isCrypto($this);
         if ($this->crypto === true) {
             $inputData = json_decode(Crypto::input($this), true) ?? [];
