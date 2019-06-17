@@ -11,11 +11,10 @@ class Redis extends AbstractDB
 
     protected $db_type = DBType::REDIS;
 
-    const TYPE_FLAG = '|t|';
 
-    const TYPE_JSON = 'json';
-    const TYPE_STR = 'str';
-    const TYPE_NUM = 'num';
+    const TYPE_OBJ = 'o';
+    const TYPE_STR = 's';
+    const TYPE_NUM = 'n';
 
     /**
      * @var RedisDriver | null
@@ -112,16 +111,13 @@ class Redis extends AbstractDB
         if ($this->redis !== null && $key) {
             $key = $this->parse($key);
             if (is_array($value)) {
-                $this->redis->set($key, json_encode($value));
-                $this->redis->set($key . self::TYPE_FLAG, self::TYPE_JSON);
+                $this->redis->set($key, self::TYPE_OBJ . json_encode($value));
             } elseif (is_string($value)) {
-                $this->redis->set($key, $value);
-                $this->redis->set($key . self::TYPE_FLAG, self::TYPE_STR);
+                $this->redis->set($key, self::TYPE_STR . $value);
             } elseif (is_numeric($value)) {
-                $this->redis->set($key, $value);
-                $this->redis->set($key . self::TYPE_FLAG, self::TYPE_NUM);
+                $this->redis->set($key, self::TYPE_NUM . $value);
             } else {
-                $this->redis->set($key, $value);
+                $this->redis->set($key, self::TYPE_STR . $value);
             }
             if ($timeout > 0) {
                 $this->redis->expire($key, $timeout);
@@ -139,22 +135,21 @@ class Redis extends AbstractDB
             return null;
         } else {
             $key = $this->parse($key);
-            $type = $this->redis->get($key . self::TYPE_FLAG);
+            $value = $this->redis->get($key);
+            $type = substr($value, 0, 1);
+            $value = substr($value, 1);
             switch ($type) {
-                case self::TYPE_JSON:
-                    $result = json_decode($this->redis->get($key), true);
-                    break;
-                case self::TYPE_STR:
-                    $result = $this->redis->get($key);
+                case self::TYPE_OBJ:
+                    $value = json_decode($value, true);
                     break;
                 case self::TYPE_NUM:
-                    $result = round($this->redis->get($key), 10);
+                    $value = round($value, 10);
                     break;
+                case self::TYPE_STR:
                 default:
-                    $result = $this->redis->get($key);
                     break;
             }
-            return $result;
+            return $value;
         }
     }
 
@@ -169,16 +164,13 @@ class Redis extends AbstractDB
         if ($this->redis !== null && $table && $key) {
             $table = $this->parse($table);
             if (is_array($value)) {
-                $this->redis->hSet($table, $key, json_encode($value));
-                $this->redis->hSet($table, $key . self::TYPE_FLAG, self::TYPE_JSON);
+                $this->redis->hSet($table, self::TYPE_OBJ . $key, json_encode($value));
             } elseif (is_string($value)) {
-                $this->redis->hSet($table, $key, $value);
-                $this->redis->hSet($table, $key . self::TYPE_FLAG, self::TYPE_STR);
+                $this->redis->hSet($table, self::TYPE_STR . $key, $value);
             } elseif (is_numeric($value)) {
-                $this->redis->hSet($table, $key, $value);
-                $this->redis->hSet($table, $key . self::TYPE_FLAG, self::TYPE_NUM);
+                $this->redis->hSet($table, self::TYPE_NUM . $key, $value);
             } else {
-                $this->redis->hSet($table, $key, $value);
+                $this->redis->hSet($table, self::TYPE_STR . $key, $value);
             }
         }
     }
@@ -194,22 +186,21 @@ class Redis extends AbstractDB
             return null;
         } else {
             $table = $this->parse($table);
-            $type = $this->redis->hGet($table, $key . self::TYPE_FLAG);
+            $value = $this->redis->hGet($table, $key);
+            $type = substr($value, 0, 1);
+            $value = substr($value, 1);
             switch ($type) {
-                case self::TYPE_JSON:
-                    $result = json_decode($this->redis->hGet($table, $key), true);
-                    break;
-                case self::TYPE_STR:
-                    $result = (string)$this->redis->hGet($table, $key);
+                case self::TYPE_OBJ:
+                    $value = json_decode($value, true);
                     break;
                 case self::TYPE_NUM:
-                    $result = round($this->redis->hGet($table, $key), 10);
+                    $value = round($value, 10);
                     break;
+                case self::TYPE_STR:
                 default:
-                    $result = $this->redis->hGet($table, $key);
                     break;
             }
-            return $result;
+            return $value;
         }
     }
 
