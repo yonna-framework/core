@@ -4,20 +4,12 @@ namespace PhpureCore\Database;
 
 use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
-use Redis as RedisDriver;
 
-class RedisCo extends AbstractDB
+class RedisCo extends Redis
 {
 
-    protected $db_type = DBType::REDIS;
-
-
-    const TYPE_OBJ = 'o';
-    const TYPE_STR = 's';
-    const TYPE_NUM = 'n';
-
     /**
-     * @var RedisDriver | null
+     * @var \Swoole\Coroutine\Redis | null
      *
      */
     private $redis = null;
@@ -31,9 +23,9 @@ class RedisCo extends AbstractDB
     {
         parent::__construct($setting);
         if ($this->redis == null) {
-            if (class_exists('\\Redis')) {
+            if (class_exists('\Swoole\Coroutine\Redis')) {
                 try {
-                    $this->redis = new RedisDriver();
+                    $this->redis = new \Swoole\Coroutine\Redis();
                     $this->redis->connect(
                         $this->host,
                         $this->port
