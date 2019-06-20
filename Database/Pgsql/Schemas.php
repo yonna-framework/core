@@ -1,31 +1,29 @@
 <?php
 /**
- * 数据库连接类，依赖 PDO_MYSQL 扩展
- * mysql version >= 5.7
+ * 数据库连接类，依赖 PDO_PGSQL 扩展
+ * version > 9.7
  */
 
-namespace PhpureCore\Database;
+namespace PhpureCore\Database\Pgsql;
 
 use Exception;
-use PhpureCore\Core;
-use PhpureCore\Database\Mysql\Table;
 use PhpureCore\Mapping\DBType;
 
-class Mysql
+class Schemas
 {
 
     private $setting = null;
     private $options = null;
 
     /**
-     * 构造方法
-     *
+     * Schemas constructor.
      * @param array $setting
+     * @param array $options
      */
-    public function __construct(array $setting)
+    public function __construct(array $setting, array $options)
     {
         $this->setting = $setting;
-        $this->options = [];
+        $this->options = $options;
     }
 
     /**
