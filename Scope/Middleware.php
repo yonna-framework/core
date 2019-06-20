@@ -9,7 +9,7 @@ namespace PhpureCore\Scope;
 abstract class Middleware extends Kernel
 {
 
-    protected function handle($params)
+    public function handle($params)
     {
     }
 

@@ -23,14 +23,14 @@ class Scope extends Arrow
      * 通用添加方法
      * @param string $method
      * @param string $key
-     * @param Closure | string $call
+     * @param Closure | string $callClass
      * @param string $action
      */
-    private function add(string $method, string $key, $call, string $action = null)
+    private function add(string $method, string $key, $callClass, string $action = null)
     {
         if (empty($method)) Exception::throw('no method');
         if (empty($key)) Exception::throw('no key');
-        if (empty($call)) Exception::throw('no call');
+        if (empty($callClass)) Exception::throw('no call');
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -38,11 +38,15 @@ class Scope extends Arrow
             static::$stack[self::name][$method] = [];
         }
         // if call instanceof string, convert it to Closure
-        if (is_string($call)) {
-            if (class_exists($call)) {
-                !$action && Exception::throw("Should call a action for {$call}");
-                $call = function ($request) use ($call, $action) {
-                    return Core::get($call, $request)->$action();
+        if (is_string($callClass)) {
+            if (class_exists($callClass)) {
+                !$action && Exception::throw("Should call a action for {$callClass}");
+                $call = function ($request) use ($callClass, $action) {
+                    $Scope = Core::get($callClass, $request);
+                    if (!$Scope instanceof \PhpureCore\Scope\Scope) {
+                        Exception::throw("Class {$callClass} is not instanceof Scope");
+                    }
+                    return $Scope->$action();
                 };
             }
         }
@@ -53,12 +57,20 @@ class Scope extends Arrow
             }
             // neck
             $necks = Neck::fetch();
-            if ($necks) foreach ($necks as $neck) static::$stack[self::name][$method][$key]['neck'][] = $neck;
+            if ($necks) {
+                foreach ($necks as $neck) {
+                    static::$stack[self::name][$method][$key]['neck'][] = $neck;
+                }
+            }
             // call
             static::$stack[self::name][$method][$key]['call'] = $call;
             // neck
             $tails = Tail::fetch();
-            if ($tails) foreach ($tails as $tail) static::$stack[self::name][$method][$key]['tail'][] = $tail;
+            if ($tails) {
+                foreach ($tails as $tail) {
+                    static::$stack[self::name][$method][$key]['tail'][] = $tail;
+                }
+            }
         }
     }
 

@@ -50,9 +50,17 @@ class IO
         $call = $scope['call'];
         $tails = $scope['tail'];
         if ($call instanceof Closure) {
-            if ($necks) foreach ($necks as $neck) $neck($request);
+            if ($necks) {
+                foreach ($necks as $neck) {
+                    $neck($request);
+                }
+            }
             $response = $call($request);
-            if ($tails) foreach ($tails as $tail) $tail($request, $response);
+            if ($tails) {
+                foreach ($tails as $tail) {
+                    $tail($request, $response);
+                }
+            }
             // response
             if (is_array($response)) {
                 $response = Response::success('fetch array success', $response);
