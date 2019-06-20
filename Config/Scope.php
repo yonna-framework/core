@@ -23,14 +23,14 @@ class Scope extends Arrow
      * 通用添加方法
      * @param string $method
      * @param string $key
-     * @param Closure | string $callClass
+     * @param Closure | string $call
      * @param string $action
      */
-    private function add(string $method, string $key, $callClass, string $action = null)
+    private function add(string $method, string $key, $call, string $action = null)
     {
         if (empty($method)) Exception::throw('no method');
         if (empty($key)) Exception::throw('no key');
-        if (empty($callClass)) Exception::throw('no call');
+        if (empty($call)) Exception::throw('no call class');
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -38,13 +38,13 @@ class Scope extends Arrow
             static::$stack[self::name][$method] = [];
         }
         // if call instanceof string, convert it to Closure
-        if (is_string($callClass)) {
-            if (class_exists($callClass)) {
-                !$action && Exception::throw("Should call a action for {$callClass}");
-                $call = function ($request) use ($callClass, $action) {
-                    $Scope = Core::get($callClass, $request);
+        if (is_string($call)) {
+            if (class_exists($call)) {
+                !$action && Exception::throw("Should call a action for {$call}");
+                $call = function ($request) use ($call, $action) {
+                    $Scope = Core::get($call, $request);
                     if (!$Scope instanceof \PhpureCore\Scope\Scope) {
-                        Exception::throw("Class {$callClass} is not instanceof Scope");
+                        Exception::throw("Class {$call} is not instanceof Scope");
                     }
                     return $Scope->$action();
                 };

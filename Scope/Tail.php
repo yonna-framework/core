@@ -13,18 +13,18 @@ class Tail
 
     /**
      * 添加 tail
-     * @param Closure | string $callClass
+     * @param Closure | string $call
      */
-    public static function add($callClass)
+    public static function add($call)
     {
-        if (empty($callClass)) Exception::throw('no call class');
+        if (empty($call)) Exception::throw('no call class');
         // if call instanceof string, convert it to Closure
-        if (is_string($callClass)) {
-            if (class_exists($callClass)) {
-                $call = function ($request, ...$params) use ($callClass) {
-                    $Tail = Core::get($callClass, $request);
+        if (is_string($call)) {
+            if (class_exists($call)) {
+                $call = function ($request, ...$params) use ($call) {
+                    $Tail = Core::get($call, $request);
                     if (!$Tail instanceof Middleware) {
-                        Exception::throw("Class {$callClass} is not instanceof Middleware");
+                        Exception::throw("Class {$call} is not instanceof Middleware");
                     }
                     $Tail->handle($params);
                 };
