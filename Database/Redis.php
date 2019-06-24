@@ -5,6 +5,7 @@ namespace PhpureCore\Database;
 use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
 use Redis as RedisDriver;
+use Swoole\Coroutine\Redis as RedisSwoole;
 
 class Redis extends AbstractDB
 {
@@ -17,7 +18,7 @@ class Redis extends AbstractDB
     const TYPE_NUM = 'n';
 
     /**
-     * @var RedisDriver | null
+     * @var RedisDriver | RedisSwoole | null
      *
      */
     private $redis = null;
@@ -26,26 +27,28 @@ class Redis extends AbstractDB
      * 架构函数 取得模板对象实例
      * @access public
      * @param array $setting
+     * @param RedisSwoole | null $RedisDriver
      */
-    public function __construct(array $setting)
+    public function __construct(array $setting, $RedisDriver = null)
     {
         parent::__construct($setting);
-        if ($this->redis == null) {
+        if ($RedisDriver == null) {
             if (class_exists('\\Redis')) {
                 try {
-                    $this->redis = new RedisDriver();
-                    $this->redis->connect(
-                        $this->host,
-                        $this->port
-                    );
-                    if ($this->password) {
-                        $this->redis->auth($this->password);
-                    }
+                    $RedisDriver = new RedisDriver();
                 } catch (\Exception $e) {
                     $this->redis = null;
-                    Exception::throw('Redis遇到问题或未安装，请停用Redis以减少阻塞卡顿');
+                    Exception::throw('Redis遇到问题或未安装，请暂时停用Redis以减少阻塞卡顿');
                 }
             }
+        }
+        $this->redis = $RedisDriver;
+        $this->redis->connect(
+            $this->host,
+            $this->port
+        );
+        if ($this->password) {
+            $this->redis->auth($this->password);
         }
         return $this;
     }
@@ -64,7 +67,7 @@ class Redis extends AbstractDB
      * @param $key
      * @return string
      */
-    private function tinyKey($key)
+    protected function tinyKey($key)
     {
         return gzdeflate($key);
     }
@@ -73,7 +76,7 @@ class Redis extends AbstractDB
      * @param $key
      * @return string
      */
-    private function parse($key)
+    protected function parse($key)
     {
         return static::tinyKey($this->project_key . $key);
     }
@@ -98,6 +101,18 @@ class Redis extends AbstractDB
         if ($this->redis !== null && $sure === true) {
             $this->redis->flushAll();
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function dbSize()
+    {
+        $size = -1;
+        if ($this->redis !== null) {
+            $size = $this->redis->dbSize();
+        }
+        return $size;
     }
 
     /**
@@ -206,26 +221,58 @@ class Redis extends AbstractDB
 
     /**
      * @param $key
-     * @return void
+     * @param int $value
+     * @return int | float
      */
-    public function incr($key)
+    public function incr($key, $value = 1)
     {
-        if ($this->redis !== null && $key) {
-            $key = $this->parse($key);
-            $this->redis->incr($key);
+        $answer = -1;
+        if ($this->redis === null || !$key) {
+            return $answer;
         }
+        $key = $this->parse($key);
+        if ($value === 1) {
+            $answer = $this->redis->incr($key);
+        } else {
+            $answer = is_int($value) ? $this->redis->incrBy($key, $value) : $this->redis->incrByFloat($key, $value);
+        }
+        return $answer;
+    }
+
+    /**W
+     * @param $key
+     * @param int $value
+     * @return int
+     */
+    public function decr($key, $value = 1)
+    {
+        $answer = -1;
+        if ($this->redis === null || !$key) {
+            return $answer;
+        }
+        $key = $this->parse($key);
+        if ($value === 1) {
+            $answer = $this->redis->decr($key);
+        } else {
+            $answer = $this->redis->decrBy($key, $value);
+        }
+        return $answer;
     }
 
     /**
      * @param $key
-     * @return void
+     * @param $hashKey
+     * @param int $value
+     * @return int
      */
-    public function decr($key)
+    public function hIncr($key, $hashKey, int $value = 1)
     {
+        $answer = -1;
         if ($this->redis !== null && $key) {
             $key = $this->parse($key);
-            $this->redis->decr($key);
+            $answer = $this->redis->hIncrBy($key, $hashKey, $value);
         }
+        return $answer;
     }
 
 }
