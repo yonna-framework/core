@@ -152,6 +152,13 @@ abstract class AbstractDB
                 case DBType::SQLITE:
                     $this->dsn = "sqlite:{$this->db_file_path}" . DIRECTORY_SEPARATOR . $this->name;
                     break;
+                case DBType::MONGO:
+                    if ($this->account && $this->password) {
+                        $this->dsn = "mongodb://{$this->account}:{$this->password}@{$this->host}:{$this->port}/{$this->name}";
+                    } else {
+                        $this->dsn = "mongodb://{{$this->host}:{$this->port}/{$this->name}";
+                    }
+                    break;
                 default:
                     Exception::throw("{$this->db_type} type is not supported for the time being");
                     break;

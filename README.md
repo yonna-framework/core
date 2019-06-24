@@ -1,12 +1,28 @@
 [![Total Downloads](https://img.shields.io/packagist/dm/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
 [![Latest Version](http://img.shields.io/packagist/v/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
 
-## 如何开始
-### 你可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
-### 也可以通过composer安装：`composer require hunzsig-server/phpure-core`
-### pure项目DEMO：[GOTO pure project](https://github.com/hunzsig/phpure)
+## Pure 核心库
+
+```
+一个极其纯净的纯API-PHP框架.
+轻松对接swoole，支持http/websocket。
+超级人性化及强力的DB-ORM结合让你根本不需要Model
+如连表自动前缀，类型自动转义/转换/解释
+自带打包，可将你的业务php代码混淆到难以阅读的效果
+```
 
 ## 
+
+#### 如何安装
+
+##### 可以通过composer安装：`composer require hunzsig-server/phpure-core`
+
+##### 可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
+
+> pure项目DEMO：[GOTO pure project](https://github.com/hunzsig/phpure)
+
+## 
+
 ### 在您的项目public 创建一个index.php
 > 并使用PhpureCore进行boot，会返回一个 ResponseCollector 对象，您可以对它进行json/xml/html等格式化输出
 ```php
@@ -96,10 +112,10 @@ DB::connect() // 默认 'default'
     ->in('key', $key)
     ->one();
     
-DB::connect('mysql') // mysql 没有 schemas 方法
+DB::connect('mysql')
     ->table('system_data')
     ->field('key,value')
-    ->in('key', $key)
+    ->in('key', $key）
     ->one();
     
 DB::connect('pgsql')
@@ -124,6 +140,14 @@ DB::connect('sqlite')
     
 DB::connect('redis')->set('key', 1);
 DB::connect('redis')->get('key');
+DB::connect('redis')->incr('key');
+DB::connect('redis')->decr('key');
+
+DB::connect('redisCo')->set('swoole', 1);
+DB::connect('redisCo')->get('swoole');
+DB::connect('redisCo')->incr('swoole', 1.5);
+DB::connect('redisCo')->decr('swoole', 2);
+
 ```
 
 > 终结方法
