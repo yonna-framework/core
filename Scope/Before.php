@@ -6,13 +6,13 @@ use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
 
-class Neck
+class Before
 {
 
-    private static $neck = [];
+    private static $before = [];
 
     /**
-     * 添加 neck
+     * 添加 before
      * @param Closure | string $call
      */
     public static function add($call)
@@ -22,27 +22,27 @@ class Neck
         if (is_string($call)) {
             if (class_exists($call)) {
                 $call = function ($request, ...$params) use ($call) {
-                    $Neck = Core::get($call, $request);
-                    if (!$Neck instanceof Middleware) {
+                    $Before = Core::get($call, $request);
+                    if (!$Before instanceof Middleware) {
                         Exception::throw("Class {$call} is not instanceof Middleware");
                     }
-                    $Neck->handle($params);
+                    $Before->handle($params);
                 };
             }
         } // if call instanceof Closure, combine the middleware and
         if ($call instanceof Closure) {
-            static::$neck[] = $call;
+            static::$before[] = $call;
         }
     }
 
     /**
-     * 获取 neck
+     * 获取 before
      * @return array
      */
     public static function fetch()
     {
-        $n = static::$neck;
-        static::$neck = [];
+        $n = static::$before;
+        static::$before = [];
         return $n;
     }
 

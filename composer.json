@@ -13,6 +13,7 @@
     "ext-redis": "*",
     "ext-json": "*",
     "ext-pdo": "*",
+    "ext-mongodb": "*",
     "filp/whoops": "2.3.1",
     "php-amqplib/php-amqplib": "2.9.2",
     "hunzsig-server/var-dumper": "@dev",

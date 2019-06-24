@@ -46,19 +46,16 @@ class IO
         if (!$scope) {
             return Response::abort('no scoped');
         }
-        $necks = $scope['neck'];
-        $call = $scope['call'];
-        $tails = $scope['tail'];
-        if ($call instanceof Closure) {
-            if ($necks) {
-                foreach ($necks as $neck) {
-                    $neck($request);
+        if ($scope['call'] instanceof Closure) {
+            if ($scope['before']) {
+                foreach ($scope['before'] as $before) {
+                    $before($request);
                 }
             }
-            $response = $call($request);
-            if ($tails) {
-                foreach ($tails as $tail) {
-                    $tail($request, $response);
+            $response = $scope['call']($request);
+            if ($scope['after']) {
+                foreach ($scope['after'] as $after) {
+                    $after($scope['after'], $response);
                 }
             }
             // response

@@ -14,10 +14,6 @@ abstract class Kernel implements \PhpureCore\Scope\Interfaces\Kernel
      */
     private $request = null;
 
-    /**
-     * @var \PhpureCore\Database\Coupling $db
-     */
-    private $db = null;
 
     /**
      * abstractScope constructor.

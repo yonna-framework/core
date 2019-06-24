@@ -5,9 +5,8 @@ namespace PhpureCore\Config;
 use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
-use PhpureCore\Scope\Neck;
-use PhpureCore\Scope\Tail;
-use PhpureCore\Glue\Response;
+use PhpureCore\Scope\After;
+use PhpureCore\Scope\Before;
 
 class Scope extends Arrow
 {
@@ -50,25 +49,25 @@ class Scope extends Arrow
                 };
             }
         }
-        // if call instanceof Closure, combine the neck and tail
+        // if call instanceof Closure, combine the before and after
         if ($call instanceof Closure) {
             if (!isset(static::$stack[self::name][$method][$key])) {
-                static::$stack[self::name][$method][$key] = ['neck' => [], 'call' => null, 'tail' => []];
+                static::$stack[self::name][$method][$key] = ['before' => [], 'call' => null, 'after' => []];
             }
-            // neck
-            $necks = Neck::fetch();
-            if ($necks) {
-                foreach ($necks as $neck) {
-                    static::$stack[self::name][$method][$key]['neck'][] = $neck;
+            // before
+            $beforeFetch = Before::fetch();
+            if ($beforeFetch) {
+                foreach ($beforeFetch as $before) {
+                    static::$stack[self::name][$method][$key]['before'][] = $before;
                 }
             }
             // call
             static::$stack[self::name][$method][$key]['call'] = $call;
-            // neck
-            $tails = Tail::fetch();
-            if ($tails) {
-                foreach ($tails as $tail) {
-                    static::$stack[self::name][$method][$key]['tail'][] = $tail;
+            // after
+            $afterFetch = After::fetch();
+            if ($afterFetch) {
+                foreach ($afterFetch as $after) {
+                    static::$stack[self::name][$method][$key]['after'][] = $after;
                 }
             }
         }
@@ -77,12 +76,12 @@ class Scope extends Arrow
     /**
      * middleware
      * @param $call
-     * @param bool $isTail
+     * @param bool $isAfter
      * @return $this
      */
-    public function middleware($call, bool $isTail = false)
+    public function middleware($call, bool $isAfter = false)
     {
-        $isTail ? Tail::add($call) : Neck::add($call);
+        $isAfter ? Before::add($call) : After::add($call);
         return $this;
     }
 

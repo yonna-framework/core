@@ -6,13 +6,13 @@ use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
 
-class Tail
+class After
 {
 
-    private static $tail = [];
+    private static $after = [];
 
     /**
-     * 添加 tail
+     * 添加 after
      * @param Closure | string $call
      */
     public static function add($call)
@@ -22,27 +22,27 @@ class Tail
         if (is_string($call)) {
             if (class_exists($call)) {
                 $call = function ($request, ...$params) use ($call) {
-                    $Tail = Core::get($call, $request);
-                    if (!$Tail instanceof Middleware) {
+                    $After = Core::get($call, $request);
+                    if (!$After instanceof Middleware) {
                         Exception::throw("Class {$call} is not instanceof Middleware");
                     }
-                    $Tail->handle($params);
+                    $After->handle($params);
                 };
             }
         } // if call instanceof Closure, combine the middleware and
         if ($call instanceof Closure) {
-            static::$tail[] = $call;
+            static::$after[] = $call;
         }
     }
 
     /**
-     * 获取 tail
+     * 获取 after
      * @return array
      */
     public static function fetch()
     {
-        $n = static::$tail;
-        static::$tail = [];
+        $n = static::$after;
+        static::$after = [];
         return $n;
     }
 

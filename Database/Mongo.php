@@ -29,7 +29,7 @@ class Mongo extends AbstractDB
             if (class_exists('\\MongoDB\Driver\Manager')) {
                 try {
                     $this->mongoManager = new MongoDB\Driver\Manager($this->dsn());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->mongoManager = null;
                     Exception::throw('MongoDB遇到问题或未安装，请暂时停用MongoDB以减少阻塞卡顿');
                 }

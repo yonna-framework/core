@@ -123,12 +123,12 @@ abstract class Mapping
         return json_encode(static::fetch() ?: []);
     }
 
-    public static function toKV()
+    public static function toKV($target = 'label')
     {
         $data = static::fetch();
         $kv = [];
         foreach ($data as $v) {
-            $kv[$v] = static::getLabel($v);
+            $kv[$v] = static::getOption($v, $target) ?: null;
         }
         return $kv;
     }
