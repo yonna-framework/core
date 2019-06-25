@@ -6,7 +6,6 @@ use Exception;
 use PhpureCore\Core;
 use PhpureCore\IO\ResponseCollector;
 use PhpureCore\Mapping\BootType;
-use Swoole\Http\Response;
 use swoole_websocket_server;
 
 /**
@@ -30,7 +29,7 @@ class SwooleWebsocket extends Console
     public function __construct($root_path, $options)
     {
         if (!class_exists('swoole_websocket_server')) {
-            throw new Exception('function swoole_websocket_server not exists');
+            throw new Exception('class swoole_websocket_server not exists');
         }
         $this->root_path = $root_path;
         $this->options = $options;
@@ -38,7 +37,7 @@ class SwooleWebsocket extends Console
         return $this;
     }
 
-    public function run($root_path)
+    public function run()
     {
         $this->server = new swoole_websocket_server("0.0.0.0", $this->options['p']);
 

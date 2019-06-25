@@ -99,10 +99,10 @@ class Exec
                         Core::get(SwooleHttp::class, $root_path, $options)->run();
                         break;
                     case 'swws':
-                        Core::get(SwooleWebsocket::class)->run($root_path, $options)->run();
+                        Core::get(SwooleWebsocket::class, $root_path, $options)->run();
                         break;
                     case 'swt':
-                        Core::get(SwooleTcp::class)->run($root_path, $options)->run();
+                        Core::get(SwooleTcp::class, $root_path, $options)->run();
                         break;
                     case 'pkg':
                         if (!$options) {

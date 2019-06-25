@@ -3,7 +3,7 @@
 namespace PhpureCore\Console;
 
 use Exception;
-
+use swoole_server;
 
 /**
  * Class Main
@@ -13,25 +13,29 @@ class SwooleTcp extends Console
 {
 
     private $server = null;
-    private $params = null;
-
+    private $root_path = null;
+    private $options = null;
 
     /**
      * SwooleHttp constructor.
+     * @param $root_path
+     * @param $options
      * @throws Exception
      */
-    public function __construct()
+    public function __construct($root_path, $options)
     {
-        if (!function_exists('swoole_server')) {
-            throw new Exception('function swoole_server not exists');
+        if (!class_exists('swoole_server')) {
+            throw new Exception('class swoole_server not exists');
         }
-        $this->params = $this->getParams(['port']);
+        $this->root_path = $root_path;
+        $this->options = $options;
+        $this->checkParams($this->options, ['p', 'e']);
         return $this;
     }
 
-    public function run($root_path)
+    public function run()
     {
-        $this->server = new swoole_server("0.0.0.0", $this->params['port']);
+        $this->server = new swoole_server("0.0.0.0", $this->options['p']);
 
         $this->server->set(array(
             'worker_num' => 4,
