@@ -2,7 +2,9 @@
 
 namespace PhpureCore\Database;
 
-use Exception;
+use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Exception\BulkWriteException;
+use PhpureCore\Exception\Exception;
 use PhpureCore\Mapping\DBType;
 use MongoDB;
 
@@ -29,7 +31,7 @@ class Mongo extends AbstractDB
             if (class_exists('\\MongoDB\Driver\Manager')) {
                 try {
                     $this->mongoManager = new MongoDB\Driver\Manager($this->dsn());
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->mongoManager = null;
                     Exception::throw('MongoDB遇到问题或未安装，请暂时停用MongoDB以减少阻塞卡顿');
                 }
@@ -41,6 +43,21 @@ class Mongo extends AbstractDB
     public function __destruct()
     {
         parent::__destruct();
+    }
+
+
+    public function insert(){
+        $bulk = new BulkWrite();
+        $bulk->insert(array(
+            'product_id'        => 123,
+            'product_name'      => 'zyzyzy',
+            'product_price'     => 2139.00,
+        ));
+        try {
+            $result = $this->mongoManager->executeBulkWrite('ppm.test', $bulk);
+            var_dump($result->getInsertedCount());
+        } catch (BulkWriteException $e) {
+        }
     }
 
 }
