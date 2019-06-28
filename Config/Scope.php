@@ -150,10 +150,10 @@ class Scope extends Arrow
             $t = $c::type();
             switch ($t) {
                 case MiddleType::BEFORE:
-                    Before::add($call);
+                    Before::add($c);
                     break;
                 case MiddleType::AFTER:
-                    After::add($call);
+                    After::add($c);
                     break;
                 default:
                     Exception::throw('middleware not support ' . $t);
