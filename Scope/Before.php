@@ -5,11 +5,22 @@ namespace PhpureCore\Scope;
 use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
+use PhpureCore\Mapping\MiddleType;
 
-class Before
+class Before extends Middleware
 {
 
     private static $before = [];
+
+
+    /**
+     * get middleware
+     * @return string
+     */
+    public static function type(): string
+    {
+        return MiddleType::BEFORE;
+    }
 
     /**
      * 添加 before
@@ -23,8 +34,8 @@ class Before
             if (class_exists($call)) {
                 $call = function ($request, ...$params) use ($call) {
                     $Before = Core::get($call, $request);
-                    if (!$Before instanceof Middleware) {
-                        Exception::throw("Class {$call} is not instanceof Middleware");
+                    if (!$Before instanceof Before) {
+                        Exception::throw("Class {$call} is not instanceof Middleware-Before");
                     }
                     $Before->handle($params);
                 };
@@ -41,9 +52,14 @@ class Before
      */
     public static function fetch()
     {
-        $n = static::$before;
+        return static::$before;
+    }
+
+    /**
+     * 清空before
+     */
+    public static function clear(){
         static::$before = [];
-        return $n;
     }
 
 }

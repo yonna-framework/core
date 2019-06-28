@@ -5,6 +5,7 @@ namespace PhpureCore\Config;
 use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
+use PhpureCore\Mapping\MiddleType;
 use PhpureCore\Scope\After;
 use PhpureCore\Scope\Before;
 
@@ -74,18 +75,6 @@ class Scope extends Arrow
     }
 
     /**
-     * middleware
-     * @param $call
-     * @param bool $isAfter
-     * @return $this
-     */
-    public function middleware($call, bool $isAfter = false)
-    {
-        $isAfter ? Before::add($call) : After::add($call);
-        return $this;
-    }
-
-    /**
      * POST
      * @param string $key
      * @param Closure | string $call
@@ -138,6 +127,43 @@ class Scope extends Arrow
     public function patch(string $key, $call, string $action = 'patch')
     {
         $this->add('patch', $key, $call, $action);
+    }
+
+    /**
+     * middleware
+     * @param $call
+     * @param Closure $closure
+     * @return $this
+     */
+    public function middleware($call, Closure $closure)
+    {
+        if (empty($call)) {
+            Exception::throw('middleware should has some called');
+        }
+        if (is_string($call)) {
+            $call = [$call];
+        }
+        if (!is_array($call)) {
+            Exception::throw('middleware not allow this called');
+        }
+        foreach ($call as $c) {
+            $t = $c::type();
+            switch ($t) {
+                case MiddleType::BEFORE:
+                    Before::add($call);
+                    break;
+                case MiddleType::AFTER:
+                    After::add($call);
+                    break;
+                default:
+                    Exception::throw('middleware not support ' . $t);
+                    break;
+            }
+        }
+        $closure();
+        Before::clear();
+        After::clear();
+        return $this;
     }
 
 }

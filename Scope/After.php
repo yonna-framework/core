@@ -5,11 +5,22 @@ namespace PhpureCore\Scope;
 use Closure;
 use PhpureCore\Core;
 use PhpureCore\Exception\Exception;
+use PhpureCore\Mapping\MiddleType;
 
-class After
+class After extends Middleware
 {
 
     private static $after = [];
+
+
+    /**
+     * get middleware
+     * @return string
+     */
+    public static function type(): string
+    {
+        return MiddleType::AFTER;
+    }
 
     /**
      * 添加 after
@@ -23,8 +34,8 @@ class After
             if (class_exists($call)) {
                 $call = function ($request, ...$params) use ($call) {
                     $After = Core::get($call, $request);
-                    if (!$After instanceof Middleware) {
-                        Exception::throw("Class {$call} is not instanceof Middleware");
+                    if (!$After instanceof After) {
+                        Exception::throw("Class {$call} is not instanceof Middleware-After");
                     }
                     $After->handle($params);
                 };
@@ -41,9 +52,15 @@ class After
      */
     public static function fetch()
     {
-        $n = static::$after;
+        return static::$after;
+    }
+
+    /**
+     * 清空before
+     */
+    public static function clear()
+    {
         static::$after = [];
-        return $n;
     }
 
 }

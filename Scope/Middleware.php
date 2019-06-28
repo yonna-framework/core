@@ -2,12 +2,23 @@
 
 namespace PhpureCore\Scope;
 
+use PhpureCore\Mapping\MiddleType;
+
 /**
- * Class Middleware
- * @package PhpureCore\Scope
+ * class Middleware
+ * @package phpurecore\scope
  */
-abstract class Middleware extends Kernel
+abstract class Middleware extends Kernel implements Interfaces\Middleware
 {
+
+    /**
+     * get middleware
+     * @return string
+     */
+    public static function type(): string
+    {
+        return MiddleType::MIDDLEWARE;
+    }
 
     public function handle($params)
     {

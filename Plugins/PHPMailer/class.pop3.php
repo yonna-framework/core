@@ -28,7 +28,7 @@
 */
 
 /**
- * PHPMailer - PHP POP Before SMTP Authentication Class
+ * PHPMailer - PHP POP BeforeDemo SMTP Authentication Class
  * NOTE: Designed for use with PHP version 5 and up
  * @package PHPMailer
  * @author Andy Prevost
@@ -39,7 +39,7 @@
  */
 
 /**
- * POP Before SMTP Authentication Class
+ * POP BeforeDemo SMTP Authentication Class
  * Version 5.0.0
  *
  * Author: Richard Davey (rich@corephp.co.uk)
