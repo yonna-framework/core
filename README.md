@@ -1,7 +1,7 @@
-[![Total Downloads](https://img.shields.io/packagist/dm/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
-[![Latest Version](http://img.shields.io/packagist/v/hunzsig-server/phpure-core.svg)](https://packagist.org/packages/hunzsig-server/phpure-core)
+[![Total Downloads](https://img.shields.io/packagist/dm/yonna/core.svg)](https://packagist.org/packages/yonna/core)
+[![Latest Version](http://img.shields.io/packagist/v/yonna/core.svg)](https://packagist.org/packages/yonna/core)
 
-## Pure 核心库
+## Yonna 核心库
 
 ```
 一个极其纯净的纯API-PHP框架.
@@ -15,11 +15,11 @@
 
 #### 如何安装
 
-##### 可以通过composer安装：`composer require hunzsig-server/phpure-core`
+##### 可以通过composer安装：`composer require yonna/core`
 
-##### 可以通过git下载：`git clone https://github.com/hunzsig-server/phpure-core.git`
+##### 可以通过git下载：`git clone https://github.com/yonna/core.git`
 
-> pure项目DEMO：[GOTO pure project](https://github.com/hunzsig/phpure)
+> 项目DEMO：[GOTO yonna](https://github.com/yonna-framework/yonna)
 
 ## 
 

@@ -1,11 +1,11 @@
 {
-  "name": "hunzsig-server/phpure-core",
-  "description": "Phpure Core",
+  "name": "yonna/core",
+  "description": "Yonna Core",
   "license": "MIT",
   "type": "library",
   "keywords": [
     "php",
-    "pure",
+    "yonna",
     "framework",
     "swoole"
   ],
@@ -16,14 +16,14 @@
     "ext-mongodb": "*",
     "filp/whoops": "2.3.1",
     "php-amqplib/php-amqplib": "2.9.2",
-    "hunzsig-server/var-dumper": "@dev",
+    "yonna/var-dumper": "@dev",
     "vlucas/phpdotenv": "3.3.3",
     "whoops/soap": "1.0.0",
     "elasticsearch/elasticsearch": "^6.7"
   },
   "autoload": {
     "psr-4": {
-      "PhpureCore\\": ""
+      "Yoona\\Core\\": ""
     }
   },
   "authors": [
