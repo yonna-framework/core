@@ -2,8 +2,6 @@
 
 namespace Yonna\Scope;
 
-use Yonna\Mapping\MiddleType;
-
 /**
  * class Middleware
  * @package Core\Core\scope
@@ -17,7 +15,7 @@ abstract class Middleware extends Kernel implements Interfaces\Middleware
      */
     public static function type(): string
     {
-        return MiddleType::MIDDLEWARE;
+        return MiddlewareType::MIDDLEWARE;
     }
 
     public function handle($params)

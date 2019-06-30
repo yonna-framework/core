@@ -7,7 +7,6 @@ namespace Yonna\IO;
 
 
 use Convert;
-use MongoDB\BSON\Type;
 
 /**
  * Class Collector

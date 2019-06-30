@@ -3,9 +3,9 @@
  * 中间件类型
  */
 
-namespace Yonna\Mapping;
+namespace Yonna\Scope;
 
-class MiddleType extends Mapping
+class MiddlewareType
 {
 
     const MIDDLEWARE = 'middleware';

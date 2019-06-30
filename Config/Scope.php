@@ -5,9 +5,9 @@ namespace Yonna\Config;
 use Closure;
 use Yonna\Core;
 use Yonna\Exception\Exception;
-use Yonna\Mapping\MiddleType;
 use Yonna\Scope\After;
 use Yonna\Scope\Before;
+use Yonna\Scope\MiddlewareType;
 
 class Scope extends Arrow
 {
@@ -149,10 +149,10 @@ class Scope extends Arrow
         foreach ($call as $c) {
             $t = $c::type();
             switch ($t) {
-                case MiddleType::BEFORE:
+                case MiddlewareType::BEFORE:
                     Before::add($c);
                     break;
-                case MiddleType::AFTER:
+                case MiddlewareType::AFTER:
                     After::add($c);
                     break;
                 default:

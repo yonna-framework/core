@@ -5,7 +5,7 @@ namespace Yonna\Console;
 use Exception;
 use Yonna\Core;
 use Yonna\IO\ResponseCollector;
-use Yonna\Mapping\BootType;
+use Yonna\Bootstrap\BootType;
 use Swoole\Http\Response;
 use swoole_http_server;
 

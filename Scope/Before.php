@@ -5,7 +5,6 @@ namespace Yonna\Scope;
 use Closure;
 use Yonna\Core;
 use Yonna\Exception\Exception;
-use Yonna\Mapping\MiddleType;
 
 class Before extends Middleware
 {
@@ -19,7 +18,7 @@ class Before extends Middleware
      */
     public static function type(): string
     {
-        return MiddleType::BEFORE;
+        return MiddlewareType::BEFORE;
     }
 
     /**

@@ -6,7 +6,7 @@ namespace Yonna\Scope;
  * Class Kernel
  * @package Core\Core\Scope
  */
-abstract class Kernel implements \Yonna\Scope\Interfaces\Kernel
+abstract class Kernel implements Interfaces\Kernel
 {
 
     /**

@@ -3,13 +3,13 @@
  * Bootstrap Response Code
  */
 
-namespace Yonna\Mapping;
+namespace Yonna\IO;
 
 /**
  * Class ResponseCode
  * @package Core\Core\Response
  */
-class ResponseCode extends Mapping
+class ResponseCode
 {
 
     const SUCCESS = 200;

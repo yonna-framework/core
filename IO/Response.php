@@ -6,7 +6,6 @@
 namespace Yonna\IO;
 
 use Yonna\Core;
-use Yonna\Mapping\ResponseCode;
 
 /**
  * Class Response
@@ -67,6 +66,7 @@ class Response
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
+            ->setCharset($charset)
             ->setCode(ResponseCode::SUCCESS)
             ->setMsg($msg)
             ->setData($data);

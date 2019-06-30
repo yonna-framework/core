@@ -6,9 +6,9 @@
 namespace Yonna\IO;
 
 use Parse;
+use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
 use Yonna\Core;
-use Yonna\Mapping\BootType;
 use Yonna\Exception\Exception;
 
 /**
