@@ -10,7 +10,7 @@
     "swoole"
   ],
   "require": {
-    "php": ">=7.3",
+    "php": "~7.3",
     "ext-json": "*",
     "filp/whoops": "2.3.1",
     "vlucas/phpdotenv": "3.3.3",
