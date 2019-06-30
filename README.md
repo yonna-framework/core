@@ -11,7 +11,9 @@ Yonna是一个极其纯净的纯API-PHP框架.
 轻松对接swoole，支持ajax/sw·http·websocket。
 人性及强力的DB-ORM，摆脱Model编程
 如连表自动前缀，类型自动转义/转换/解释
-自带打包，可将你的业务php代码混淆到难以阅读的效果
+有力的Response令api数据轻松转换，支持json/xml/html等格式化输出
+内置有趣的Exec方法，可实现服务、加密打包等方法
+轻松开启swoole，又或是将你的业务php代码混淆到难以阅读的效果
 ```
 
 ## 
@@ -20,7 +22,7 @@ Yonna是一个极其纯净的纯API-PHP框架.
 
 ##### 可以通过composer安装：`composer require yonna/core`
 
-##### 可以通过git下载：`git clone https://github.com/yonna/core.git`
+##### 可以通过git下载：`git clone https://github.com/yonna-framework/core.git`
 
 > 项目DEMO：[GOTO yonna](https://github.com/yonna-framework/yonna)
 
