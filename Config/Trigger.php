@@ -4,7 +4,6 @@ namespace Yonna\Config;
 
 use Yonna\Core;
 use Yonna\Exception\Exception;
-use Yonna\Glue\Response;
 
 class Trigger extends Arrow
 {

@@ -3,7 +3,7 @@
 namespace Yonna\Config;
 
 use Yonna\Exception\Exception;
-use Yonna\Mapping\DBType;
+use Yonna\Database\DBType;
 use System;
 
 class Database extends Arrow
