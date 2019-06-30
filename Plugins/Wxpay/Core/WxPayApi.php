@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\Wxpay\Core;
+namespace Yonna\Plugins\Wxpay\Core;
 
 /**
  *
@@ -9,21 +9,21 @@ namespace PhpureCore\Plugins\Wxpay\Core;
  * @author widyhu
  */
 
-use PhpureCore\Plugins\Wxpay\AbstractLib;
+use Yonna\Plugins\Wxpay\AbstractLib;
 
 //Data
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayUnifiedOrder;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayResults;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayCloseOrder;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayReport;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayRefund;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayRefundQuery;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayBizPayUrl;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayDownloadBill;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayReverse;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayMicroPay;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayShortUrl;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayUnifiedOrder;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayResults;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayCloseOrder;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayReport;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayRefund;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayRefundQuery;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayBizPayUrl;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayDownloadBill;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayReverse;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayMicroPay;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayShortUrl;
 
 
 class WxPayApi extends AbstractLib

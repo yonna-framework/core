@@ -4,11 +4,11 @@
  * version >= 3
  */
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use Exception;
-use PhpureCore\Glue\Response;
-use PhpureCore\Mapping\DBType;
+use Yonna\Glue\Response;
+use Yonna\Mapping\DBType;
 
 class Sqlite extends AbstractPDO
 {

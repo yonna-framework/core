@@ -6,7 +6,7 @@
  * Time: 下午 14:43
  */
 
-namespace PhpureCore\Plugins\Alipay\DirectPay;
+namespace Yonna\Plugins\Alipay\DirectPay;
 
 use \plugins\Alipay\DirectPay\Funcs\Md5;
 use \plugins\Alipay\DirectPay\Funcs\Core;

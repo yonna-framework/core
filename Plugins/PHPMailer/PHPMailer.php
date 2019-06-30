@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\PHPMailer;
+namespace Yonna\Plugins\PHPMailer;
 
 /*~ class.phpmailer.php
 .---------------------------------------------------------------------------.

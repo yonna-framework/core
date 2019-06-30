@@ -12,7 +12,7 @@
  *************************注意*************************
  * 调试通知返回时，可查看或改写log日志的写入TXT里的数据，来检查通知返回是否正常
  */
-namespace PhpureCore\Plugins\Alipay\WapV2;
+namespace Yonna\Plugins\Alipay\WapV2;
 
 class AlipayNotify extends AbstractLib{
 

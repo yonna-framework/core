@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Scope\Interfaces;
+namespace Yonna\Scope\Interfaces;
 
 interface Kernel
 {

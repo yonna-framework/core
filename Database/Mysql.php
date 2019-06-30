@@ -4,12 +4,12 @@
  * mysql version >= 5.7
  */
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use Exception;
-use PhpureCore\Core;
-use PhpureCore\Database\Mysql\Table;
-use PhpureCore\Mapping\DBType;
+use Yonna\Core;
+use Yonna\Database\Mysql\Table;
+use Yonna\Mapping\DBType;
 
 class Mysql
 {

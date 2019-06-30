@@ -4,10 +4,10 @@
  * Core
  */
 
-namespace PhpureCore;
+namespace Yonna;
 
-use PhpureCore\Core\Glue;
-use PhpureCore\Glue\Bootstrap;
+use Yonna\Core\Glue;
+use Yonna\Glue\Bootstrap;
 
 class Core
 {
@@ -91,13 +91,13 @@ class Core
             }
         });
         // default glues relation
-        Glue::relating(\PhpureCore\Glue\Bootstrap::class, \PhpureCore\Bootstrap\Bootstrap::class);
-        Glue::relating(\PhpureCore\Glue\Response::class, \PhpureCore\IO\Response::class);
-        Glue::relating(\PhpureCore\Glue\ResponseCollector::class, \PhpureCore\IO\ResponseCollector::class);
-        Glue::relating(\PhpureCore\Glue\Cargo::class, \PhpureCore\Bootstrap\Cargo::class);
-        Glue::relating(\PhpureCore\Glue\IO::class, \PhpureCore\IO\IO::class);
-        Glue::relating(\PhpureCore\Glue\Request::class, \PhpureCore\IO\Request::class);
-        Glue::relating(\PhpureCore\Glue\Scope::class, \PhpureCore\Config\Scope::class);
+        Glue::relating(\Yonna\Glue\Bootstrap::class, \Yonna\Bootstrap\Bootstrap::class);
+        Glue::relating(\Yonna\Glue\Response::class, \Yonna\IO\Response::class);
+        Glue::relating(\Yonna\Glue\ResponseCollector::class, \Yonna\IO\ResponseCollector::class);
+        Glue::relating(\Yonna\Glue\Cargo::class, \Yonna\Bootstrap\Cargo::class);
+        Glue::relating(\Yonna\Glue\IO::class, \Yonna\IO\IO::class);
+        Glue::relating(\Yonna\Glue\Request::class, \Yonna\IO\Request::class);
+        Glue::relating(\Yonna\Glue\Scope::class, \Yonna\Config\Scope::class);
         // boot
         return Bootstrap::boot($root, $env_name, $boot_type, $extend);
     }

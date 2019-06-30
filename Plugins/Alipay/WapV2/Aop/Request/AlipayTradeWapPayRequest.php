@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Alipay\WapV2\Aop\Request;
+namespace Yonna\Plugins\Alipay\WapV2\Aop\Request;
 /**
  * ALIPAY API: alipay.trade.wap.pay request
  *

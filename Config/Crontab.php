@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Config;
+namespace Yonna\Config;
 
 class Crontab extends Arrow
 {

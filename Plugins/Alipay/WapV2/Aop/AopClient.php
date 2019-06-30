@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Alipay\WapV2\Aop;
+namespace Yonna\Plugins\Alipay\WapV2\Aop;
 require_once 'AopEncrypt.php';
 
 class AopClient {

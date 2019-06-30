@@ -1,16 +1,16 @@
 <?php
 
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
+use Yonna\Core\Glue;
 
 /**
  * Class IO
  *
- * @method static \PhpureCore\IO\ResponseCollector response(object $request)
+ * @method static \Yonna\IO\ResponseCollector response(object $request)
  *
- * @see \PhpureCore\IO\IO
+ * @see \Yonna\IO\IO
  */
 class IO extends Glue
 {

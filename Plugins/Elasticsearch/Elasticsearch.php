@@ -1,7 +1,7 @@
 <?php
 
 
-namespace PhpureCore\Plugins;
+namespace Yonna\Plugins;
 
 use Elasticsearch\ClientBuilder;
 

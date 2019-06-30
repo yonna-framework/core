@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Hphp;
+namespace Yonna\Plugins\Hphp;
 
 class Crypto{
 

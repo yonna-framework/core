@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\BulkWriteException;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\DBType;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\DBType;
 use MongoDB;
 
 class Mongo extends AbstractDB

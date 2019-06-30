@@ -1,11 +1,11 @@
 <?php
 
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
-use PhpureCore\Database\Coupling;
-use PhpureCore\Mapping\DBType;
+use Yonna\Core\Glue;
+use Yonna\Database\Coupling;
+use Yonna\Mapping\DBType;
 
 /**
  * Class DB
@@ -15,7 +15,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return object|\PhpureCore\Database\Mongo|\PhpureCore\Database\Mssql|\PhpureCore\Database\Mysql|\PhpureCore\Database\Pgsql|\PhpureCore\Database\Redis|\PhpureCore\Database\Sqlite
+     * @return object|\Yonna\Database\Mongo|\Yonna\Database\Mssql|\Yonna\Database\Mysql|\Yonna\Database\Pgsql|\Yonna\Database\Redis|\Yonna\Database\Sqlite
      */
     public static function connect($conf = 'default')
     {
@@ -24,7 +24,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Mysql
+     * @return \Yonna\Database\Mysql
      */
     public static function mysql($conf = 'mysql')
     {
@@ -33,7 +33,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Pgsql
+     * @return \Yonna\Database\Pgsql
      */
     public static function pgsql($conf = 'pgsql')
     {
@@ -42,7 +42,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Mssql
+     * @return \Yonna\Database\Mssql
      */
     public static function mssql($conf = 'mssql')
     {
@@ -51,7 +51,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Sqlite
+     * @return \Yonna\Database\Sqlite
      */
     public static function sqlite($conf = 'sqlite')
     {
@@ -60,7 +60,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Mongo
+     * @return \Yonna\Database\Mongo
      */
     public static function mongo($conf = 'mongo')
     {
@@ -69,7 +69,7 @@ class DB extends Glue
 
     /**
      * @param string $conf
-     * @return \PhpureCore\Database\Redis
+     * @return \Yonna\Database\Redis
      */
     public static function redis($conf = 'redis')
     {

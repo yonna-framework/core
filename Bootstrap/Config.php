@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpureCore\Bootstrap;
+namespace Yonna\Bootstrap;
 
-use PhpureCore\Exception\Exception;
+use Yonna\Exception\Exception;
 
 class Config
 {
@@ -53,7 +53,7 @@ class Config
     {
         $config_root = self::checkPath($Cargo->getRoot() . '/app/config');
         self::requireDir($config_root);
-        $Cargo->setConfig(\PhpureCore\Config\Arrow::fetch());
+        $Cargo->setConfig(\Yonna\Config\Arrow::fetch());
         return $Cargo;
     }
 }

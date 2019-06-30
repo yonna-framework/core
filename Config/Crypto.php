@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\Config;
+namespace Yonna\Config;
 
-use PhpureCore\Exception\Exception;
-use PhpureCore\Glue\Response;
+use Yonna\Exception\Exception;
+use Yonna\Glue\Response;
 
 class Crypto extends Arrow
 {

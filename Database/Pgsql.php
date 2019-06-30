@@ -4,11 +4,11 @@
  * version > 9.7
  */
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use Exception;
-use PhpureCore\Database\Pgsql\Schemas;
-use PhpureCore\Mapping\DBType;
+use Yonna\Database\Pgsql\Schemas;
+use Yonna\Mapping\DBType;
 
 class Pgsql
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\Zip;
+namespace Yonna\Plugins\Zip;
 
 class Zip
 {

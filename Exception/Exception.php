@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Exception;
+namespace Yonna\Exception;
 
 class Exception
 {

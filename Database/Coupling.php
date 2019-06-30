@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
-use PhpureCore\Config\Arrow;
-use PhpureCore\Core;
-use PhpureCore\Glue\Response;
-use PhpureCore\Exception\Exception;
+use Yonna\Config\Arrow;
+use Yonna\Core;
+use Yonna\Glue\Response;
+use Yonna\Exception\Exception;
 
 class Coupling
 {
@@ -43,7 +43,7 @@ class Coupling
         if (empty($link['host']) || empty($link['port'])) Exception::throw('Lack of host/port address');
         $u = md5(var_export($link, true));
         if (empty(static::$db[$u])) {
-            static::$db[$u] = Core::singleton("\\PhpureCore\\Database\\{$link['type']}", $link);
+            static::$db[$u] = Core::singleton("\\Core\Core\\Database\\{$link['type']}", $link);
         }
         return static::$db[$u];
     }

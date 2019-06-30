@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core\Data;
+namespace Yonna\Plugins\Wxpay\Core\Data;
 
 /**
  * 退款查询输入对象

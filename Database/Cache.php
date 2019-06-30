@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
-use PhpureCore\Config\Arrow;
-use PhpureCore\Glue\DB;
+use Yonna\Config\Arrow;
+use Yonna\Glue\DB;
 
 class Cache
 {

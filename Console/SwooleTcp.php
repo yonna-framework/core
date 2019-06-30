@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 use Exception;
 use swoole_server;
 
 /**
  * Class Main
- * @package PhpureCore\Console
+ * @package Core\Core\Console
  */
 class SwooleTcp extends Console
 {

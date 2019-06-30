@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core\Data;
+namespace Yonna\Plugins\Wxpay\Core\Data;
 /**
  * @date 2015-06-29 修复签名问题
  */
@@ -11,8 +11,8 @@ namespace PhpureCore\Plugins\Wxpay\Core\Data;
  * @author widyhu
  *
  */
-use PhpureCore\Plugins\Wxpay\AbstractLib;
-use PhpureCore\Plugins\Wxpay\Core\WxPayException;
+use Yonna\Plugins\Wxpay\AbstractLib;
+use Yonna\Plugins\Wxpay\Core\WxPayException;
 
 class WxPayDataBase extends AbstractLib{
 

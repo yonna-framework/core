@@ -1,16 +1,16 @@
 <?php
 
-namespace PhpureCore\Plugins\Wxpay;
+namespace Yonna\Plugins\Wxpay;
 
 /**
  * 支付回调类
  * @author hunzsig
  */
 
-use PhpureCore\Plugins\Wxpay\Core\Log;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
-use PhpureCore\Plugins\Wxpay\Core\WxPayNotify;
-use PhpureCore\Plugins\Wxpay\Core\WxPayApi;
+use Yonna\Plugins\Wxpay\Core\Log;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
+use Yonna\Plugins\Wxpay\Core\WxPayNotify;
+use Yonna\Plugins\Wxpay\Core\WxPayApi;
 
 
 class MyNotify extends WxPayNotify

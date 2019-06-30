@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
+use Yonna\Core\Glue;
 
 /**
  * Class Response
@@ -23,7 +23,7 @@ use PhpureCore\Core\Glue;
  * @method static response()
  * @method static end()
  *
- * @see \PhpureCore\IO\ResponseCollector
+ * @see \Yonna\IO\ResponseCollector
  */
 class ResponseCollector extends Glue
 {

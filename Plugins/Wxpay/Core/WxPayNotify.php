@@ -1,13 +1,13 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core;
+namespace Yonna\Plugins\Wxpay\Core;
 
 /**
  * 回调基础类
  * @author hunzsig
  * @date 2015-11-21
  */
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayNotifyReply;
-use PhpureCore\Plugins\Wxpay\Core\Data\MyWxPayData;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayNotifyReply;
+use Yonna\Plugins\Wxpay\Core\Data\MyWxPayData;
 
 class WxPayNotify extends WxPayNotifyReply
 {

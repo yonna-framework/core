@@ -4,10 +4,10 @@
  * version >= 2012
  */
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use Exception;
-use PhpureCore\Mapping\DBType;
+use Yonna\Mapping\DBType;
 
 class Mssql extends AbstractPDO
 {

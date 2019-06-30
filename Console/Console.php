@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 use Exception;
 
 /**
  * 命令台
  * Class Console
- * @package PhpureCore\Console
+ * @package Core\Core\Console
  */
 class Console
 {

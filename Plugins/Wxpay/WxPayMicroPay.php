@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay;
+namespace Yonna\Plugins\Wxpay;
 /**
  * 
  * 刷卡支付实现类
@@ -15,9 +15,9 @@ namespace PhpureCore\Plugins\Wxpay;
  * @author widy
  *
  */
-use PhpureCore\Plugins\Wxpay\Core\WxPayException;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayReverse;
+use Yonna\Plugins\Wxpay\Core\WxPayException;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayOrderQuery;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayReverse;
 
 class WxPayMicroPay extends AbstractLib{
 

@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Aliyun;
+namespace Yonna\Plugins\Aliyun;
 
 require_once __DIR__. '/api_sdk/vendor/autoload.php';
 

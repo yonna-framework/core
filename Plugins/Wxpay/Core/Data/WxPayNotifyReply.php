@@ -1,11 +1,11 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core\Data;
+namespace Yonna\Plugins\Wxpay\Core\Data;
 
 /**
  * 回调基础类
  * @author widyhu
  */
-use PhpureCore\Plugins\Wxpay\Core\WxPayException;
+use Yonna\Plugins\Wxpay\Core\WxPayException;
 
 class WxPayNotifyReply extends WxPayDataBase{
 

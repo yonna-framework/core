@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core\Data;
+namespace Yonna\Plugins\Wxpay\Core\Data;
 
 /**
  * 统一下单输入对象

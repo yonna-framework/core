@@ -24,7 +24,7 @@
 ## 
 
 ### 在您的项目public 创建一个index.php
-> 并使用PhpureCore进行boot，会返回一个 ResponseCollector 对象，您可以对它进行json/xml/html等格式化输出
+> 并使用Yonna进行boot，会返回一个 ResponseCollector 对象，您可以对它进行json/xml/html等格式化输出
 ```php
 <?php
 /**
@@ -37,10 +37,10 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$ResponseCollector = PhpureCore\Core::bootstrap(
+$ResponseCollector = Yonna\Core::bootstrap(
     realpath(__DIR__ . '/../'),
     'example',
-    PhpureCore\Mapping\BootType::AJAX_HTTP
+    Yonna\Mapping\BootType::AJAX_HTTP
 );
 
 /**

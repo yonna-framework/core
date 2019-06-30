@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpureCore\Config;
+namespace Yonna\Config;
 
 use Closure;
-use PhpureCore\Core;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\MiddleType;
-use PhpureCore\Scope\After;
-use PhpureCore\Scope\Before;
+use Yonna\Core;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\MiddleType;
+use Yonna\Scope\After;
+use Yonna\Scope\Before;
 
 class Scope extends Arrow
 {
@@ -43,7 +43,7 @@ class Scope extends Arrow
                 !$action && Exception::throw("Should call a action for {$call}");
                 $call = function ($request) use ($call, $action) {
                     $Scope = Core::get($call, $request);
-                    if (!$Scope instanceof \PhpureCore\Scope\Scope) {
+                    if (!$Scope instanceof \Yonna\Scope\Scope) {
                         Exception::throw("Class {$call} is not instanceof Scope");
                     }
                     return $Scope->$action();

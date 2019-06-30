@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Log;
+namespace Yonna\Log;
 
 class Log
 {

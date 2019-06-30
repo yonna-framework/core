@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 use Exception;
-use PhpureCore\Core;
-use PhpureCore\IO\ResponseCollector;
-use PhpureCore\Mapping\BootType;
+use Yonna\Core;
+use Yonna\IO\ResponseCollector;
+use Yonna\Mapping\BootType;
 use Swoole\Http\Response;
 use swoole_http_server;
 

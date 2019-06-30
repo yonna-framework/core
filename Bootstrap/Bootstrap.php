@@ -3,15 +3,15 @@
  * Bootstrap core
  */
 
-namespace PhpureCore\Bootstrap;
+namespace Yonna\Bootstrap;
 
-use PhpureCore\Core;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Glue\Cargo;
-use PhpureCore\Glue\IO;
-use PhpureCore\Glue\Request;
-use PhpureCore\Glue\Response;
-use PhpureCore\Mapping\BootType;
+use Yonna\Core;
+use Yonna\Exception\Exception;
+use Yonna\Glue\Cargo;
+use Yonna\Glue\IO;
+use Yonna\Glue\Request;
+use Yonna\Glue\Response;
+use Yonna\Mapping\BootType;
 
 class Bootstrap
 {
@@ -27,12 +27,12 @@ class Bootstrap
      * @param null $env_name
      * @param null $boot_type
      * @param null $extend
-     * @return \PhpureCore\IO\ResponseCollector
+     * @return \Yonna\IO\ResponseCollector
      */
     public function boot($root, $env_name, $boot_type, $extend = null)
     {
         /**
-         * @var $Cargo \PhpureCore\Bootstrap\Cargo
+         * @var $Cargo \Yonna\Bootstrap\Cargo
          */
         $Cargo = Core::get(Cargo::class, [
             'root' => $root ?? __DIR__ . '/../../../../',

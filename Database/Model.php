@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 class Model extends Coupling
 {

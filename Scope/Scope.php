@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpureCore\Scope;
+namespace Yonna\Scope;
 
 /**
  * Class Middleware
- * @package PhpureCore\Scope
+ * @package Core\Core\Scope
  */
 abstract class Scope extends Kernel
 {

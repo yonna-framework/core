@@ -4,11 +4,11 @@
  * mysql version >= 5.7
  */
 
-namespace PhpureCore\Database\Mysql;
+namespace Yonna\Database\Mysql;
 
 use Exception;
-use PhpureCore\Database\AbstractPDO;
-use PhpureCore\Mapping\DBType;
+use Yonna\Database\AbstractPDO;
+use Yonna\Mapping\DBType;
 
 class Table extends AbstractPDO
 {

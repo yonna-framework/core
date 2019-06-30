@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
+use Yonna\Core\Glue;
 
 /**
  * Class Cargo
  *
- * @see \PhpureCore\Bootstrap\Cargo
+ * @see \Yonna\Bootstrap\Cargo
  */
 class Cargo extends Glue
 {

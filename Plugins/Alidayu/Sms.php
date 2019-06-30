@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\Alidayu;
+namespace Yonna\Plugins\Alidayu;
 
 use AlibabaAliqinFcSmsNumSendRequest;
 use TopClient;

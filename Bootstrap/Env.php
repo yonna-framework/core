@@ -3,7 +3,7 @@
  * Bootstrap ENV Checker
  */
 
-namespace PhpureCore\Bootstrap;
+namespace Yonna\Bootstrap;
 
 use Dotenv\Dotenv;
 use Exception;

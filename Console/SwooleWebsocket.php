@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 use Exception;
-use PhpureCore\Core;
-use PhpureCore\IO\ResponseCollector;
-use PhpureCore\Mapping\BootType;
+use Yonna\Core;
+use Yonna\IO\ResponseCollector;
+use Yonna\Mapping\BootType;
 use swoole_websocket_server;
 
 /**

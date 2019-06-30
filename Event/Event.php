@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpureCore\Event;
+namespace Yonna\Event;
 
-use PhpureCore\Core;
+use Yonna\Core;
 
 /**
  * Class Middleware
- * @package PhpureCore\Scope
+ * @package Core\Core\Scope
  */
 abstract class Event
 {

@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core;
+namespace Yonna\Plugins\Wxpay\Core;
 
 /**
  * 微信支付API异常类

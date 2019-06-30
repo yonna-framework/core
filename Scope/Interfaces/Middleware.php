@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpureCore\Scope\Interfaces;
+namespace Yonna\Scope\Interfaces;
 
 /**
  * Interface Middleware
- * @package PhpureCore\Interfaces
+ * @package Core\Core\Interfaces
  */
 interface Middleware
 {

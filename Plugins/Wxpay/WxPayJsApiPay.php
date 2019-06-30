@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\Wxpay;
+namespace Yonna\Plugins\Wxpay;
 
 /**
  * JSAPI支付实现类
@@ -10,7 +10,7 @@ namespace PhpureCore\Plugins\Wxpay;
  * @author widy
  */
 
-use PhpureCore\Plugins\Wxpay\Core\WxPayException;
+use Yonna\Plugins\Wxpay\Core\WxPayException;
 
 class WxPayJsApiPay extends AbstractLib
 {

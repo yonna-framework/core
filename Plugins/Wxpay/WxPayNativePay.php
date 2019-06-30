@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\Plugins\Wxpay;
+namespace Yonna\Plugins\Wxpay;
 
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayBizPayUrl;
-use PhpureCore\Plugins\Wxpay\Core\Data\WxPayUnifiedOrder;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayBizPayUrl;
+use Yonna\Plugins\Wxpay\Core\Data\WxPayUnifiedOrder;
 
 /**
  * 刷码支付实现类

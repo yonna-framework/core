@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
-use PhpureCore\Config\Crypto as ConfigCrypto;
-use PhpureCore\Glue\Response;
+use Yonna\Config\Crypto as ConfigCrypto;
+use Yonna\Glue\Response;
 use Str;
 
 class Crypto

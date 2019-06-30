@@ -3,7 +3,7 @@
  * Bootstrap Cargo!
  */
 
-namespace PhpureCore\Bootstrap;
+namespace Yonna\Bootstrap;
 
 class Cargo
 {

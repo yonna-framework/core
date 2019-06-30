@@ -6,7 +6,7 @@
  * Time: 下午 14:43
  */
 
-namespace PhpureCore\Plugins\Alipay\WapV2;
+namespace Yonna\Plugins\Alipay\WapV2;
 
 use \plugins\Alipay\WapV2\Funcs\Core;
 use \plugins\Alipay\WapV2\Funcs\Rsa;

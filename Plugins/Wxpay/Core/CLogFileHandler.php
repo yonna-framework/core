@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Wxpay\Core;
+namespace Yonna\Plugins\Wxpay\Core;
 //以下为日志
 
 class CLogFileHandler implements Interfaces\ILogHandler

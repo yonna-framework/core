@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpureCore\Scope;
+namespace Yonna\Scope;
 
-use PhpureCore\Mapping\MiddleType;
+use Yonna\Mapping\MiddleType;
 
 /**
  * class Middleware
- * @package phpurecore\scope
+ * @package Core\Core\scope
  */
 abstract class Middleware extends Kernel implements Interfaces\Middleware
 {

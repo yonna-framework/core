@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpureCore\Event;
+namespace Yonna\Event;
 
 /**
  * Class Listener
- * @package PhpureCore\Event
+ * @package Core\Core\Event
  */
 abstract class Listener
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
 /**
  * Class Input
- * @package PhpureCore\IO
+ * @package Core\Core\IO
  */
 class Input
 {

@@ -3,11 +3,11 @@
  * Bootstrap Response Code
  */
 
-namespace PhpureCore\Mapping;
+namespace Yonna\Mapping;
 
 /**
  * Class ResponseCode
- * @package PhpureCore\Response
+ * @package Core\Core\Response
  */
 class ResponseCode extends Mapping
 {

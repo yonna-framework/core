@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 class Package
 {

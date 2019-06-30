@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
-use PhpureCore\Exception\Exception;
+use Yonna\Exception\Exception;
 
 class RedisCo extends Redis
 {

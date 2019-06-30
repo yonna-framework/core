@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Core;
+namespace Yonna\Core;
 
 use ReflectionClass;
 use ReflectionException;

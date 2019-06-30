@@ -1,16 +1,16 @@
 <?php
 
-namespace PhpureCore\Scope;
+namespace Yonna\Scope;
 
 /**
  * Class Kernel
- * @package PhpureCore\Scope
+ * @package Core\Core\Scope
  */
-abstract class Kernel implements \PhpureCore\Scope\Interfaces\Kernel
+abstract class Kernel implements \Yonna\Scope\Interfaces\Kernel
 {
 
     /**
-     * @var \PhpureCore\IO\Request $request
+     * @var \Yonna\IO\Request $request
      */
     private $request = null;
 
@@ -27,7 +27,7 @@ abstract class Kernel implements \PhpureCore\Scope\Interfaces\Kernel
     }
 
     /**
-     * @return object|\PhpureCore\IO\Request
+     * @return object|\Yonna\IO\Request
      */
     protected function request()
     {
@@ -35,7 +35,7 @@ abstract class Kernel implements \PhpureCore\Scope\Interfaces\Kernel
     }
 
     /**
-     * @return \PhpureCore\IO\Input
+     * @return \Yonna\IO\Input
      */
     protected function input()
     {

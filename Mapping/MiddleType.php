@@ -3,7 +3,7 @@
  * 中间件类型
  */
 
-namespace PhpureCore\Mapping;
+namespace Yonna\Mapping;
 
 class MiddleType extends Mapping
 {

@@ -3,7 +3,7 @@
  * Bootstrap handle collector
  */
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
 
 use Convert;
@@ -11,7 +11,7 @@ use MongoDB\BSON\Type;
 
 /**
  * Class Collector
- * @package PhpureCore\IO
+ * @package Core\Core\IO
  */
 class ResponseCollector
 {

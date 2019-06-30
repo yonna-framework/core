@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Bootstrap;
+namespace Yonna\Bootstrap;
 
 use Exception;
 

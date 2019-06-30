@@ -1,16 +1,16 @@
 <?php
 
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
+use Yonna\Core\Glue;
 
 /**
  * Class Bootstrap
  *
- * @method static \PhpureCore\IO\ResponseCollector boot($root, $env_name, $boot_type, $extend = null)
+ * @method static \Yonna\IO\ResponseCollector boot($root, $env_name, $boot_type, $extend = null)
  *
- * @see \PhpureCore\Bootstrap\Bootstrap
+ * @see \Yonna\Bootstrap\Bootstrap
  */
 class Bootstrap extends Glue
 {

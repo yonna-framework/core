@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\Config;
+namespace Yonna\Config;
 
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\DBType;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\DBType;
 use System;
 
 class Database extends Arrow

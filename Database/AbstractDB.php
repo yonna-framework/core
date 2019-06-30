@@ -1,9 +1,9 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\DBType;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\DBType;
 
 abstract class AbstractDB
 {

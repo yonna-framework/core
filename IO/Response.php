@@ -3,14 +3,14 @@
  * IO Response
  */
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
-use PhpureCore\Core;
-use PhpureCore\Mapping\ResponseCode;
+use Yonna\Core;
+use Yonna\Mapping\ResponseCode;
 
 /**
  * Class Response
- * @package PhpureCore
+ * @package Core\Core
  */
 class Response
 {
@@ -64,7 +64,7 @@ class Response
     public function success(string $msg = 'success', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCode(ResponseCode::SUCCESS)
@@ -76,7 +76,7 @@ class Response
     public function broadcast(string $msg = 'broadcast', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -89,7 +89,7 @@ class Response
     public function goon(string $msg = 'goon', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -102,7 +102,7 @@ class Response
     public function error(string $msg = 'error', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -115,7 +115,7 @@ class Response
     public function exception(string $msg = 'exception', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -131,7 +131,7 @@ class Response
     public function abort(string $msg = 'abort', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -146,7 +146,7 @@ class Response
     public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
@@ -162,7 +162,7 @@ class Response
     public function notFound(string $msg = 'not found', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
         /** @var ResponseCollector $HandleCollector */
-        $HandleCollector = Core::get(\PhpureCore\Glue\ResponseCollector::class);
+        $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)

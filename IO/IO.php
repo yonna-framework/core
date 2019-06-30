@@ -3,13 +3,13 @@
  * input / output
  */
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
 use Arr;
 use Closure;
 use Exception;
 use Str;
-use PhpureCore\Glue\Response;
+use Yonna\Glue\Response;
 
 class IO
 {

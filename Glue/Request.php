@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PhpureCore\Glue;
+namespace Yonna\Glue;
 
-use PhpureCore\Core\Glue;
+use Yonna\Core\Glue;
 
 /**
  * Class Request
  *
- * @see \PhpureCore\IO\Request
+ * @see \Yonna\IO\Request
  */
 class Request extends Glue
 {

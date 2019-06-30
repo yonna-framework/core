@@ -1,18 +1,18 @@
 <?php
 
-namespace PhpureCore\Console;
+namespace Yonna\Console;
 
 use Exception;
-use PhpureCore\Core;
+use Yonna\Core;
 
 /**
- * pure 的命令窗体
+ * yonna 的命令窗体
  * Class Commander
  */
 class Exec
 {
 
-    const HEAD = '>Pure<: ';
+    const HEAD = '>Core<: ';
     const CLS = "\e[H\e[J";
 
     private static $commands = [

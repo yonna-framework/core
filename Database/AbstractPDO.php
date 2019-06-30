@@ -1,14 +1,14 @@
 <?php
 
-namespace PhpureCore\Database;
+namespace Yonna\Database;
 
 use Moment;
 use PDO;
 use PDOException;
 use PDOStatement;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\AutoCache;
-use PhpureCore\Mapping\DBType;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\AutoCache;
+use Yonna\Mapping\DBType;
 use Str;
 
 abstract class AbstractPDO extends AbstractDB

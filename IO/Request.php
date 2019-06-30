@@ -3,17 +3,17 @@
  * Request
  */
 
-namespace PhpureCore\IO;
+namespace Yonna\IO;
 
 use Parse;
-use PhpureCore\Bootstrap\Cargo;
-use PhpureCore\Core;
-use PhpureCore\Mapping\BootType;
-use PhpureCore\Exception\Exception;
+use Yonna\Bootstrap\Cargo;
+use Yonna\Core;
+use Yonna\Mapping\BootType;
+use Yonna\Exception\Exception;
 
 /**
  * Class Request
- * @package PhpureCore\IO
+ * @package Core\Core\IO
  */
 class Request
 {

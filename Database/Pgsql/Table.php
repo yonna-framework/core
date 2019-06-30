@@ -4,11 +4,11 @@
  * version > 9.7
  */
 
-namespace PhpureCore\Database\Pgsql;
+namespace Yonna\Database\Pgsql;
 
 use Exception;
-use PhpureCore\Database\AbstractPDO;
-use PhpureCore\Mapping\DBType;
+use Yonna\Database\AbstractPDO;
+use Yonna\Mapping\DBType;
 
 class Table extends AbstractPDO
 {

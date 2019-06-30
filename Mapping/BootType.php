@@ -3,7 +3,7 @@
  * Bootstrap Types
  */
 
-namespace PhpureCore\Mapping;
+namespace Yonna\Mapping;
 
 class BootType extends Mapping
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpureCore\Config;
+namespace Yonna\Config;
 
 use Closure;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Glue\Response;
+use Yonna\Exception\Exception;
+use Yonna\Glue\Response;
 
 class Broadcast extends Arrow
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpureCore\Scope;
+namespace Yonna\Scope;
 
 use Closure;
-use PhpureCore\Core;
-use PhpureCore\Exception\Exception;
-use PhpureCore\Mapping\MiddleType;
+use Yonna\Core;
+use Yonna\Exception\Exception;
+use Yonna\Mapping\MiddleType;
 
 class Before extends Middleware
 {

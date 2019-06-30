@@ -3,7 +3,7 @@
  * Database Driver Types
  */
 
-namespace PhpureCore\Mapping;
+namespace Yonna\Mapping;
 
 class DBType extends Mapping
 {

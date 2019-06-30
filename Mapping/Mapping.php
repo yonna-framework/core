@@ -1,9 +1,8 @@
 <?php
 
-namespace PhpureCore\Mapping;
+namespace Yonna\Mapping;
 
 use Exception;
-use PhpureCore\Glue\Response;
 use ReflectionClass;
 use ReflectionException;
 

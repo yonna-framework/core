@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Alipay\WapV2;
+namespace Yonna\Plugins\Alipay\WapV2;
 /* *
  * 功能：支付宝手机网站alipay.trade.close (统一收单交易关闭接口)业务参数封装
  * 版本：2.0
@@ -7,8 +7,8 @@ namespace PhpureCore\Plugins\Alipay\WapV2;
  * 说明：
  * 以下代码只是为了方便商户测试而提供的样例代码，商户可以根据自己网站的需要，按照技术文档编写,并非一定要使用该代码。
  */
-use PhpureCore\Plugins\Alipay\WapV2\Aop\Request\AlipayTradeWapPayRequest;
-use PhpureCore\Plugins\Alipay\WapV2\Aop\AopClient;
+use Yonna\Plugins\Alipay\WapV2\Aop\Request\AlipayTradeWapPayRequest;
+use Yonna\Plugins\Alipay\WapV2\Aop\AopClient;
 
 class AlipayTradeService extends AbstractLib{
 

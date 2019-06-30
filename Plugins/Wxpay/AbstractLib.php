@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\Wxpay;
+namespace Yonna\Plugins\Wxpay;
 /**
  * Created by PhpStorm.
  * User: Administrator
@@ -8,7 +8,7 @@ namespace PhpureCore\Plugins\Wxpay;
  * Time: 下午 12:52
  */
 
-use PhpureCore\Plugins\Wxpay\Core\WxPayApi;
+use Yonna\Plugins\Wxpay\Core\WxPayApi;
 
 abstract class AbstractLib
 {

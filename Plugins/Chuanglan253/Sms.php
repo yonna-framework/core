@@ -1,5 +1,5 @@
 <?php
-namespace PhpureCore\Plugins\Chuanglan253;
+namespace Yonna\Plugins\Chuanglan253;
 
 class Sms{
 

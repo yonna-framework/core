@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpureCore\Plugins\WxmpService;
+namespace Yonna\Plugins\WxmpService;
 
 /**
  * 对公众平台发送给公众账号的消息加解密示例代码.
