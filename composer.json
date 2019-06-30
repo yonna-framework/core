@@ -1,6 +1,6 @@
 {
   "name": "yonna/core",
-  "description": "Yonna Core",
+  "description": "Yonna是一个极其纯净的纯API-PHP框架.\n轻松对接swoole，支持ajax/sw·http·websocket。\n人性及强力的DB-ORM，摆脱Model编程\n如连表自动前缀，类型自动转义/转换/解释\n有力的Response令api数据轻松转换，支持json/xml/html等格式化输出\n内置有趣的Exec方法，可实现服务、加密打包等方法\n轻松开启swoole，又或是将你的业务php代码混淆到难以阅读的效果",
   "license": "MIT",
   "type": "library",
   "keywords": [
