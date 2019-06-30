@@ -10,6 +10,7 @@
     "swoole"
   ],
   "require": {
+    "php": ">=7.3",
     "ext-redis": "*",
     "ext-json": "*",
     "ext-pdo": "*",

@@ -41,9 +41,9 @@ class Response
                 if (isset($t['object'])) unset($trace[$tk]['object']);
                 if (isset($t['args'])) unset($trace[$tk]['args']);
                 if (!empty($t['file'])) {
-                    $trace[$tk]['file'] = str_replace($path, '#:Pure', str_replace(
-                        'vendor' . DIRECTORY_SEPARATOR . 'hunzsig-server' . DIRECTORY_SEPARATOR . 'phpure-core',
-                        'C',
+                    $trace[$tk]['file'] = str_replace($path, '#:Yonna', str_replace(
+                        'vendor' . DIRECTORY_SEPARATOR . 'yonna' . DIRECTORY_SEPARATOR,
+                        '',
                         $t['file']
                     ));
                 }

@@ -1,12 +1,15 @@
-[![Total Downloads](https://img.shields.io/packagist/dm/yonna/core.svg)](https://packagist.org/packages/yonna/core)
-[![Latest Version](http://img.shields.io/packagist/v/yonna/core.svg)](https://packagist.org/packages/yonna/core)
+[![License](https://img.shields.io/github/license/yonna-framework/core.svg)](https://packagist.org/packages/yonna/core)
+[![Repo Size](https://img.shields.io/github/repo-size/yonna-framework/core.svg)](https://packagist.org/packages/yonna/core)
+[![Downloads](https://img.shields.io/packagist/dm/yonna/core.svg)](https://packagist.org/packages/yonna/core)
+[![Version](https://img.shields.io/github/release/yonna-framework/core.svg)](https://packagist.org/packages/yonna/core)
+[![Php](https://img.shields.io/packagist/php-v/yonna/core.svg)](https://packagist.org/packages/yonna/core)
 
 ## Yonna 核心库
 
 ```
-一个极其纯净的纯API-PHP框架.
-轻松对接swoole，支持http/websocket。
-超级人性化及强力的DB-ORM结合让你根本不需要Model
+Yonna是一个极其纯净的纯API-PHP框架.
+轻松对接swoole，支持ajax/sw·http·websocket。
+人性及强力的DB-ORM，摆脱Model编程
 如连表自动前缀，类型自动转义/转换/解释
 自带打包，可将你的业务php代码混淆到难以阅读的效果
 ```
