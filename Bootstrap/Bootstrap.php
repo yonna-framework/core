@@ -11,7 +11,6 @@ use Yonna\Glue\Cargo;
 use Yonna\Glue\IO;
 use Yonna\Glue\Request;
 use Yonna\Glue\Response;
-use Yonna\Mapping\BootType;
 
 class Bootstrap
 {
