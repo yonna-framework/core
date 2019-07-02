@@ -4,7 +4,7 @@ namespace Yonna\Console;
 
 use Exception;
 use Yonna\Core;
-use Yonna\IO\ResponseCollector;
+use Yonna\IO\Collector;
 use Yonna\Bootstrap\BootType;
 use swoole_websocket_server;
 
@@ -67,7 +67,7 @@ class SwooleWebsocket extends Console
                 return;
             }
             $requestVars['rawData'] = $frame->data;
-            $this->server->task($requestVars, -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($request) {
+            $this->server->task($requestVars, -1, function ($server, $task_id, Collector $responseCollector) use ($request) {
                 if ($responseCollector !== false) {
                     $server->push($request['fd'], $responseCollector->toJson());
                 }

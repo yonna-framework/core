@@ -55,19 +55,19 @@ class Response
      * @param $Collector
      * @return false|string
      */
-    public function handle(ResponseCollector $Collector)
+    public function handle(Collector $Collector)
     {
         return $Collector->response();
     }
 
     public function success(string $msg = 'success', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::SUCCESS)
+            ->setCode(Code::SUCCESS)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
@@ -75,12 +75,12 @@ class Response
 
     public function broadcast(string $msg = 'broadcast', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::BROADCAST)
+            ->setCode(Code::BROADCAST)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
@@ -88,12 +88,12 @@ class Response
 
     public function goon(string $msg = 'goon', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::GOON)
+            ->setCode(Code::GOON)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
@@ -101,12 +101,12 @@ class Response
 
     public function error(string $msg = 'error', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::ERROR)
+            ->setCode(Code::ERROR)
             ->setMsg($msg)
             ->setData($data);
         return $HandleCollector;
@@ -114,12 +114,12 @@ class Response
 
     public function exception(string $msg = 'exception', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::EXCEPTION)
+            ->setCode(Code::EXCEPTION)
             ->setMsg($msg)
             ->setData($data)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
@@ -130,12 +130,12 @@ class Response
 
     public function abort(string $msg = 'abort', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::ABORT)
+            ->setCode(Code::ABORT)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(1, $data) : $this->debug_backtrace(2, $data),
@@ -145,12 +145,12 @@ class Response
 
     public function notPermission(string $msg = 'not permission', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::NOT_PERMISSION)
+            ->setCode(Code::NOT_PERMISSION)
             ->setMsg($msg)
             ->setData($data)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
@@ -161,12 +161,12 @@ class Response
 
     public function notFound(string $msg = 'not found', array $data = array(), $type = 'json', $charset = 'utf-8')
     {
-        /** @var ResponseCollector $HandleCollector */
+        /** @var Collector $HandleCollector */
         $HandleCollector = Core::get(\Yonna\Glue\ResponseCollector::class);
         $HandleCollector
             ->setResponseDataType($type)
             ->setCharset($charset)
-            ->setCode(ResponseCode::NOT_FOUND)
+            ->setCode(Code::NOT_FOUND)
             ->setMsg($msg)
             ->setExtra(array('debug_backtrace' => getenv('IS_DEBUG') === 'true'
                 ? $this->debug_backtrace(2, $data) : $this->debug_backtrace(3, $data),

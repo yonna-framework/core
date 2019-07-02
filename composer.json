@@ -11,6 +11,8 @@
   ],
   "require": {
     "php": "~7.3",
+    "yonna/foundation": "@dev",
+    "yonna/response": "@dev",
     "yonna/exception": "@dev",
     "yonna/log": "@dev",
     "filp/whoops": "2.3.1",

@@ -37,7 +37,7 @@ class ResponseCollector
 
     /**
      * @param string $response_data_type
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setResponseDataType(string $response_data_type): self
     {
@@ -55,7 +55,7 @@ class ResponseCollector
 
     /**
      * @param string $charset
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setCharset(string $charset): self
     {
@@ -73,7 +73,7 @@ class ResponseCollector
 
     /**
      * @param int $code
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setCode(int $code): self
     {
@@ -91,7 +91,7 @@ class ResponseCollector
 
     /**
      * @param string $msg
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setMsg(string $msg): self
     {
@@ -109,7 +109,7 @@ class ResponseCollector
 
     /**
      * @param array $data
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setData(array $data): self
     {
@@ -127,7 +127,7 @@ class ResponseCollector
 
     /**
      * @param array $extra
-     * @return ResponseCollector
+     * @return Collector
      */
     public function setExtra(array $extra): self
     {

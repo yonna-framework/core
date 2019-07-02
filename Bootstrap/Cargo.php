@@ -10,7 +10,7 @@ class Cargo
 
     public $root = '';
     public $app_root = '';
-    public $pure_core_path = '';
+    public $yonna_core_path = '';
     public $timezone = '';
     public $current_php_version = '';
     public $minimum_php_version = '';
@@ -43,7 +43,7 @@ class Cargo
         }
         $this->root = realpath($this->root);
         $this->app_root = realpath($this->root . '/app') ?? '';
-        $this->pure_core_path = realpath(__DIR__ . '/..');
+        $this->yonna_core_path = realpath(__DIR__ . '/..');
     }
 
     /**
@@ -81,9 +81,9 @@ class Cargo
     /**
      * @return string
      */
-    public function getPureCorePath(): string
+    public function getYonnaCorePath(): string
     {
-        return $this->pure_core_path;
+        return $this->yonna_core_path;
     }
 
     /**

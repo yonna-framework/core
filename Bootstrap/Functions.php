@@ -2,7 +2,7 @@
 
 namespace Yonna\Bootstrap;
 
-use System;
+use Yonna\Foundation\System;
 
 class Functions
 {

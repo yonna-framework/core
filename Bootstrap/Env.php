@@ -38,7 +38,7 @@ class Env
         $Cargo->setCurrentPhpVersion(PHP_VERSION);
         // define
         if (!defined('____')) {
-            define('____', 'PureStream');
+            define('____', 'YonnaStream');
         }
         if (!defined('_____')) {
             define('_____', null);

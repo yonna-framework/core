@@ -4,7 +4,7 @@ namespace Yonna\Console;
 
 use Exception;
 use Yonna\Core;
-use Yonna\IO\ResponseCollector;
+use Yonna\IO\Collector;
 use Yonna\Bootstrap\BootType;
 use Swoole\Http\Response;
 use swoole_http_server;
@@ -59,7 +59,7 @@ class SwooleHttp extends Console
             $request->rawData = $request->rawContent();
             $requestVars = get_object_vars($request);
             $requestVars['rawData'] = $request->rawContent();
-            $this->server->task($requestVars, -1, function ($server, $task_id, ResponseCollector $responseCollector) use ($response) {
+            $this->server->task($requestVars, -1, function ($server, $task_id, Collector $responseCollector) use ($response) {
                 $response->header('Server', 'Pure');
                 if ($responseCollector !== false) {
                     $responseHeader = $responseCollector->getHeader('arr');

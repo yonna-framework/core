@@ -10,8 +10,8 @@ use Yonna\Exception\Exception;
 use Yonna\Glue\Cargo;
 use Yonna\Glue\IO;
 use Yonna\Glue\Request;
-use Yonna\Glue\Response;
-use Yonna\Mapping\BootType;
+use Yonna\Response\Collector;
+use Yonna\Response\Response;
 
 class Bootstrap
 {
@@ -27,7 +27,7 @@ class Bootstrap
      * @param null $env_name
      * @param null $boot_type
      * @param null $extend
-     * @return \Yonna\IO\ResponseCollector
+     * @return Collector
      */
     public function boot($root, $env_name, $boot_type, $extend = null)
     {

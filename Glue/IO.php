@@ -8,7 +8,7 @@ use Yonna\Core\Glue;
 /**
  * Class IO
  *
- * @method static \Yonna\IO\ResponseCollector response(object $request)
+ * @method static \Yonna\Response\Collector response(object $request)
  *
  * @see \Yonna\IO\IO
  */

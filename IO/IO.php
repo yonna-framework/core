@@ -5,11 +5,12 @@
 
 namespace Yonna\IO;
 
-use Arr;
 use Closure;
 use Exception;
-use Str;
-use Yonna\Glue\Response;
+use Yonna\Foundation\Arr;
+use Yonna\Foundation\Str;
+use Yonna\Response\Collector;
+use Yonna\Response\Response;
 
 class IO
 {
@@ -26,7 +27,7 @@ class IO
 
     /**
      * @param object $request
-     * @return ResponseCollector
+     * @return Collector
      */
     public function response(object $request)
     {
@@ -68,7 +69,7 @@ class IO
             } else if (is_bool($response)) {
                 $response ? $response = Response::success('success bool') : Response::error('error bool');
             }
-            if (!($response instanceof ResponseCollector)) {
+            if (!($response instanceof Collector)) {
                 $response = Response::exception('Response must instanceof ResponseCollector');
             }
             return $response;

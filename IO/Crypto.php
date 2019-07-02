@@ -3,8 +3,8 @@
 namespace Yonna\IO;
 
 use Yonna\Config\Crypto as ConfigCrypto;
-use Yonna\Glue\Response;
-use Str;
+use Yonna\Foundation\Str;
+use Yonna\Exception\Exception;
 
 class Crypto
 {

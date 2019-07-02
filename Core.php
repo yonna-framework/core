@@ -75,7 +75,7 @@ class Core
      * @param null $env_name
      * @param null $boot_type
      * @param null $extend
-     * @return IO\ResponseCollector
+     * @return Response\Collector
      */
     public static function bootstrap($root, $env_name, $boot_type, $extend = null)
     {
@@ -92,8 +92,6 @@ class Core
         });
         // default glues relation
         Glue::relating(\Yonna\Glue\Bootstrap::class, \Yonna\Bootstrap\Bootstrap::class);
-        Glue::relating(\Yonna\Glue\Response::class, \Yonna\IO\Response::class);
-        Glue::relating(\Yonna\Glue\ResponseCollector::class, \Yonna\IO\ResponseCollector::class);
         Glue::relating(\Yonna\Glue\Cargo::class, \Yonna\Bootstrap\Cargo::class);
         Glue::relating(\Yonna\Glue\IO::class, \Yonna\IO\IO::class);
         Glue::relating(\Yonna\Glue\Request::class, \Yonna\IO\Request::class);

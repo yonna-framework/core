@@ -5,7 +5,7 @@
 
 namespace Yonna\IO;
 
-use Parse;
+use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
 use Yonna\Core;

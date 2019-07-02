@@ -23,7 +23,7 @@ use Yonna\Core\Glue;
  * @method static response()
  * @method static end()
  *
- * @see \Yonna\IO\ResponseCollector
+ * @see \Yonna\IO\Collector
  */
 class ResponseCollector extends Glue
 {
