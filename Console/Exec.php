@@ -105,11 +105,7 @@ class Exec
                         Core::get(SwooleTcp::class, $root_path, $options)->run();
                         break;
                     case 'pkg':
-                        if (!$options) {
-                            self::c('not config path');
-                            break;
-                        }
-                        system("php hPackage.php {$options}");
+                        Core::get(Package::class, $root_path, $options)->run();
                         break;
                     case 'cls':
                     case 'clear':
