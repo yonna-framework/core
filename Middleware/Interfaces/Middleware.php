@@ -1,6 +1,6 @@
 <?php
 
-namespace Yonna\Scope\Interfaces;
+namespace Yonna\Middleware\Interfaces;
 
 /**
  * Interface Middleware

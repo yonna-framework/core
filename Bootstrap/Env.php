@@ -20,7 +20,7 @@ class Env
      * @return Cargo
      * @throws Exception
      */
-    public static function install(Cargo $Cargo)
+    public static function install(Cargo $Cargo): Cargo
     {
         // 检测ENV文件
         if ($Cargo->getEnvName()) {
@@ -38,7 +38,7 @@ class Env
         $Cargo->setCurrentPhpVersion(PHP_VERSION);
         // define
         if (!defined('____')) {
-            define('____', 'YonnaStream');
+            define('____', '\Yonna\Foundation\YonnaStream');
         }
         if (!defined('_____')) {
             define('_____', null);

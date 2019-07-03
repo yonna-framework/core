@@ -3,7 +3,7 @@
  * 中间件类型
  */
 
-namespace Yonna\Scope;
+namespace Yonna\Middleware;
 
 class MiddlewareType
 {

@@ -49,11 +49,11 @@ class Config
      * @param Cargo $Cargo
      * @return Cargo
      */
-    public static function install(Cargo $Cargo)
+    public static function install(Cargo $Cargo): Cargo
     {
         $config_root = self::checkPath($Cargo->getRoot() . '/app/config');
-        self::requireDir($config_root);
-        $Cargo->setConfig(\Yonna\Config\Arrow::fetch());
+        $qty = self::requireDir($config_root);
+        $Cargo->setConfigQty($qty);
         return $Cargo;
     }
 }

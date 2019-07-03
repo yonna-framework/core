@@ -1,6 +1,6 @@
 <?php
 
-namespace Yonna\Scope;
+namespace Yonna\Middleware;
 
 use Closure;
 use Yonna\Core;

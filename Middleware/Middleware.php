@@ -1,12 +1,12 @@
 <?php
 
-namespace Yonna\Scope;
+namespace Yonna\Middleware;
 
 /**
  * class Middleware
  * @package Core\Core\scope
  */
-abstract class Middleware extends Kernel implements Interfaces\Middleware
+abstract class Middleware implements Interfaces\Middleware
 {
 
     /**

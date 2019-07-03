@@ -21,6 +21,7 @@ class Cargo
 
     public $extend = null;
 
+    public $config_qty = 0;
     public $function_qty = 0;
     public $foundation_qty = 0;
 
@@ -30,7 +31,6 @@ class Cargo
     public $memory_limit_on = false;
 
     public $env = array();
-    public $config = array();
 
     /**
      * Cargo constructor.
@@ -97,16 +97,6 @@ class Cargo
 
     // -------------------------------------------------------
 
-
-    /**
-     * @param array $config
-     * @return Cargo
-     */
-    public function setConfig(array $config): Cargo
-    {
-        $this->config = $config;
-        return $this;
-    }
 
     /**
      * @return string
@@ -196,6 +186,22 @@ class Cargo
     {
         $this->app_name = $app_name;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getConfigQty(): int
+    {
+        return $this->config_qty;
+    }
+
+    /**
+     * @param int $config_qty
+     */
+    public function setConfigQty(int $config_qty): void
+    {
+        $this->config_qty = $config_qty;
     }
 
     /**
