@@ -12,7 +12,7 @@ class YonnaAuth extends Before
 {
     public function handle($params)
     {
-        // echo('after');
+        print_r($params);
     }
 
 }

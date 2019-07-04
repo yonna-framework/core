@@ -7,9 +7,8 @@ namespace Yonna\Bootstrap;
 
 use Yonna\Core;
 use Yonna\Exception\Exception;
-use Yonna\Glue\Cargo;
-use Yonna\Glue\IO;
-use Yonna\Glue\Request;
+use Yonna\IO\IO;
+use Yonna\IO\Request;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
 
@@ -32,7 +31,7 @@ class Bootstrap
     public function boot($root, $env_name, $boot_type, $extend = null)
     {
         /**
-         * @var $Cargo \Yonna\Bootstrap\Cargo
+         * @var $Cargo Cargo
          */
         $Cargo = Core::get(Cargo::class, [
             'root' => $root ?? __DIR__ . '/../../../../',
@@ -59,7 +58,16 @@ class Bootstrap
                 return Response::abort($e->getMessage());
             }
         }
-        return IO::response(Core::singleton(Request::class, $Cargo));
+
+        /**
+         * @var Request $request
+         */
+        $request = Core::singleton(Request::class, $Cargo);
+        /**
+         * @var IO $io
+         */
+        $io = Core::singleton(IO::class);
+        return $io->response($request);
     }
 
 }

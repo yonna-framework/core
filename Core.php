@@ -7,7 +7,7 @@
 namespace Yonna;
 
 use Yonna\Core\Glue;
-use Yonna\Glue\Bootstrap;
+use Yonna\Bootstrap\Bootstrap;
 
 class Core
 {
@@ -90,14 +90,11 @@ class Core
                 }
             }
         });
-        // default glues relation
-        Glue::relating(\Yonna\Glue\Bootstrap::class, \Yonna\Bootstrap\Bootstrap::class);
-        Glue::relating(\Yonna\Glue\Cargo::class, \Yonna\Bootstrap\Cargo::class);
-        Glue::relating(\Yonna\Glue\IO::class, \Yonna\IO\IO::class);
-        Glue::relating(\Yonna\Glue\Request::class, \Yonna\IO\Request::class);
-        Glue::relating(\Yonna\Glue\Scope::class, \Yonna\Config\Scope::class);
-        // boot
-        return Bootstrap::boot($root, $env_name, $boot_type, $extend);
+        /**
+         * @var Bootstrap $bootstrap
+         */
+        $bootstrap = Core::get(Bootstrap::class);
+        return $bootstrap->boot($root, $env_name, $boot_type, $extend);
     }
 
 }

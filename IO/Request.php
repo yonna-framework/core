@@ -8,7 +8,6 @@ namespace Yonna\IO;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
-use Yonna\Core;
 use Yonna\Exception\Exception;
 
 /**
@@ -20,27 +19,145 @@ class Request
     /**
      * @var Cargo
      */
-    public $cargo = null;
+    private $cargo = null;
 
-    public $crypto = false;
-    public $local = false;
-    public $header = null;
-    public $cookie = null;
-    public $method = null;
-    public $content_type = null;
-    public $user_agent = null;
-    public $body = '';
+    private $local = false;
+    private $header = null;
+    private $cookie = null;
+    private $method = null;
+    private $content_type = null;
+    private $user_agent = null;
 
-    public $client_id = null;
-    public $host = null;
-    public $ssl = false;
-    public $ip = '127.0.0.1';
-    public $port = 80;
+    private $client_id = null;
+    private $host = null;
+    private $ssl = false;
+    private $ip = '127.0.0.1';
+    private $port = 80;
+
+    private $input = '';
+    private $file = null;
+    private $stack = '';
 
     /**
-     * @var $input Input
+     * @return Cargo
      */
-    public $input = null;
+    public function getCargo(): Cargo
+    {
+        return $this->cargo;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLocal(): bool
+    {
+        return $this->local;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCookie()
+    {
+        return $this->cookie;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getContentType(): ?string
+    {
+        return $this->content_type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserAgent()
+    {
+        return $this->user_agent;
+    }
+
+    /**
+     * @return mixed|string|null
+     */
+    public function getClientId()
+    {
+        return $this->client_id;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHost(): ?string
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSsl(): bool
+    {
+        return $this->ssl;
+    }
+
+    /**
+     * @return mixed|string|null
+     */
+    public function getIp()
+    {
+        return $this->ip;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return false|string|null
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFile(): ?array
+    {
+        return $this->file;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getStack()
+    {
+        return $this->stack;
+    }
+
 
     /**
      * Request constructor.
@@ -49,15 +166,6 @@ class Request
     public function __construct(object $cargo)
     {
         $this->cargo = $cargo;
-        return $this;
-    }
-
-    /**
-     * build Request by BootType
-     */
-    public function init()
-    {
-        $this->input = Core::get(Input::class);
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
@@ -73,9 +181,8 @@ class Request
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->user_agent = $this->header['user_agent'];
-                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';',
-                    $server['content_type'])[0]) : null;
-                $this->input->setFile(Parse::fileData($_FILES));
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->file = Parse::fileData($_FILES);
                 $rawData = file_get_contents('php://input');
                 break;
             case BootType::SWOOLE_HTTP:
@@ -87,9 +194,8 @@ class Request
                 $this->cookie = $extend['request']['cookie'];
                 $this->method = strtoupper($extend['request']['server']['request_method']);
                 $this->user_agent = $this->header['user_agent'];
-                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';',
-                    $server['content_type'])[0]) : null;
-                $this->input->setFile(Parse::fileData($extend['request']['files']));
+                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->file = Parse::fileData($extend['request']['files']);
                 $rawData = $extend['request']['rawData'];
                 break;
             case BootType::SWOOLE_WEB_SOCKET:
@@ -100,12 +206,9 @@ class Request
                 Exception::throw('Request invalid boot type');
                 break;
         }
-        if (!Crypto::checkToken($this)) {
-            Exception::throw('welcome');
-        }
         //
         $this->client_id = $this->header['client_id'] ?? '';
-        $this->input->setStack($this->header['stack'] ?? '');
+        $this->stack = $this->header['stack'] ?? '';
         // IP
         $ip = null;
         $ip === null && $ip = $this->header['x_real_ip'] ?? null;
@@ -115,7 +218,7 @@ class Request
         $ip && $this->ip = $ip;
         $this->local = ($ip === '127.0.0.1');
         if (!$this->ip) {
-            Exception::throw('ip pure');
+            Exception::throw('ip yonna');
         }
         // SSL
         if ($this->ssl === false && ($server['request_scheme'] ?? '') === 'https') {
@@ -133,41 +236,72 @@ class Request
                 $this->host = ($this->ssl ? 'http' : 'https') . '://' . $this->host;
             }
         }
-        // 解密协议
+        // 处理协议，将可能的数据转为json字符串记录在input
         switch ($this->method) {
             case 'GET':
                 switch ($this->content_type) {
-                    case 'multipart/form-data':
-                        $body = $_GET['body'] ?? null;
-                        $this->body = is_string($body) ? $body : json_encode($_GET);
+                    case null:
+                        $this->input = json_encode($_GET);
+                        break;
+                    case 'application/x-www-form-urlencoded':
+                        parse_str($rawData, $temp);
+                        $this->input = json_encode($temp);
+                        break;
+                    case 'text/plain':
+                    case 'application/json':
+                        $this->input = $rawData;
+                        break;
+                    case 'application/xml':
+                    case 'text/xml':
+                        $this->input = json_encode(simplexml_load_string($rawData));
                         break;
                     default:
-                        $this->body = $rawData;
+                        Exception::throw("not support {$this->content_type} yet");
                         break;
                 }
                 break;
             case 'POST':
                 switch ($this->content_type) {
+                    case null:
                     case 'multipart/form-data':
-                        $body = $_POST['body'] ?? null;
-                        $this->body = is_string($body) ? $body : json_encode($_POST);
+                    case 'application/x-www-form-urlencoded':
+                        $this->input = json_encode($_POST);
+                        break;
+                    case 'text/plain':
+                    case 'application/json':
+                        $this->input = $rawData;
+                        break;
+                    case 'application/xml':
+                    case 'text/xml':
+                        $this->input = json_encode(simplexml_load_string($rawData));
                         break;
                     default:
-                        $this->body = $rawData;
+                        Exception::throw("not support {$this->content_type} yet");
                         break;
                 }
                 break;
-            case 'DEFAULT':
-                Exception::throw('method error');
+            case 'PUT':
+            case 'PATCH':
+            case 'DELETE':
+                switch ($this->content_type) {
+                    case 'text/plain':
+                    case 'application/json':
+                        $this->input = $rawData;
+                        break;
+                    case 'application/xml':
+                    case 'text/xml':
+                        $this->input = json_encode(simplexml_load_string($rawData));
+                        break;
+                    default:
+                        Exception::throw("not support {$this->content_type} yet");
+                        break;
+                }
+                break;
+            default:
+                Exception::throw("not support {$this->method} yet");
                 break;
         }
-        $this->crypto = Crypto::isCrypto($this);
-        if ($this->crypto === true) {
-            $inputData = json_decode(Crypto::input($this), true) ?? [];
-        } else {
-            $inputData = json_decode($this->body, true) ?? [];
-        }
-        $this->input->setData($inputData);
+        return $this;
     }
 
 }

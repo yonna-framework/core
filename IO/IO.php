@@ -6,19 +6,15 @@
 namespace Yonna\IO;
 
 use Closure;
-use Exception;
 use Yonna\Foundation\Arr;
 use Yonna\Foundation\Str;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
+use Yonna\Scope\Config;
+use Yonna\Scope\Scope;
 
 class IO
 {
-
-    /**
-     * @var Request $request
-     */
-    private $request = null;
 
     public function __construct()
     {
@@ -26,24 +22,19 @@ class IO
     }
 
     /**
-     * @param object $request
+     * @param Request $request
      * @return Collector
      */
-    public function response(object $request)
+    public function response(Request $request)
     {
-        try {
-            $request->init();
-        } catch (Exception $e) {
-            return Response::notPermission($e->getMessage());
-        }
-        $this->request = $request;
-        $data = $this->request->input->getData();
-        $scope = $data['scope'] ?? null;
+        $input = json_decode($request->getInput(), true);
+        $scope = $input['scope'] ?? null;
         if (!$scope) {
             return Response::abort('no scope');
         }
+        dd(Config::fetch());
         $scope = Str::upper($scope);
-        $scope = Arr::get($this->request->cargo->config, "scope.{$request->method}.{$scope}");
+        $scope = Arr::get(Config::fetch(), "scope.{$request->method}.{$scope}");
         if (!$scope) {
             return Response::abort('no scoped');
         }
