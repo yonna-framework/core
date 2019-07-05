@@ -35,6 +35,7 @@ class Request
     private $ip = '127.0.0.1';
     private $port = 80;
 
+    private $raw = '';
     private $input = '';
     private $input_type = InputType::UN_KNOW;
     private $file = null;
@@ -134,6 +135,14 @@ class Request
     public function getPort(): int
     {
         return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRaw(): string
+    {
+        return $this->raw;
     }
 
     /**
@@ -259,19 +268,19 @@ class Request
             case 'GET':
                 switch ($this->content_type) {
                     case null:
-                        $this->input = $_GET;
+                        $this->raw = $_GET;
                         break;
                     case 'application/x-www-form-urlencoded':
                         parse_str($rawData, $temp);
-                        $this->input = $temp;
+                        $this->raw = $temp;
                         break;
                     case 'text/plain':
                     case 'application/json':
-                        $this->input = $rawData;
+                        $this->raw = $rawData;
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = simplexml_load_string($rawData);
+                        $this->raw = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -283,15 +292,15 @@ class Request
                     case null:
                     case 'multipart/form-data':
                     case 'application/x-www-form-urlencoded':
-                        $this->input = $_POST;
+                        $this->raw = $_POST;
                         break;
                     case 'text/plain':
                     case 'application/json':
-                        $this->input = $rawData;
+                        $this->raw = $rawData;
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = simplexml_load_string($rawData);
+                        $this->raw = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -304,11 +313,11 @@ class Request
                 switch ($this->content_type) {
                     case 'text/plain':
                     case 'application/json':
-                        $this->input = $rawData;
+                        $this->raw = $rawData;
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = simplexml_load_string($rawData);
+                        $this->raw = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -319,12 +328,12 @@ class Request
                 Exception::throw("not support {$this->method} yet");
                 break;
         }
-        if ($this->input instanceof SimpleXMLElement) {
+        if ($this->raw instanceof SimpleXMLElement) {
             $this->input_type = InputType::XML;
-            $this->input = json_encode($this->input);
-        } else if (is_array($this->input)) {
+            $this->raw = json_encode($this->raw);
+        } else if (is_array($this->raw)) {
             $this->input_type = InputType::FORM;
-            $this->input = json_encode($this->input);
+            $this->raw = json_encode($this->raw);
         } else {
             $this->input_type = InputType::RAW;
         }

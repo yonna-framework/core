@@ -26,7 +26,7 @@ class IO
      */
     public function response(Request $request)
     {
-        $input = json_decode($request->getInput(), true);
+        $input = $request->getInput() ?? [];
         $scope = $input['scope'] ?? null;
         if (!$scope) {
             return Response::abort('no scope');
@@ -45,18 +45,18 @@ class IO
             $response = $scope['call']($request);
             if ($scope['after']) {
                 foreach ($scope['after'] as $after) {
-                    $after($scope['after'], $request, $response);
+                    $after($request, $response);
                 }
             }
             // response
             if (is_array($response)) {
                 $response = Response::success('fetch array success', $response);
             } else if (is_string($response)) {
-                $response = Response::success($response, ['string' => $response]);
+                $response = Response::success('fetch string success', ['string' => $response]);
             } else if (is_numeric($response)) {
                 $response = Response::success('fetch number success', ['number' => $response]);
             } else if (is_bool($response)) {
-                $response ? $response = Response::success('success bool', ['bool' => $response]) : Response::error('error bool');
+                $response = $response === true ? Response::success('fetch boolean success', ['bool' => $response]) : Response::error('error');
             }
             if (!($response instanceof Collector)) {
                 $response = Response::exception('Response must instanceof ResponseCollector');
