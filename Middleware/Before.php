@@ -5,12 +5,35 @@ namespace Yonna\Middleware;
 use Closure;
 use Yonna\Core;
 use Yonna\Exception\Exception;
+use Yonna\IO\Request;
 
 class Before extends Middleware
 {
 
     private static $before = [];
 
+    /**
+     * @var Request
+     */
+    private $request = null;
+
+    /**
+     * After constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
 
     /**
      * get middleware
@@ -31,12 +54,12 @@ class Before extends Middleware
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                $call = function ($request, ...$params) use ($call) {
+                $call = function ($request) use ($call) {
                     $Before = Core::get($call, $request);
                     if (!$Before instanceof Before) {
                         Exception::throw("Class {$call} is not instanceof Middleware-Before");
                     }
-                    $Before->handle($params);
+                    $Before->handle();
                 };
             }
         } // if call instanceof Closure, combine the middleware and
@@ -57,7 +80,8 @@ class Before extends Middleware
     /**
      * 清空before
      */
-    public static function clear(){
+    public static function clear()
+    {
         static::$before = [];
     }
 

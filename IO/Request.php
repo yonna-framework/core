@@ -5,6 +5,7 @@
 
 namespace Yonna\IO;
 
+use SimpleXMLElement;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
@@ -35,6 +36,7 @@ class Request
     private $port = 80;
 
     private $input = '';
+    private $input_type = InputType::UN_KNOW;
     private $file = null;
     private $stack = '';
 
@@ -135,11 +137,27 @@ class Request
     }
 
     /**
+     * @param $input
+     */
+    public function setInput($input)
+    {
+        $this->input = $input;
+    }
+
+    /**
      * @return false|string|null
      */
     public function getInput()
     {
         return $this->input;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInputType(): string
+    {
+        return $this->input_type;
     }
 
     /**
@@ -241,11 +259,11 @@ class Request
             case 'GET':
                 switch ($this->content_type) {
                     case null:
-                        $this->input = json_encode($_GET);
+                        $this->input = $_GET;
                         break;
                     case 'application/x-www-form-urlencoded':
                         parse_str($rawData, $temp);
-                        $this->input = json_encode($temp);
+                        $this->input = $temp;
                         break;
                     case 'text/plain':
                     case 'application/json':
@@ -253,7 +271,7 @@ class Request
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = json_encode(simplexml_load_string($rawData));
+                        $this->input = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -265,7 +283,7 @@ class Request
                     case null:
                     case 'multipart/form-data':
                     case 'application/x-www-form-urlencoded':
-                        $this->input = json_encode($_POST);
+                        $this->input = $_POST;
                         break;
                     case 'text/plain':
                     case 'application/json':
@@ -273,7 +291,7 @@ class Request
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = json_encode(simplexml_load_string($rawData));
+                        $this->input = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -290,7 +308,7 @@ class Request
                         break;
                     case 'application/xml':
                     case 'text/xml':
-                        $this->input = json_encode(simplexml_load_string($rawData));
+                        $this->input = simplexml_load_string($rawData);
                         break;
                     default:
                         Exception::throw("not support {$this->content_type} yet");
@@ -301,7 +319,16 @@ class Request
                 Exception::throw("not support {$this->method} yet");
                 break;
         }
-        return $this;
+        if ($this->input instanceof SimpleXMLElement) {
+            $this->input_type = InputType::XML;
+            $this->input = json_encode($this->input);
+        } else if (is_array($this->input)) {
+            $this->input_type = InputType::FORM;
+            $this->input = json_encode($this->input);
+        } else {
+            $this->input_type = InputType::RAW;
+        }
+        return Crypto::input($this);
     }
 
 }

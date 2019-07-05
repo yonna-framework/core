@@ -2,12 +2,21 @@
 
 namespace Yonna\IO;
 
-use Yonna\Config\Crypto as ConfigCrypto;
 use Yonna\Foundation\Str;
-use Yonna\Exception\Exception;
+use Yonna\Response\Collector;
 
 class Crypto
 {
+
+    /**
+     * 是否隐秘请求
+     * @param Request $request
+     * @return bool
+     */
+    private static function isCrypto(Request $request): bool
+    {
+        return strpos($request->getInputType(), Config::getCryptoProtocol()) === 0;
+    }
 
     /**
      * @param $str
@@ -15,11 +24,11 @@ class Crypto
      */
     private static function encrypt(string $str)
     {
-        $type = ConfigCrypto::get('io_request_type');
-        $secret = ConfigCrypto::get('io_request_secret');
-        $iv = ConfigCrypto::get('io_request_iv');
+        $type = Config::getCryptoType();
+        $secret = Config::getCryptoSecret();
+        $iv = Config::getCryptoIv();
         if (!$type || !$secret || !$iv) {
-            Exception::abort('Crypto encrypt error');
+            return $str;
         }
         return openssl_encrypt($str, $type, $secret, 0, $iv);
     }
@@ -30,74 +39,43 @@ class Crypto
      */
     private static function decrypt(string $str)
     {
-        $type = ConfigCrypto::get('io_request_type');
-        $secret = ConfigCrypto::get('io_request_secret');
-        $iv = ConfigCrypto::get('io_request_iv');
+        $type = Config::getCryptoType();
+        $secret = Config::getCryptoSecret();
+        $iv = Config::getCryptoIv();
         if (!$type || !$secret || !$iv) {
-            Exception::abort('Crypto encrypt error');
+            return $str;
         }
         return openssl_decrypt($str, $type, $secret, 0, $iv);
     }
 
     /**
-     * 获得加密的自定义协议头
-     * 当body数据以此为协议头时，认为其为加密串
-     */
-    public static function protocol(): string
-    {
-        return ConfigCrypto::get('io_request_protocol') ?? 'CRYPTO|';
-    }
-
-    /**
-     * 是否隐秘请求
-     * @param Request $request
-     * @return bool
-     */
-    public static function isCrypto(Request $request): bool
-    {
-        return strpos($request->body, self::protocol()) === 0;
-    }
-
-    /**
-     * 对照 IO token
-     * @param Request $request
-     * @return bool
-     */
-    public static function checkToken(Request $request)
-    {
-        if (empty($request->header['platform']) || empty($request->header['token'])
-            || empty($request->header['client_id']) || empty($request->header['pure'])) {
-            return false;
-        }
-        if (ConfigCrypto::get('io_token') !== $request->header['token']) {
-            return false;
-        }
-        $token = strtolower(trim($request->user_agent . $request->header['platform'] . $request->header['client_id']));
-        $sha256 = hash_hmac('sha256', $token, ConfigCrypto::get('io_token_secret'));
-        if (!$sha256 || $request->header['pure'] !== $sha256) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 处理input
      * @param Request $request
-     * @return bool
+     * @return Request
      */
     public static function input(Request $request)
     {
-        return self::decrypt(Str::replaceFirst(self::protocol(), '', $request->body));
+        if ($request->getInputType() !== InputType::RAW || !self::isCrypto($request)) {
+            return $request;
+        }
+        $request->setInput(self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $request->getInput())));
     }
 
     /**
-     * 处理request
+     * 处理output
      * @param Request $request
-     * @return bool
+     * @param Collector $collector
+     * @return Collector
      */
-    public static function response(Request $request)
+    public static function output(Request $request, Collector $collector)
     {
-        return self::encrypt(Str::replaceFirst(self::protocol(), '', $request->body));
+        if ($request->getInputType() !== InputType::RAW || !self::isCrypto($request)) {
+            return $collector;
+        }
+        $data = ['crypto' => Config::getCryptoProtocol() . self::encrypt(json_encode($collector->getData()))];
+        $collector->setData($data);
+        return $collector;
     }
+
 
 }

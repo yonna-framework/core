@@ -18,7 +18,7 @@ abstract class Middleware implements Interfaces\Middleware
         return MiddlewareType::MIDDLEWARE;
     }
 
-    public function handle($params)
+    public function handle()
     {
     }
 

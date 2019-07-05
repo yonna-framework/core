@@ -31,11 +31,10 @@ class IO
         if (!$scope) {
             return Response::abort('no scope');
         }
-        dd(Config::fetch());
         $scope = Str::upper($scope);
-        $scope = Arr::get(Config::fetch(), "scope.{$request->method}.{$scope}");
+        $scope = Arr::get(Config::fetch(), "{$request->getMethod()}.{$scope}");
         if (!$scope) {
-            return Response::abort('no scoped');
+            return Response::abort('no scope isset');
         }
         if ($scope['call'] instanceof Closure) {
             if ($scope['before']) {
@@ -46,7 +45,7 @@ class IO
             $response = $scope['call']($request);
             if ($scope['after']) {
                 foreach ($scope['after'] as $after) {
-                    $after($scope['after'], $response);
+                    $after($scope['after'], $request, $response);
                 }
             }
             // response
@@ -55,14 +54,14 @@ class IO
             } else if (is_string($response)) {
                 $response = Response::success($response, ['string' => $response]);
             } else if (is_numeric($response)) {
-                $response = Response::success('fetch number success', [$response]);
+                $response = Response::success('fetch number success', ['number' => $response]);
             } else if (is_bool($response)) {
-                $response ? $response = Response::success('success bool') : Response::error('error bool');
+                $response ? $response = Response::success('success bool', ['bool' => $response]) : Response::error('error bool');
             }
             if (!($response instanceof Collector)) {
                 $response = Response::exception('Response must instanceof ResponseCollector');
             }
-            return $response;
+            return Crypto::output($request, $response);
         }
         return Response::abort('io destroy');
     }

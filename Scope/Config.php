@@ -13,7 +13,7 @@ use Yonna\Middleware\MiddlewareType;
  * Class Config
  * @package Yonna\Scope
  */
-abstract class Config
+class Config
 {
 
     protected static $config = array();
