@@ -11,7 +11,6 @@ use Yonna\Foundation\Str;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
 use Yonna\Scope\Config;
-use Yonna\Scope\Scope;
 
 class IO
 {
