@@ -28,6 +28,7 @@ class Request
     private $method = null;
     private $content_type = null;
     private $user_agent = null;
+    private $scope = '';
 
     private $client_id = null;
     private $host = null;
@@ -95,6 +96,22 @@ class Request
     public function getUserAgent()
     {
         return $this->user_agent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScope(): string
+    {
+        return $this->scope;
+    }
+
+    /**
+     * @param string $scope
+     */
+    public function setScope(string $scope): void
+    {
+        $this->scope = $scope;
     }
 
     /**

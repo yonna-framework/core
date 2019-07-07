@@ -31,12 +31,13 @@ class IO
         if (!$scope) {
             return Response::abort('no scope');
         }
-        $scope = Str::upper($scope);
-        $scope = Arr::get(Config::fetch(), "{$request->getMethod()}.{$scope}");
+        $scopeStr = Str::upper($scope);
+        $scope = Arr::get(Config::fetch(), "{$request->getMethod()}.{$scopeStr}");
         if (!$scope) {
             return Response::abort('no scope isset');
         }
         if ($scope['call'] instanceof Closure) {
+            $request->setScope($scopeStr);
             if ($scope['before']) {
                 foreach ($scope['before'] as $before) {
                     $before($request);

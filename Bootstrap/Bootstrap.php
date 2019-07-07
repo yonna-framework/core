@@ -10,7 +10,7 @@ use Yonna\Core;
 use Yonna\Exception\Exception;
 use Yonna\IO\IO;
 use Yonna\IO\Request;
-use Yonna\Log\Log;
+use Yonna\Log\File;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
 
@@ -70,7 +70,7 @@ class Bootstrap
 
         } catch (Throwable $e) {
             // log
-            $log = Core::get(Log::class, $Cargo->getRoot());
+            $log = Core::get(File::class, $Cargo->getRoot());
             $log->throwable($e);
             // response
             if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
