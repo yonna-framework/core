@@ -10,12 +10,11 @@ class Cargo
 
     public $root = '';
     public $app_root = '';
+    public $project_name = '';
     public $yonna_core_path = '';
     public $timezone = '';
     public $current_php_version = '';
     public $minimum_php_version = '';
-    public $url_separator = '';
-    public $app_name = '';
     public $boot_type = '';
     public $env_name = '';
 
@@ -155,37 +154,17 @@ class Cargo
     /**
      * @return string
      */
-    public function getUrlSeparator(): string
+    public function getProjectName(): string
     {
-        return $this->url_separator;
+        return $this->project_name;
     }
 
     /**
-     * @param string $url_separator
-     * @return Cargo
+     * @param string $project_name
      */
-    public function setUrlSeparator(string $url_separator): Cargo
+    public function setProjectName(string $project_name): void
     {
-        $this->url_separator = $url_separator;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAppName(): string
-    {
-        return $this->app_name;
-    }
-
-    /**
-     * @param string $app_name
-     * @return Cargo
-     */
-    public function setAppName(string $app_name): Cargo
-    {
-        $this->app_name = $app_name;
-        return $this;
+        $this->project_name = $project_name;
     }
 
     /**

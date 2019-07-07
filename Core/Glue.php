@@ -3,7 +3,6 @@
 namespace Yonna\Core;
 
 use ReflectionClass;
-use ReflectionException;
 use RuntimeException;
 
 class Glue
@@ -59,11 +58,7 @@ class Glue
         }
 
         // 如果不是反射类根据类名创建
-        try {
-            $class = is_string($class) ? new ReflectionClass($class) : $class;
-        } catch (ReflectionException $e) {
-            dd($e);
-        }
+        $class = is_string($class) ? new ReflectionClass($class) : $class;
 
         // 如果传的入参不为空，则根据入参创建实例
         if (!empty($params)) {

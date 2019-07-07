@@ -11,6 +11,7 @@ use Yonna\Bootstrap\Bootstrap;
 
 class Core
 {
+
     /**
      * 单例
      */

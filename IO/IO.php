@@ -59,11 +59,11 @@ class IO
                 $response = $response === true ? Response::success('fetch boolean success', ['bool' => $response]) : Response::error('error');
             }
             if (!($response instanceof Collector)) {
-                $response = Response::exception('Response must instanceof ResponseCollector');
+                $response = Response::notFound('Response must instanceof ResponseCollector');
             }
             return Crypto::output($request, $response);
         }
-        return Response::abort('io destroy');
+        return Response::abort('io fail');
     }
 
 }

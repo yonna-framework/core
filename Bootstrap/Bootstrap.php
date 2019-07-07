@@ -5,10 +5,12 @@
 
 namespace Yonna\Bootstrap;
 
+use Throwable;
 use Yonna\Core;
 use Yonna\Exception\Exception;
 use Yonna\IO\IO;
 use Yonna\IO\Request;
+use Yonna\Log\Log;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
 
@@ -38,9 +40,14 @@ class Bootstrap
             'env_name' => $env_name ?? 'example',
             'boot_type' => $boot_type ?? BootType::AJAX_HTTP,
         ]);
+
         // extend
         $Cargo->extend = $extend;
         try {
+
+            /**
+             * Cargo
+             */
 
             // 环境
             $Cargo = Env::install($Cargo);
@@ -51,23 +58,33 @@ class Bootstrap
             // 自定义函数
             $Cargo = Functions::install($Cargo);
 
-        } catch (\Exception $e) {
+            /**
+             * @var Request $request
+             */
+            $request = Core::singleton(Request::class, $Cargo);
+            /**
+             * @var IO $io
+             */
+            $io = Core::singleton(IO::class);
+            $collector = $io->response($request);
+
+        } catch (Throwable $e) {
+            // log
+            $log = Core::get(Log::class, $Cargo->getRoot());
+            $log->throwable($e);
+            // response
             if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
-                Exception::abort($e->getMessage());
+                if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'postman') !== false) {
+                    $collector = Response::throwable($e);
+                } else {
+                    Exception::origin($e);
+                    exit();
+                }
             } else {
-                return Response::abort($e->getMessage());
+                $collector = Response::throwable($e);
             }
         }
-
-        /**
-         * @var Request $request
-         */
-        $request = Core::singleton(Request::class, $Cargo);
-        /**
-         * @var IO $io
-         */
-        $io = Core::singleton(IO::class);
-        return $io->response($request);
+        return $collector;
     }
 
 }
