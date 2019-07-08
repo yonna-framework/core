@@ -12,7 +12,7 @@ use Yonna\Core;
 class Exec
 {
 
-    const HEAD = '>Core<: ';
+    const HEAD = '>Yonna<: ';
     const CLS = "\e[H\e[J";
 
     private static $commands = [

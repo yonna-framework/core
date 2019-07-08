@@ -62,6 +62,7 @@ class Bootstrap
              * @var Request $request
              */
             $request = Core::singleton(Request::class, $Cargo);
+            throw new \Exception(time());
             /**
              * @var IO $io
              */
@@ -70,7 +71,7 @@ class Bootstrap
 
         } catch (Throwable $e) {
             // log
-            $log = Core::get(File::class, $Cargo->getRoot());
+            $log = Core::get(File::class);
             $log->throwable($e);
             // response
             if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
