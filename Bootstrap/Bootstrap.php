@@ -7,7 +7,7 @@ namespace Yonna\Bootstrap;
 
 use Throwable;
 use Yonna\Core;
-use Yonna\Exception\Exception;
+use Yonna\Throwable\Exception;
 use Yonna\IO\IO;
 use Yonna\IO\Request;
 use Yonna\Log\File;

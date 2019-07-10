@@ -4,7 +4,7 @@ namespace Yonna\Middleware;
 
 use Closure;
 use Yonna\Core;
-use Yonna\Exception\Exception;
+use Yonna\Throwable\Exception;
 use Yonna\IO\Request;
 
 class Before extends Middleware

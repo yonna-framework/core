@@ -9,7 +9,7 @@ use SimpleXMLElement;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
-use Yonna\Exception\Exception;
+use Yonna\Throwable\Exception;
 
 /**
  * Class Request

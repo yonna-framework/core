@@ -4,7 +4,7 @@ namespace Yonna\Scope;
 
 use Closure;
 use Yonna\Core;
-use Yonna\Exception\Exception;
+use Yonna\Throwable\Exception;
 use Yonna\Middleware\After;
 use Yonna\Middleware\Before;
 use Yonna\Middleware\MiddlewareType;

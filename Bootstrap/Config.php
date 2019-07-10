@@ -2,7 +2,7 @@
 
 namespace Yonna\Bootstrap;
 
-use Yonna\Exception\Exception;
+use Yonna\Throwable\Exception;
 
 class Config
 {
