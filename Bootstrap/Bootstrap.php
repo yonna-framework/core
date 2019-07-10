@@ -10,7 +10,7 @@ use Yonna\Core;
 use Yonna\Throwable\Exception;
 use Yonna\IO\IO;
 use Yonna\IO\Request;
-use Yonna\Log\File;
+use Yonna\Log\FileLog;
 use Yonna\Response\Collector;
 use Yonna\Response\Response;
 
@@ -62,7 +62,7 @@ class Bootstrap
              * @var Request $request
              */
             $request = Core::singleton(Request::class, $Cargo);
-            throw new \Exception(time());
+
             /**
              * @var IO $io
              */
@@ -71,7 +71,7 @@ class Bootstrap
 
         } catch (Throwable $e) {
             // log
-            $log = Core::get(File::class);
+            $log = Core::get(FileLog::class);
             $log->throwable($e);
             // response
             if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
