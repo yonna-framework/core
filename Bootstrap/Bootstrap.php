@@ -5,6 +5,7 @@
 
 namespace Yonna\Bootstrap;
 
+use ErrorException;
 use Throwable;
 use Yonna\Core;
 use Yonna\Throwable\Exception;
@@ -74,15 +75,22 @@ class Bootstrap
             $log = Core::get(FileLog::class);
             $log->throwable($e);
             // response
-            if ((getenv('IS_DEBUG') && getenv('IS_DEBUG') === 'true')) {
-                if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'postman') !== false) {
-                    $collector = Response::throwable($e);
-                } else {
-                    Exception::origin($e);
-                    exit();
-                }
+            $origin = true;
+            if (!(getenv('IS_DEBUG') || getenv('IS_DEBUG') !== 'true')) {
+                $origin = false;
+            }
+            if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'postman') !== false) {
+                $origin = false;
+            }
+            if ($origin === true) {
+                Exception::origin($e);
+                exit();
             } else {
-                $collector = Response::throwable($e);
+                if ($e instanceof ErrorException) {
+                    $collector = Response::error($e->getMessage());
+                } else {
+                    $collector = Response::throwable($e);
+                }
             }
         }
         return $collector;
