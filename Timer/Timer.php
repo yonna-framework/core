@@ -7,7 +7,6 @@ namespace Yonna\Timer;
 
 use Closure;
 use Swoole\Timer as SwTimer;
-use Yonna\Throwable\Exception;
 
 /**
  * Class Timer
@@ -20,65 +19,54 @@ class Timer
      * 计时器集
      * @var array
      */
-    private $timer = [];
+    private static $timers = [];
 
     /**
      * 定时任务集合
      * @var array
      */
-    private $cron = [];
+    private static $crons = [];
 
     /**
-     * Timer constructor.
+     * @return array
      */
-    public function __construct()
+    public static function getTimers(): array
     {
-        if (!class_exists(SwTimer::class)) {
-            Exception::throw('Swoole\Timer is not exist');
-        }
+        return self::$timers;
+    }
+
+    /**
+     * @param array $timers
+     */
+    public static function setTimers(array $timers): void
+    {
+        self::$timers = $timers;
     }
 
     /**
      * @return array
      */
-    public function getTimer(): array
+    public static function getCron(): array
     {
-        return $this->timer;
-    }
-
-    /**
-     * @param array $timer
-     */
-    public function setTimer(array $timer): void
-    {
-        $this->timer = $timer;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCron(): array
-    {
-        return $this->cron;
+        return self::$crons;
     }
 
     /**
      * @param array $cron
      */
-    public function setCron(array $cron): void
+    public static function setCron(array $cron): void
     {
-        $this->cron = $cron;
+        self::$crons = $cron;
     }
-
 
 
     /**
      * 清除单个计时器
      * @return bool
      */
-    public function clearAll(): bool
+    public static function clearAll(): bool
     {
-        $this->timer = [];
+        self::$timers = [];
         return SwTimer::clearAll();
     }
 
@@ -87,10 +75,10 @@ class Timer
      * @param int $timerId
      * @return bool
      */
-    public function clear(int $timerId): bool
+    public static function clear(int $timerId): bool
     {
-        $index = array_search($timerId, $this->timer);
-        array_splice($this->timer, $index, 1);
+        $index = array_search($timerId, self::$timers);
+        array_splice(self::$timers, $index, 1);
         return SwTimer::clear($timerId);
     }
 
@@ -99,14 +87,14 @@ class Timer
      * @param int $timerId
      * @return null
      */
-    public function info(int $timerId)
+    public static function info(int $timerId)
     {
-        if (!in_array($timerId, $this->timer)) {
+        if (!in_array($timerId, self::$timers)) {
             return null;
         }
         $info = SwTimer::info($timerId);
         if ($info['removed']) {
-            $this->clear($timerId);
+            self::clear($timerId);
             $info = null;
         }
         return $info;
@@ -116,7 +104,7 @@ class Timer
      * 获取统计信息
      * @return array
      */
-    public function stats(): array
+    public static function stats(): array
     {
         return SwTimer::stats();
     }
@@ -127,17 +115,35 @@ class Timer
      * @param Closure $call
      * @return int timer-id
      */
-    public function once(int $microsecond, Closure $call): int
+    public static function once(int $microsecond, Closure $call): int
     {
         $timerId = SwTimer::after($microsecond, $call);
-        $this->timer[] = $timerId;
+        self::$timers[] = $timerId;
         return $timerId;
     }
 
 
-    public function cron(int $microsecond, Closure $call)
+    /**
+     * 定时任务
+     * @param int $microsecond
+     * @param Closure $call
+     * @param $params
+     */
+    public static function cron(int $microsecond, Closure $call, ... $params)
     {
-
+        if (!isset(self::$crons[$microsecond])) {
+            SwTimer::tick($microsecond, function (int $timer_id, ... $params) use ($microsecond) {
+                if (empty(Timer::$crons[$microsecond])) {
+                    Timer::clear($timer_id);
+                    return;
+                }
+                foreach (Timer::$crons[$microsecond] as $c) {
+                    $c($params);
+                }
+            }, $params);
+            self::$crons[$microsecond] = [];
+        }
+        self::$crons[$microsecond][] = $call;
     }
 
 }
