@@ -35,11 +35,11 @@ abstract class Kernel implements Interfaces\Kernel
     }
 
     /**
-     * @return \Yonna\IO\Input
+     * @return false|string|null
      */
     protected function input()
     {
-        return $this->request()->input;
+        return $this->request()->getInput();
     }
 
 }

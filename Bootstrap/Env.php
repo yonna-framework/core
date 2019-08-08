@@ -9,7 +9,6 @@ use Dotenv\Dotenv;
 use Exception;
 use Whoops\Handler\PrettyPageHandler as WhoopsHandlerPrettyPageHandler;
 use Whoops\Run as WhoopsRun;
-use Yonna\Log\FileLog;
 
 class Env
 {
