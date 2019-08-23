@@ -213,15 +213,14 @@ class Request
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
-                $header = array();
-                $server = array();
+                $server = [];
+                $this->header = [];
                 foreach ($_SERVER as $k => $v) {
                     $server[strtolower($k)] = $v;
                     if (strpos($k, 'HTTP_') === 0) {
-                        $header[strtolower(str_replace('HTTP_', '', $k))] = $v;
+                        $this->header[strtolower(str_replace('HTTP_', '', $k))] = $v;
                     }
                 }
-                $this->header = $header;
                 $this->cookie = $_COOKIE;
                 $this->method = strtoupper($server['request_method']);
                 $this->user_agent = $this->header['user_agent'];
@@ -231,14 +230,15 @@ class Request
                 break;
             case BootType::SWOOLE_HTTP:
                 $extend = $this->cargo->getExtend();
-                $this->header = array();
+                $server = $extend['request']['server'];
+                $this->header = [];
                 foreach ($extend['request']['header'] as $hk => $hv) {
                     $this->header[str_replace('-', '_', $hk)] = $hv;
                 }
                 $this->cookie = $extend['request']['cookie'];
-                $this->method = strtoupper($extend['request']['server']['request_method']);
+                $this->method = strtoupper($server['request_method']);
                 $this->user_agent = $this->header['user_agent'];
-                $this->content_type = !empty($server['content_type']) ? strtolower(explode(';', $server['content_type'])[0]) : null;
+                $this->content_type = !empty($this->header['content_type']) ? strtolower(explode(';', $this->header['content_type'])[0]) : null;
                 $this->file = Parse::fileData($extend['request']['files']);
                 $rawData = $extend['request']['rawData'];
                 break;

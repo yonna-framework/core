@@ -79,7 +79,9 @@ class Bootstrap
             if (!(getenv('IS_DEBUG') || getenv('IS_DEBUG') !== 'true')) {
                 $origin = false;
             }
-            if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'postman') !== false) {
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? $extend['request']['header']['user_agent'] ?? null;
+            var_dump($userAgent);
+            if ($userAgent !== null && strpos(strtolower($userAgent), 'postman') !== false) {
                 $origin = false;
             }
             if ($origin === true) {
