@@ -80,7 +80,6 @@ class Bootstrap
                 $origin = false;
             }
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? $extend['request']['header']['user_agent'] ?? null;
-            var_dump($userAgent);
             if ($userAgent !== null && strpos(strtolower($userAgent), 'postman') !== false) {
                 $origin = false;
             }
