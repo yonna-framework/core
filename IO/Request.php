@@ -273,10 +273,12 @@ class Request
                 $extend = $this->cargo->getExtend();
                 $this->header = [
                     'x_real_ip' => $extend['connection']->getRemoteIp(),
+                    'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
+                    'client_id' => BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['worker_id'],
                 ];
                 $this->cookie = [];
                 $this->method = 'STREAM';
-                $this->user_agent = BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['worker_id'];
+                $this->user_agent = $this->header['client_id'];
                 $this->content_type = 'application/json';
                 $rawData = $extend['request'] ?? '';
                 break;
@@ -308,12 +310,12 @@ class Request
             $this->ssl = true;
         }
         // HOST / PORT
-        $this->host = $header['x_host'] ?? $header['host'] ?? $server['server_name'] ?? null;
+        $this->host = $this->header['x_host'] ?? $this->header['host'] ?? $server['server_name'] ?? null;
         if ($this->host) {
             $this->port = explode(':', $this->host);
             $this->port = $this->port[1] ?? 80;
             if (strpos($this->host, ':') === false || strpos($this->host, ':') > 6) {
-                $this->host = ($this->ssl ? 'http' : 'https') . '://' . $this->host;
+                $this->host = ($this->ssl ? 'https' : 'http') . '://' . $this->host;
             }
         }
         // 处理协议，将可能的数据转为json字符串记录在input
