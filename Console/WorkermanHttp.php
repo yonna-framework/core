@@ -49,7 +49,6 @@ class WorkermanHttp extends Console
                 BootType::WORKERMAN_HTTP,
                 array(
                     'connection' => $connection,
-                    'worker_id' => $connection->worker->id,
                     'request' => $request,
                 )
             );

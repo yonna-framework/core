@@ -27,6 +27,7 @@ class Exec
         array('key' => ['wmh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman http server'),
         array('key' => ['wmws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman websocket server'),
         array('key' => ['wmt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman tcp server'),
+        array('key' => ['wmu'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman udp server'),
     ];
     private static $commandKeys = [];
     private static $help = '';
@@ -115,6 +116,9 @@ class Exec
                         break;
                     case 'wmt':
                         Core::get(WorkermanTcp::class, $root_path, $options)->run();
+                        break;
+                    case 'wmu':
+                        Core::get(WorkermanUdp::class, $root_path, $options)->run();
                         break;
                     case 'pkg':
                         Core::get(Package::class, $root_path, $options)->run();

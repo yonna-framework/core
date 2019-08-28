@@ -3,16 +3,16 @@
 namespace Yonna\Console;
 
 use Exception;
-use Workerman\Connection\TcpConnection;
+use Workerman\Connection\UdpConnection;
 use Yonna\Core;
 use Yonna\Bootstrap\BootType;
 use Yonna\Response\Collector;
 
 /**
- * Class WorkermanWebsocket
+ * Class WorkermanUdp
  * @package Yonna\Console
  */
-class WorkermanWebsocket extends Console
+class WorkermanUdp extends Console
 {
 
     private $worker = null;
@@ -38,15 +38,15 @@ class WorkermanWebsocket extends Console
 
     public function run()
     {
-        $this->worker = new \Workerman\Worker("websocket://0.0.0.0:{$this->options['p']}");
+        $this->worker = new \Workerman\Worker("udp://0.0.0.0:{$this->options['p']}");
 
         $this->worker->count = 4;
 
-        $this->worker->onMessage = function (TcpConnection $connection, $message) {
+        $this->worker->onMessage = function (UdpConnection $connection, $message) {
             $responseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
-                BootType::WORKERMAN_WEB_SOCKET,
+                BootType::WORKERMAN_UDP,
                 array(
                     'connection' => $connection,
                     'request' => $message,
