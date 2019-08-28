@@ -250,7 +250,9 @@ class Request
             case BootType::WORKERMAN_HTTP:
                 $extend = $this->cargo->getExtend();
                 $server = $extend['request']['server'];
-                $this->header = [];
+                $this->header = [
+                    'x_real_ip' => $extend['connection']->getRemoteIp(),
+                ];
                 foreach ($server as $hk => $hv) {
                     $hk = strtolower($hk);
                     $server[$hk] = $hv;
@@ -268,6 +270,15 @@ class Request
                 $rawData = $GLOBALS['HTTP_RAW_POST_DATA'];
                 break;
             case BootType::WORKERMAN_WEB_SOCKET:
+                $extend = $this->cargo->getExtend();
+                $this->header = [
+                    'x_real_ip' => $extend['connection']->getRemoteIp(),
+                ];
+                $this->cookie = [];
+                $this->method = 'STREAM';
+                $this->user_agent = BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['worker_id'];
+                $this->content_type = 'application/json';
+                $rawData = $extend['request'] ?? '';
                 break;
             case BootType::WORKERMAN_TCP:
                 break;
@@ -365,6 +376,9 @@ class Request
                         Exception::throw("not support {$this->content_type} yet");
                         break;
                 }
+                break;
+            case 'STREAM':
+                $this->raw = $rawData;
                 break;
             default:
                 Exception::throw("not support {$this->method} yet");

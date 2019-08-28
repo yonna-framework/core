@@ -3,6 +3,7 @@
 namespace Yonna\Console;
 
 use Exception;
+use Workerman\Connection\TcpConnection;
 use Yonna\Core;
 use Yonna\Bootstrap\BootType;
 use Yonna\Response\Collector;
@@ -41,13 +42,13 @@ class WorkermanHttp extends Console
 
         $this->worker->count = 4;
 
-        $this->worker->onMessage = function ($connection, $request) {
+        $this->worker->onMessage = function (TcpConnection $connection, $request) {
             $responseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
                 BootType::WORKERMAN_HTTP,
                 array(
-                    'connection_id' => $connection->id,
+                    'connection' => $connection,
                     'worker_id' => $connection->worker->id,
                     'request' => $request,
                 )

@@ -5,6 +5,7 @@ namespace Yonna\Console;
 use Exception;
 use Yonna\Core;
 use Yonna\Bootstrap\BootType;
+use Yonna\Response\Collector;
 
 /**
  * Class WorkermanWebsocket
@@ -40,15 +41,22 @@ class WorkermanWebsocket extends Console
 
         $this->worker->count = 4;
 
-        $this->worker->onMessage = function ($connection, $data) {
-            print_r($connection);
-            print_r($data);
-            $ResponseCollector = Core::bootstrap(
+        $this->worker->onMessage = function ($connection, $message) {
+            $responseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
-                BootType::WORKERMAN_WEB_SOCKET
+                BootType::WORKERMAN_WEB_SOCKET,
+                array(
+                    'connection' => $connection,
+                    'worker_id' => $connection->worker->id,
+                    'request' => $message,
+                )
             );
-            $connection->send($ResponseCollector->toJson());
+            if ($responseCollector instanceof Collector) {
+                $connection->send($responseCollector->response());
+            } else {
+                $connection->send('response error');
+            }
         };
 
         \Workerman\Worker::runAll();

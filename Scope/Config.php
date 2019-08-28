@@ -87,7 +87,7 @@ class Config
      * @param Closure | string $call
      * @param string $action
      */
-    public static function post(string $key, $call, string $action = 'post')
+    public static function post(string $key, $call, string $action = 'index')
     {
         self::add('post', $key, $call, $action);
     }
@@ -98,7 +98,7 @@ class Config
      * @param Closure | string $call
      * @param string $action
      */
-    public static function get(string $key, $call, string $action = 'get')
+    public static function get(string $key, $call, string $action = 'index')
     {
         self::add('get', $key, $call, $action);
     }
@@ -109,7 +109,7 @@ class Config
      * @param Closure | string $call
      * @param string $action
      */
-    public static function put(string $key, $call, string $action = 'put')
+    public static function put(string $key, $call, string $action = 'index')
     {
         self::add('put', $key, $call, $action);
     }
@@ -120,7 +120,7 @@ class Config
      * @param Closure | string $call
      * @param string $action
      */
-    public static function delete(string $key, $call, string $action = 'delete')
+    public static function delete(string $key, $call, string $action = 'index')
     {
         self::add('delete', $key, $call, $action);
     }
@@ -131,9 +131,20 @@ class Config
      * @param Closure | string $call
      * @param string $action
      */
-    public static function patch(string $key, $call, string $action = 'patch')
+    public static function patch(string $key, $call, string $action = 'index')
     {
         self::add('patch', $key, $call, $action);
+    }
+
+    /**
+     * STREAM
+     * @param string $key
+     * @param Closure | string $call
+     * @param string $action
+     */
+    public static function stream(string $key, $call, string $action = 'index')
+    {
+        self::add('stream', $key, $call, $action);
     }
 
     /**
