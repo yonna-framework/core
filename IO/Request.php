@@ -215,10 +215,11 @@ class Request
             case BootType::AJAX_HTTP:
                 $server = [];
                 $this->header = [];
-                foreach ($_SERVER as $k => $v) {
-                    $server[strtolower($k)] = $v;
-                    if (strpos($k, 'HTTP_') === 0) {
-                        $this->header[strtolower(str_replace('HTTP_', '', $k))] = $v;
+                foreach ($_SERVER as $hk => $hv) {
+                    $hk = strtolower($hk);
+                    $server[$hk] = $hv;
+                    if (strpos($hk, 'http_') === 0) {
+                        $this->header[str_replace('http_', '', $hk)] = $hv;
                     }
                 }
                 $this->cookie = $_COOKIE;
@@ -245,6 +246,30 @@ class Request
             case BootType::SWOOLE_WEB_SOCKET:
                 break;
             case BootType::SWOOLE_TCP:
+                break;
+            case BootType::WORKERMAN_HTTP:
+                $extend = $this->cargo->getExtend();
+                $server = $extend['request']['server'];
+                $this->header = [];
+                foreach ($server as $hk => $hv) {
+                    $hk = strtolower($hk);
+                    $server[$hk] = $hv;
+                    if (strpos($hk, 'http_') === 0) {
+                        $this->header[str_replace('http_', '', $hk)] = $hv;
+                    }
+                }
+                $this->cookie = $extend['request']['cookie'];
+                $this->method = strtoupper($server['request_method']);
+                $this->user_agent = $this->header['user_agent'];
+                $this->content_type = !empty($this->header['content_type']) ? strtolower(explode(';', $this->header['content_type'])[0]) : null;
+                $this->file = Parse::fileData($extend['request']['files']);
+                $_GET = $extend['request']['get'] ?? [];
+                $_POST = $extend['request']['post'] ?? [];
+                $rawData = $GLOBALS['HTTP_RAW_POST_DATA'];
+                break;
+            case BootType::WORKERMAN_WEB_SOCKET:
+                break;
+            case BootType::WORKERMAN_TCP:
                 break;
             default:
                 Exception::throw('Request invalid boot type');

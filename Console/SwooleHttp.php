@@ -6,7 +6,6 @@ use Exception;
 use Yonna\Core;
 use Yonna\Response\Collector;
 use Yonna\Bootstrap\BootType;
-use Swoole\Http\Response;
 use swoole_http_server;
 
 /**
@@ -55,7 +54,7 @@ class SwooleHttp extends Console
             echo "worker start" . PHP_EOL;
         });
 
-        $this->server->on("request", function ($request, Response $response) {
+        $this->server->on("request", function ($request, \Swoole\Http\Response $response) {
             $request->rawData = $request->rawContent();
             $requestVars = get_object_vars($request);
             $requestVars['rawData'] = $request->rawContent();

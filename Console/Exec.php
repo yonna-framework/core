@@ -20,10 +20,13 @@ class Exec
         array('key' => ['ls', 'dir'], 'options' => '', 'desc' => 'explore dir'),
         array('key' => ['die', 'exit'], 'options' => '', 'desc' => 'exit exec'),
         array('key' => ['-h', 'help'], 'options' => '', 'desc' => 'get command list'),
+        array('key' => ['pkg'], 'options' => '-c [CONFIG PATH]', 'desc' => 'package project'),
         array('key' => ['swh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole http server'),
         array('key' => ['swws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole websocket server'),
         array('key' => ['swt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole tcp server'),
-        array('key' => ['pkg'], 'options' => '-c [CONFIG PATH]', 'desc' => 'package project'),
+        array('key' => ['wmh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman http server'),
+        array('key' => ['wmws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman websocket server'),
+        array('key' => ['wmt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman tcp server'),
     ];
     private static $commandKeys = [];
     private static $help = '';
@@ -103,6 +106,15 @@ class Exec
                         break;
                     case 'swt':
                         Core::get(SwooleTcp::class, $root_path, $options)->run();
+                        break;
+                    case 'wmh':
+                        Core::get(WorkermanHttp::class, $root_path, $options)->run();
+                        break;
+                    case 'wmws':
+                        Core::get(WorkermanWebsocket::class, $root_path, $options)->run();
+                        break;
+                    case 'wmt':
+                        Core::get(WorkermanTcp::class, $root_path, $options)->run();
                         break;
                     case 'pkg':
                         Core::get(Package::class, $root_path, $options)->run();
