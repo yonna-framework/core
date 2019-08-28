@@ -66,8 +66,8 @@ class SwooleWebsocket extends Console
             if (!$request) {
                 return;
             }
-            $requestVars['rawData'] = $frame->data;
-            $this->server->task($requestVars, -1, function ($server, $task_id, Collector $responseCollector) use ($request) {
+            $request['rawData'] = $frame->data;
+            $this->server->task($request, -1, function ($server, $task_id, Collector $responseCollector) use ($request) {
                 if ($responseCollector !== false) {
                     $server->push($request['fd'], $responseCollector->response());
                 }
@@ -75,9 +75,6 @@ class SwooleWebsocket extends Console
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
-            print_r($server);
-            print_r($request);
-            /*
             $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
@@ -89,8 +86,7 @@ class SwooleWebsocket extends Console
                     'request' => $request,
                 )
             );
-            */
-            $this->server->finish(null);
+            $this->server->finish($ResponseCollector);
         });
 
         $this->server->on('finish', function ($server, $task_id, $data) {

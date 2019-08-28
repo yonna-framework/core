@@ -245,16 +245,17 @@ class Request
                 break;
             case BootType::SWOOLE_WEB_SOCKET:
                 $extend = $this->cargo->getExtend();
-                $this->header = [
-                    'x_real_ip' => $extend['connection']->getRemoteIp(),
-                    'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
-                    'client_id' => BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['connection']->worker_id,
-                ];
-                $this->cookie = [];
+                $server = $extend['request']['server'];
+                $this->header = [];
+                foreach ($extend['request']['header'] as $hk => $hv) {
+                    $this->header[str_replace('-', '_', $hk)] = $hv;
+                }
+                $this->cookie = $extend['request']['cookie'];
                 $this->method = 'STREAM';
-                $this->user_agent = $this->header['client_id'];
-                $this->content_type = 'application/json';
-                $rawData = $extend['request'] ?? '';
+                $this->user_agent = $this->header['user_agent'];
+                $this->content_type = !empty($this->header['content_type']) ? strtolower(explode(';', $this->header['content_type'])[0]) : null;
+                $this->file = Parse::fileData($extend['request']['files']);
+                $rawData = $extend['request']['rawData'];
                 break;
             case BootType::SWOOLE_TCP:
                 break;
