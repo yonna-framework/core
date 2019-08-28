@@ -66,7 +66,7 @@ class SwooleHttp extends Console
                         $response->header($hk, $hv);
                     }
                     $response->status(200);
-                    $response->end($responseCollector->toJson());
+                    $response->end($responseCollector->response());
                 } else {
                     $response->status(403);
                     $response->end();

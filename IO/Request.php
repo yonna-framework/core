@@ -244,6 +244,17 @@ class Request
                 $rawData = $extend['request']['rawData'];
                 break;
             case BootType::SWOOLE_WEB_SOCKET:
+                $extend = $this->cargo->getExtend();
+                $this->header = [
+                    'x_real_ip' => $extend['connection']->getRemoteIp(),
+                    'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
+                    'client_id' => BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['connection']->worker_id,
+                ];
+                $this->cookie = [];
+                $this->method = 'STREAM';
+                $this->user_agent = $this->header['client_id'];
+                $this->content_type = 'application/json';
+                $rawData = $extend['request'] ?? '';
                 break;
             case BootType::SWOOLE_TCP:
                 break;

@@ -4,7 +4,7 @@ namespace Yonna\Console;
 
 use Exception;
 use Yonna\Core;
-use Yonna\IO\Collector;
+use Yonna\Response\Collector;
 use Yonna\Bootstrap\BootType;
 use swoole_websocket_server;
 
@@ -45,7 +45,7 @@ class SwooleWebsocket extends Console
             'worker_num' => 4,
             'task_worker_num' => 10,
             'heartbeat_check_interval' => 10,
-            'heartbeat_idle_time' => 180,
+            'heartbeat_idle_time' => 300,
         ));
 
         $this->server->on("start", function () {
@@ -69,25 +69,28 @@ class SwooleWebsocket extends Console
             $requestVars['rawData'] = $frame->data;
             $this->server->task($requestVars, -1, function ($server, $task_id, Collector $responseCollector) use ($request) {
                 if ($responseCollector !== false) {
-                    $server->push($request['fd'], $responseCollector->toJson());
+                    $server->push($request['fd'], $responseCollector->response());
                 }
             });
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
+            print_r($server);
+            print_r($request);
+            /*
             $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
                 BootType::SWOOLE_WEB_SOCKET,
                 array(
                     'connections' => $server->connections,
-                    'clients' => $server->clients,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,
                 )
             );
-            $this->server->finish($ResponseCollector);
+            */
+            $this->server->finish(null);
         });
 
         $this->server->on('finish', function ($server, $task_id, $data) {
