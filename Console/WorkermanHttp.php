@@ -53,7 +53,10 @@ class WorkermanHttp extends Console
                 )
             );
             if ($responseCollector instanceof Collector) {
-                $connection->headers = $responseCollector->getHeader('arr');
+                $responseHeader = $responseCollector->getHeader('arr');
+                foreach ($responseHeader as $hk => $hv) {
+                    \Workerman\Protocols\Http::header($hk . ':' . $hv);
+                }
                 $connection->send($responseCollector->response());
             } else {
                 $connection->send('response error');
