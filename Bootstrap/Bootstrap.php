@@ -62,7 +62,7 @@ class Bootstrap
             /**
              * @var Request $request
              */
-            $request = Core::singleton(Request::class, $Cargo);
+            $request = Core::get(Request::class, $Cargo);
 
             /**
              * @var IO $io

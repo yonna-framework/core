@@ -270,6 +270,8 @@ class Request
                 $rawData = $GLOBALS['HTTP_RAW_POST_DATA'];
                 break;
             case BootType::WORKERMAN_WEB_SOCKET:
+            case BootType::WORKERMAN_TCP:
+            //case BootType::WORKERMAN_UDP:
                 $extend = $this->cargo->getExtend();
                 $this->header = [
                     'x_real_ip' => $extend['connection']->getRemoteIp(),
@@ -281,8 +283,6 @@ class Request
                 $this->user_agent = $this->header['client_id'];
                 $this->content_type = 'application/json';
                 $rawData = $extend['request'] ?? '';
-                break;
-            case BootType::WORKERMAN_TCP:
                 break;
             default:
                 Exception::throw('Request invalid boot type');
