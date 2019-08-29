@@ -3,22 +3,21 @@
 namespace Yonna\Console;
 
 use Exception;
+use swoole_server;
+use Yonna\Bootstrap\BootType;
 use Yonna\Core;
 use Yonna\Response\Collector;
-use Yonna\Bootstrap\BootType;
-use swoole_websocket_server;
 
 /**
- * swoole http
- * Class SwooleHttp
+ * Class SwooleUdp
+ * @package Yonna\Console
  */
-class SwooleWebsocket extends Console
+class SwooleUdp extends Console
 {
 
     private $server = null;
     private $root_path = null;
     private $options = null;
-    private $clients = array();
 
     /**
      * SwooleHttp constructor.
@@ -28,8 +27,8 @@ class SwooleWebsocket extends Console
      */
     public function __construct($root_path, $options)
     {
-        if (!class_exists('swoole_websocket_server')) {
-            throw new Exception('class swoole_websocket_server not exists');
+        if (!class_exists('swoole_server')) {
+            throw new Exception('class swoole_server not exists');
         }
         $this->root_path = $root_path;
         $this->options = $options;
@@ -39,7 +38,7 @@ class SwooleWebsocket extends Console
 
     public function run()
     {
-        $this->server = new swoole_websocket_server("0.0.0.0", $this->options['p']);
+        $this->server = new swoole_server("0.0.0.0", $this->options['p'], SWOOLE_PROCESS, SWOOLE_SOCK_UDP);
 
         $this->server->set(array(
             'worker_num' => 4,
@@ -56,31 +55,40 @@ class SwooleWebsocket extends Console
             echo "worker start" . PHP_EOL;
         });
 
-        $this->server->on('open', function ($server, $req) {
-            echo "connection open: {$req->fd}\n";
-            $this->clients[$req->fd] = get_object_vars($req);
+        $this->server->on('connect', function ($server, $fd) {
+            echo "connection open: {$fd}\n";
         });
 
-        $this->server->on('message', function ($server, $frame) {
-            $request = $this->clients[$frame->fd];
-            if (!$request) {
-                return;
-            }
-            $request['rawData'] = $frame->data;
-            $this->server->task($request, -1, function ($server, $task_id, Collector $responseCollector) use ($request) {
+        $this->server->on('packet', function ($server, $data, $clientInfo) {
+
+            var_dump($server);
+            var_dump($data);
+            var_dump($clientInfo);
+            return;
+
+            $request = [];
+            $request['server'] = [];
+            $request['header'] = [];
+            $request['rawData'] = $data;
+            $request['client'] = $clientInfo;
+            $this->server->task($request, -1, function ($server, $task_id, Collector $responseCollector) use ($clientInfo) {
                 if ($responseCollector !== false) {
-                    $server->push($request['fd'], $responseCollector->response());
+                    $server->sendto($clientInfo['address'], $clientInfo['port'], $responseCollector->response());
                 }
             });
+        });
+
+        $this->server->on('close', function ($server, $fd) {
+            echo "connection close: {$fd}\n";
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
             $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
-                BootType::SWOOLE_WEB_SOCKET,
+                BootType::SWOOLE_TCP,
                 array(
-                    'connections' => $server->connections,
+                    'server' => $server,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,
@@ -89,7 +97,7 @@ class SwooleWebsocket extends Console
             $this->server->finish($ResponseCollector);
         });
 
-        $this->server->on('finish', function ($server, $task_id, $data) {
+        $this->server->on('finish', function ($server, $data) {
             echo "AsyncTask Finish" . PHP_EOL;
         });
 

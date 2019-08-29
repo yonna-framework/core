@@ -49,7 +49,9 @@ class WorkermanWebsocket extends Console
                 BootType::WORKERMAN_WEB_SOCKET,
                 array(
                     'connection' => $connection,
-                    'request' => $message,
+                    'request' => [
+                        'rawData' => $message
+                    ],
                 )
             );
             if ($responseCollector instanceof Collector) {

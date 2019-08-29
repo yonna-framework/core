@@ -258,6 +258,15 @@ class Request
                 $rawData = $extend['request']['rawData'];
                 break;
             case BootType::SWOOLE_TCP:
+                $extend = $this->cargo->getExtend();
+                $this->header = [
+                    'client_id' => $this->cargo->getBootType() . '#' . $extend['server']->worker_id,
+                ];
+                $this->cookie = [];
+                $this->method = 'STREAM';
+                $this->user_agent = $this->header['client_id'];
+                $this->content_type = 'application/json';
+                $rawData = $extend['request']['rawData'] ?? '';
                 break;
             case BootType::WORKERMAN_HTTP:
                 $extend = $this->cargo->getExtend();
@@ -282,43 +291,19 @@ class Request
                 $rawData = $GLOBALS['HTTP_RAW_POST_DATA'];
                 break;
             case BootType::WORKERMAN_WEB_SOCKET:
-                $extend = $this->cargo->getExtend();
-                $this->header = [
-                    'x_real_ip' => $extend['connection']->getRemoteIp(),
-                    'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
-                    'client_id' => BootType::WORKERMAN_WEB_SOCKET . '#' . $extend['connection']->worker_id,
-                ];
-                $this->cookie = [];
-                $this->method = 'STREAM';
-                $this->user_agent = $this->header['client_id'];
-                $this->content_type = 'application/json';
-                $rawData = $extend['request'] ?? '';
-                break;
             case BootType::WORKERMAN_TCP:
-                $extend = $this->cargo->getExtend();
-                $this->header = [
-                    'x_real_ip' => $extend['connection']->getRemoteIp(),
-                    'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
-                    'client_id' => BootType::WORKERMAN_TCP . '#' . $extend['connection']->worker_id,
-                ];
-                $this->cookie = [];
-                $this->method = 'STREAM';
-                $this->user_agent = $this->header['client_id'];
-                $this->content_type = 'application/json';
-                $rawData = $extend['request'] ?? '';
-                break;
             case BootType::WORKERMAN_UDP:
                 $extend = $this->cargo->getExtend();
                 $this->header = [
                     'x_real_ip' => $extend['connection']->getRemoteIp(),
                     'x_host' => $extend['connection']->getRemoteIp() . ":" . $extend['connection']->getRemotePort(),
-                    'client_id' => BootType::WORKERMAN_UDP . '#' . $extend['connection']->getRemoteAddress(),
+                    'client_id' => $this->cargo->getBootType() . '#' . $extend['connection']->worker_id,
                 ];
                 $this->cookie = [];
                 $this->method = 'STREAM';
                 $this->user_agent = $this->header['client_id'];
                 $this->content_type = 'application/json';
-                $rawData = $extend['request'] ?? '';
+                $rawData = $extend['request']['rawData'] ?? '';
                 break;
             default:
                 Exception::throw('Request invalid boot type');
@@ -336,7 +321,7 @@ class Request
         $ip && $this->ip = $ip;
         $this->local = ($ip === '127.0.0.1');
         if (!$this->ip) {
-            Exception::throw('ip yonna');
+            $this->ip = '0.0.0.0';
         }
         // SSL
         if ($this->ssl === false && ($server['request_scheme'] ?? '') === 'https') {

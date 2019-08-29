@@ -4,10 +4,13 @@ namespace Yonna\Console;
 
 use Exception;
 use swoole_server;
+use Yonna\Bootstrap\BootType;
+use Yonna\Core;
+use Yonna\Response\Collector;
 
 /**
- * Class Main
- * @package Core\Core\Console
+ * Class SwooleTcp
+ * @package Yonna\Console
  */
 class SwooleTcp extends Console
 {
@@ -40,8 +43,8 @@ class SwooleTcp extends Console
         $this->server->set(array(
             'worker_num' => 4,
             'task_worker_num' => 10,
-            'heartbeat_check_interval' => 10,
-            'heartbeat_idle_time' => 180,
+            'heartbeat_check_interval' => 30,
+            'heartbeat_idle_time' => 600,
         ));
 
         $this->server->on("start", function () {
@@ -56,14 +59,11 @@ class SwooleTcp extends Console
             echo "connection open: {$fd}\n";
         });
         $this->server->on('receive', function ($server, $fd, $reactor_id, $data) {
-            $request = $data;
-            /**
-             * 处理数据
-             */
-            $this->server->task($request, -1, function ($server, $task_id, $result) use ($fd) {
-                if ($result !== false) {
-                    $server->send($fd, $result);
-                    return;
+            $request = [];
+            $request['rawData'] = $data;
+            $this->server->task($request, -1, function ($server, $task_id, Collector $responseCollector) use ($fd) {
+                if ($responseCollector !== false) {
+                    $server->send($fd, $responseCollector->response());
                 }
             });
         });
@@ -72,8 +72,18 @@ class SwooleTcp extends Console
         });
 
         $this->server->on('task', function ($server, $task_id, $from_id, $request) {
-            $data = $this->io($request);
-            $this->server->finish($data);
+            $ResponseCollector = Core::bootstrap(
+                realpath($this->root_path),
+                $this->options['e'],
+                BootType::SWOOLE_TCP,
+                array(
+                    'server' => $server,
+                    'task_id' => $task_id,
+                    'from_id' => $from_id,
+                    'request' => $request,
+                )
+            );
+            $this->server->finish($ResponseCollector);
         });
 
         $this->server->on('finish', function ($server, $data) {

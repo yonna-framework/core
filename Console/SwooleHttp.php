@@ -9,8 +9,8 @@ use Yonna\Bootstrap\BootType;
 use swoole_http_server;
 
 /**
- * swoole http
  * Class SwooleHttp
+ * @package Yonna\Console
  */
 class SwooleHttp extends Console
 {
@@ -80,7 +80,7 @@ class SwooleHttp extends Console
                 $this->options['e'],
                 BootType::SWOOLE_HTTP,
                 array(
-                    'connections' => $server->connections,
+                    'server' => $server,
                     'task_id' => $task_id,
                     'from_id' => $from_id,
                     'request' => $request,

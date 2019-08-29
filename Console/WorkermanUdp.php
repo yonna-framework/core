@@ -49,7 +49,9 @@ class WorkermanUdp extends Console
                 BootType::WORKERMAN_UDP,
                 array(
                     'connection' => $connection,
-                    'request' => $message,
+                    'request' => [
+                        'rawData' => $message
+                    ],
                 )
             );
             if ($responseCollector instanceof Collector) {

@@ -49,7 +49,9 @@ class WorkermanTcp extends Console
                 BootType::WORKERMAN_TCP,
                 array(
                     'connection' => $connection,
-                    'request' => $message,
+                    'request' => [
+                        'rawData' => $message
+                    ],
                 )
             );
             if ($responseCollector instanceof Collector) {

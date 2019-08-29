@@ -24,6 +24,7 @@ class Exec
         array('key' => ['swh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole http server'),
         array('key' => ['swws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole websocket server'),
         array('key' => ['swt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole tcp server'),
+        array('key' => ['swu'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a swoole udp server'),
         array('key' => ['wmh'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman http server'),
         array('key' => ['wmws'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman websocket server'),
         array('key' => ['wmt'], 'options' => '-p [PORT] -e [ENV]', 'desc' => 'start a workerman tcp server'),
@@ -107,6 +108,9 @@ class Exec
                         break;
                     case 'swt':
                         Core::get(SwooleTcp::class, $root_path, $options)->run();
+                        break;
+                    case 'swu':
+                        Core::get(SwooleUdp::class, $root_path, $options)->run();
                         break;
                     case 'wmh':
                         Core::get(WorkermanHttp::class, $root_path, $options)->run();
