@@ -268,6 +268,8 @@ class Request
                 $this->content_type = 'application/json';
                 $rawData = $extend['request']['rawData'] ?? '';
                 break;
+            case BootType::SWOOLE_UDP:
+                break;
             case BootType::WORKERMAN_HTTP:
                 $extend = $this->cargo->getExtend();
                 $server = $extend['request']['server'];
