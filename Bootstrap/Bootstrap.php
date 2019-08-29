@@ -30,6 +30,7 @@ class Bootstrap
      * @param null $boot_type
      * @param null $extend
      * @return Collector
+     * @throws null
      */
     public function boot($root, $env_name, $boot_type, $extend = null)
     {

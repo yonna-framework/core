@@ -6,6 +6,7 @@
 namespace Yonna\IO;
 
 use SimpleXMLElement;
+use Yonna\Core;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Bootstrap\Cargo;
@@ -21,6 +22,8 @@ class Request
      * @var Cargo
      */
     private $cargo = null;
+
+    private $server = null;
 
     private $local = false;
     private $header = null;
@@ -48,6 +51,14 @@ class Request
     public function getCargo(): Cargo
     {
         return $this->cargo;
+    }
+
+    /**
+     * @return Server
+     */
+    public function getServer(): Server
+    {
+        return $this->server;
     }
 
     /**
@@ -210,6 +221,7 @@ class Request
     public function __construct(object $cargo)
     {
         $this->cargo = $cargo;
+        $this->server = Core::get(Server::class);
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
