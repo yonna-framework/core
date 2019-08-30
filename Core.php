@@ -8,6 +8,7 @@ namespace Yonna;
 
 use Yonna\Core\Glue;
 use Yonna\Bootstrap\Bootstrap;
+use Yonna\IO\RequestBuilder;
 
 class Core
 {
@@ -75,10 +76,10 @@ class Core
      * @param $root
      * @param null $env_name
      * @param null $boot_type
-     * @param null $extend
+     * @param RequestBuilder | null $builder
      * @return Response\Collector
      */
-    public static function bootstrap($root, $env_name, $boot_type, $extend = null)
+    public static function bootstrap($root, $env_name, $boot_type, RequestBuilder $builder = null)
     {
         // autoload
         spl_autoload_register(function ($res) use ($root) {
@@ -95,7 +96,7 @@ class Core
          * @var Bootstrap $bootstrap
          */
         $bootstrap = Core::get(Bootstrap::class);
-        return $bootstrap->boot($root, $env_name, $boot_type, $extend);
+        return $bootstrap->boot($root, $env_name, $boot_type, $builder);
     }
 
 }

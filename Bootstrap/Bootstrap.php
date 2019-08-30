@@ -8,6 +8,7 @@ namespace Yonna\Bootstrap;
 use ErrorException;
 use Throwable;
 use Yonna\Core;
+use Yonna\IO\RequestBuilder;
 use Yonna\Throwable\Exception;
 use Yonna\IO\IO;
 use Yonna\IO\Request;
@@ -28,11 +29,11 @@ class Bootstrap
      * @param $root
      * @param null $env_name
      * @param null $boot_type
-     * @param null $extend
+     * @param RequestBuilder|null $builder
      * @return Collector
      * @throws null
      */
-    public function boot($root, $env_name, $boot_type, $extend = null)
+    public function boot($root, $env_name, $boot_type, RequestBuilder $builder = null)
     {
         /**
          * @var $Cargo Cargo
@@ -43,8 +44,6 @@ class Bootstrap
             'boot_type' => $boot_type ?? BootType::AJAX_HTTP,
         ]);
 
-        // extend
-        $Cargo->extend = $extend;
         try {
 
             /**
@@ -63,7 +62,7 @@ class Bootstrap
             /**
              * @var Request $request
              */
-            $request = Core::get(Request::class, $Cargo);
+            $request = Core::get(Request::class, $Cargo, $builder);
 
             /**
              * @var IO $io

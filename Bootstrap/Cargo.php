@@ -18,8 +18,6 @@ class Cargo
     public $boot_type = '';
     public $env_name = '';
 
-    public $extend = null;
-
     public $config_qty = 0;
     public $function_qty = 0;
     public $foundation_qty = 0;
@@ -29,7 +27,8 @@ class Cargo
     public $debug = false;
     public $memory_limit_on = false;
 
-    public $env = array();
+    public $env =[];
+
 
     /**
      * Cargo constructor.
@@ -83,14 +82,6 @@ class Cargo
     public function getYonnaCorePath(): string
     {
         return $this->yonna_core_path;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExtend()
-    {
-        return $this->extend;
     }
 
 

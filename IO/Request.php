@@ -6,222 +6,31 @@
 namespace Yonna\IO;
 
 use SimpleXMLElement;
-use Yonna\Core;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
-use Yonna\Bootstrap\Cargo;
 use Yonna\Throwable\Exception;
 
 /**
  * Class Request
  * @package Core\Core\IO
  */
-class Request
+class Request extends RequestBuilder
 {
-    /**
-     * @var Cargo
-     */
-    private $cargo = null;
 
-    private $server = null;
-
-    private $local = false;
-    private $header = null;
-    private $cookie = null;
-    private $method = null;
-    private $content_type = null;
-    private $user_agent = null;
-    private $scope = '';
-
-    private $client_id = null;
-    private $host = null;
-    private $ssl = false;
-    private $ip = '127.0.0.1';
-    private $port = 80;
-
-    private $raw = '';
-    private $input = '';
-    private $input_type = InputType::UN_KNOW;
-    private $file = null;
-    private $stack = '';
-
-    /**
-     * @return Cargo
-     */
-    public function getCargo(): Cargo
+    private function loadServer()
     {
-        return $this->cargo;
-    }
 
-    /**
-     * @return Server
-     */
-    public function getServer(): Server
-    {
-        return $this->server;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLocal(): bool
-    {
-        return $this->local;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getHeader()
-    {
-        return $this->header;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCookie()
-    {
-        return $this->cookie;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getMethod(): ?string
-    {
-        return $this->method;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getContentType(): ?string
-    {
-        return $this->content_type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUserAgent()
-    {
-        return $this->user_agent;
-    }
-
-    /**
-     * @return string
-     */
-    public function getScope(): string
-    {
-        return $this->scope;
-    }
-
-    /**
-     * @param string $scope
-     */
-    public function setScope(string $scope): void
-    {
-        $this->scope = $scope;
-    }
-
-    /**
-     * @return mixed|string|null
-     */
-    public function getClientId()
-    {
-        return $this->client_id;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getHost(): ?string
-    {
-        return $this->host;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSsl(): bool
-    {
-        return $this->ssl;
-    }
-
-    /**
-     * @return mixed|string|null
-     */
-    public function getIp()
-    {
-        return $this->ip;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPort(): int
-    {
-        return $this->port;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRaw(): string
-    {
-        return $this->raw;
-    }
-
-    /**
-     * @param $input
-     */
-    public function setInput($input)
-    {
-        $this->input = $input;
-    }
-
-    /**
-     * @return false|string|null
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInputType(): string
-    {
-        return $this->input_type;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getFile(): ?array
-    {
-        return $this->file;
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function getStack()
-    {
-        return $this->stack;
     }
 
 
     /**
      * Request constructor.
      * @param object $cargo
+     * @throws Exception\ThrowException
      */
     public function __construct(object $cargo)
     {
         $this->cargo = $cargo;
-        $this->server = Core::get(Server::class);
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
