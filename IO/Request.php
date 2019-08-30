@@ -6,6 +6,7 @@
 namespace Yonna\IO;
 
 use SimpleXMLElement;
+use Yonna\Bootstrap\Cargo;
 use Yonna\Foundation\Parse;
 use Yonna\Bootstrap\BootType;
 use Yonna\Throwable\Exception;
@@ -17,20 +18,46 @@ use Yonna\Throwable\Exception;
 class Request extends RequestBuilder
 {
 
-    private function loadServer()
+    /**
+     * 读取全局变量
+     */
+    private function loadGlobal()
     {
-
+        $this->setGet($_GET ?? []);
+        $this->setPost($_POST ?? []);
+        $this->setRequest($_REQUEST ?? []);
+        $this->setFiles($_FILES ?? []);
+        $this->setSession($_SESSION ?? []);
+        $this->setCookie($_COOKIE ?? []);
+        $this->setRawData(file_get_contents('php://input') ?? $GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
+        // $_SERVER;
     }
 
+    /**
+     * 读取拓展 RequestBuilder
+     * @param RequestBuilder $requestBuilder
+     */
+    private function loadRequestBuilder(RequestBuilder $requestBuilder)
+    {
+        // $_SERVER;
+    }
 
     /**
      * Request constructor.
-     * @param object $cargo
+     * @param Cargo $cargo
+     * @param RequestBuilder|null $requestBuilder
      * @throws Exception\ThrowException
      */
-    public function __construct(object $cargo)
+    public function __construct(Cargo $cargo, RequestBuilder $requestBuilder = null)
     {
+        // load cargo
         $this->cargo = $cargo;
+        // load global
+        $this->loadGlobal();
+        // load builder
+        if ($requestBuilder != null && $requestBuilder instanceof RequestBuilder) {
+            $this->loadRequestBuilder($requestBuilder);
+        }
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
