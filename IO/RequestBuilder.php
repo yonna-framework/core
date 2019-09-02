@@ -92,7 +92,7 @@ class RequestBuilder
      * extent set
      */
     protected $raw_data = '';
-    protected $input = '';
+    protected $input = [];
     protected $input_type = InputType::UN_KNOW;
     protected $ip = '0.0.0.0';
     protected $port = 80;
@@ -1204,17 +1204,17 @@ class RequestBuilder
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getInput(): string
+    public function getInput(): array
     {
         return $this->input;
     }
 
     /**
-     * @param string $input
+     * @param array $input
      */
-    public function setInput(string $input): void
+    public function setInput(array $input): void
     {
         $this->input = $input;
     }

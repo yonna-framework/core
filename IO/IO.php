@@ -32,7 +32,7 @@ class IO
             return Response::abort('no scope');
         }
         $scopeStr = Str::upper($scope);
-        $scope = Arr::get(Config::fetch(), "{$request->getMethod()}.{$scopeStr}");
+        $scope = Arr::get(Config::fetch(), "{$request->getRequestMethod()}.{$scopeStr}");
         if (!$scope) {
             return Response::abort('no scope isset');
         }

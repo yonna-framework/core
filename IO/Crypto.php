@@ -15,7 +15,7 @@ class Crypto
      */
     private static function isCrypto(Request $request): bool
     {
-        return $request->getInputType() === InputType::RAW && strpos($request->getRawDataData(), Config::getCryptoProtocol()) === 0;
+        return $request->getInputType() === InputType::RAW && strpos($request->getRawData(), Config::getCryptoProtocol()) === 0;
     }
 
     /**
