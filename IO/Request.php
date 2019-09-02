@@ -19,67 +19,6 @@ class Request extends RequestBuilder
 {
 
     /**
-     * 读取全局变量
-     */
-    private function loadGlobal()
-    {
-        $this->setGet($_GET ?? []);
-        $this->setPost($_POST ?? []);
-        $this->setRequest($_REQUEST ?? []);
-        $this->setFiles($_FILES ? Parse::fileData($_FILES) : []);
-        $this->setCookie($_COOKIE ?? []);
-        $this->setSession($_SESSION ?? []);
-        $this->setRawData(file_get_contents('php://input') ?? $GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
-        $this->setPhpSelf($_SERVER['PHP_SELF']);
-        $this->setGatewayInterface($_SERVER['GATEWAY_INTERFACE']);
-        $this->setRequestMethod($_SERVER['REQUEST_METHOD']);
-        $this->setRequestTime($_SERVER['REQUEST_TIME']);
-        $this->setRequestTimeFloat($_SERVER['REQUEST_TIME_FLOAT']);
-        $this->setQueryString($_SERVER['QUERY_STRING']);
-        $this->setDocumentRoot($_SERVER['DOCUMENT_ROOT']);
-        $this->setHttpAccept($_SERVER['HTTP_ACCEPT']);
-        $this->setHttpAcceptCharset($_SERVER['HTTP_ACCEPT_CHARSET']);
-        $this->setHttpAcceptEncoding($_SERVER['HTTP_ACCEPT_ENCODING']);
-        $this->setHttpAcceptLanguage($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        $this->setHttpConnection($_SERVER['HTTP_CONNECTION']);
-        $this->setHttpHost($_SERVER['HTTP_HOST']);
-        $this->setHttpReferer($_SERVER['HTTP_REFERER']);
-        $this->setHttpUserAgent($_SERVER['HTTP_USER_AGENT']);
-        $this->setHttps($_SERVER['HTTPS']);
-        $this->setRemoteAddr($_SERVER['REMOTE_ADDR']);
-        $this->setRemoteHost($_SERVER['REMOTE_HOST']);
-        $this->setRemotePort($_SERVER['REMOTE_PORT']);
-        $this->setRemoteUser($_SERVER['REMOTE_USER']);
-        $this->setRedirectRemoteUser($_SERVER['REDIRECT_REMOTE_USER']);
-        $this->setScriptFilename($_SERVER['SCRIPT_FILENAME']);
-        $this->setServerAddr($_SERVER['SERVER_ADDR']);
-        $this->setServerName($_SERVER['SERVER_NAME']);
-        $this->setServerSoftware($_SERVER['SERVER_SOFTWARE']);
-        $this->setServerProtocol($_SERVER['SERVER_PROTOCOL']);
-        $this->setServerAdmin($_SERVER['SERVER_ADMIN']);
-        $this->setServerPort($_SERVER['SERVER_PORT']);
-        $this->setServerSignature($_SERVER['SERVER_SIGNATURE']);
-        $this->setPathTranslated($_SERVER['PATH_TRANSLATED']);
-        $this->setScriptName($_SERVER['SCRIPT_NAME']);
-        $this->setRequestUri($_SERVER['REQUEST_URI']);
-        $this->setPhpAuthDigest($_SERVER['PHP_AUTH_DIGEST']);
-        $this->setPhpAuthUser($_SERVER['PHP_AUTH_USER']);
-        $this->setPhpAuthPw($_SERVER['PHP_AUTH_PW']);
-        $this->setAuthType($_SERVER['AUTH_TYPE']);
-        $this->setOrigPathInfo($_SERVER['ORIG_PATH_INFO']);
-        $this->setPathInfo($_SERVER['PATH_INFO']);
-    }
-
-    /**
-     * 读取拓展 RequestBuilder
-     * @param RequestBuilder $requestBuilder
-     */
-    private function loadRequestBuilder(RequestBuilder $requestBuilder)
-    {
-        $this->cover($requestBuilder);
-    }
-
-    /**
      * Request constructor.
      * @param Cargo $cargo
      * @param RequestBuilder|null $requestBuilder
@@ -95,6 +34,8 @@ class Request extends RequestBuilder
         if ($requestBuilder != null && $requestBuilder instanceof RequestBuilder) {
             $this->loadRequestBuilder($requestBuilder);
         }
+        print_r($this);
+        exit();
         $rawData = null;
         switch ($this->cargo->getBootType()) {
             case BootType::AJAX_HTTP:
