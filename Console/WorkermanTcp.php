@@ -6,6 +6,7 @@ use Exception;
 use Workerman\Connection\TcpConnection;
 use Yonna\Core;
 use Yonna\Bootstrap\BootType;
+use Yonna\IO\RequestBuilder;
 use Yonna\Response\Collector;
 
 /**
@@ -36,6 +37,36 @@ class WorkermanTcp extends Console
         return $this;
     }
 
+    /**
+     * build a request
+     * @param mixed ...$options
+     * @return RequestBuilder
+     */
+    private function requestBuilder(...$options): RequestBuilder
+    {
+        $connection = $options[0];
+        $message = $options[1];
+        $client_id = BootType::WORKERMAN_TCP . '#' . $connection->worker_id;
+        /**
+         * @var RequestBuilder $requestBuilder
+         */
+        $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setHttpXRealIp($connection->getRemoteIp());
+        $requestBuilder->setHttpClientIp($connection->getRemoteIp());
+        $requestBuilder->setRemoteAddr($connection->getRemoteIp());
+        $requestBuilder->setRemotePort($connection->getRemotePort());
+        $requestBuilder->setHttpXHost($connection->getRemoteIp() . ":" . $connection->getRemotePort());
+        $requestBuilder->setRequestMethod('STREAM');
+        $requestBuilder->setContentType('application/json');
+        $requestBuilder->setClientId($client_id);
+        $requestBuilder->setHttpUserAgent($client_id);
+        $requestBuilder->setRawData($message ?? '');
+        return $requestBuilder;
+    }
+
+    /**
+     * run
+     */
     public function run()
     {
         $this->worker = new \Workerman\Worker("tcp://0.0.0.0:{$this->options['p']}");
@@ -47,12 +78,7 @@ class WorkermanTcp extends Console
                 realpath($this->root_path),
                 $this->options['e'],
                 BootType::WORKERMAN_TCP,
-                array(
-                    'connection' => $connection,
-                    'request' => [
-                        'rawData' => $message
-                    ],
-                )
+                $this->requestBuilder($connection, $message)
             );
             if ($responseCollector instanceof Collector) {
                 $connection->send($responseCollector->response());

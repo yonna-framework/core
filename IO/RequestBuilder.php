@@ -7,6 +7,7 @@
 namespace Yonna\IO;
 
 
+use SimpleXMLElement;
 use Yonna\Bootstrap\Cargo;
 use Yonna\Foundation\Parse;
 
@@ -32,6 +33,8 @@ class RequestBuilder
     protected $cookie = [];
     protected $session = [];
 
+    protected $content_length = 0;
+    protected $content_type = '';
     protected $php_self = '';
     protected $gateway_interface = '';
     protected $server_addr = '';
@@ -52,6 +55,11 @@ class RequestBuilder
     protected $http_host = '';
     protected $http_referer = '';
     protected $http_user_agent = '';
+    protected $http_upgrade = '';
+    protected $http_origin = '';
+    protected $http_sec_websocket_version = '';
+    protected $http_sec_websocket_key = '';
+    protected $http_sec_websocket_extensions = '';
     protected $https = '';
     protected $remote_addr = '';
     protected $remote_host = '';
@@ -130,6 +138,77 @@ class RequestBuilder
             $this->setHost($host);
             $this->setPort($port);
         }
+
+        // 处理协议，将可能的数据转为json字符串记录在input
+        $data = null;
+        switch ($this->getRequestMethod()) {
+            case 'GET':
+                switch ($this->content_type) {
+                    case null:
+                        $data = $this->getGet();
+                        break;
+                    case 'application/x-www-form-urlencoded':
+                        parse_str($this->getRawData(), $temp);
+                        $data = $temp;
+                        break;
+                    case 'application/xml':
+                    case 'text/xml':
+                        $data = simplexml_load_string($this->getRawData());
+                        break;
+                    case 'text/plain':
+                    case 'application/json':
+                    default:
+                        $data = $this->getRawData();
+                        break;
+                }
+                break;
+            case 'POST':
+                switch ($this->content_type) {
+                    case null:
+                    case 'multipart/form-data':
+                    case 'application/x-www-form-urlencoded':
+                        $data = $this->getPost();
+                        break;
+                    case 'application/xml':
+                    case 'text/xml':
+                        $data = simplexml_load_string($this->getRawData());
+                        break;
+                    case 'text/plain':
+                    case 'application/json':
+                    default:
+                        $data = $this->getRawData();
+                        break;
+                }
+                break;
+            case 'PUT':
+            case 'PATCH':
+            case 'DELETE':
+                switch ($this->content_type) {
+                    case 'application/xml':
+                    case 'text/xml':
+                        $data = simplexml_load_string($this->getRawData());
+                        break;
+                    case 'text/plain':
+                    case 'application/json':
+                    default:
+                        $data = $this->getRawData();
+                        break;
+                }
+                break;
+            case 'STREAM':
+            default:
+                $data = $this->getRawData();
+                break;
+        }
+        if ($data instanceof SimpleXMLElement) {
+            $this->setInputType(InputType::XML);
+            $this->setRawData(json_encode($data));
+        } else if (is_array($data)) {
+            $this->setInputType(InputType::FORM);
+            $this->setRawData(json_encode($data));
+        } else {
+            $this->setInputType(InputType::RAW);
+        }
     }
 
     /**
@@ -145,6 +224,8 @@ class RequestBuilder
         $this->setCookie($_COOKIE ?? []);
         $this->setSession($_SESSION ?? []);
         $this->setRawData(file_get_contents('php://input') ?? $GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
+        $this->setContentLength($_SERVER['CONTENT_LENGTH'] ?? 0);
+        $this->setContentType($_SERVER['CONTENT_TYPE'] ?? '');
         $this->setPhpSelf($_SERVER['PHP_SELF'] ?? '');
         $this->setGatewayInterface($_SERVER['GATEWAY_INTERFACE'] ?? '');
         $this->setRequestMethod($_SERVER['REQUEST_METHOD'] ?? '');
@@ -161,6 +242,8 @@ class RequestBuilder
         $this->setHttpHost($_SERVER['HTTP_HOST'] ?? '');
         $this->setHttpReferer($_SERVER['HTTP_REFERER'] ?? '');
         $this->setHttpUserAgent($_SERVER['HTTP_USER_AGENT'] ?? '');
+        $this->setHttpUpgrade($_SERVER['HTTP_UPGRADE'] ?? '');
+        $this->setHttpOrigin($_SERVER['HTTP_ORIGIN'] ?? '');
         $this->setHttps($_SERVER['HTTPS'] ?? '');
         $this->setRemoteAddr($_SERVER['REMOTE_ADDR'] ?? '');
         $this->setRemoteHost($_SERVER['REMOTE_HOST'] ?? '');
@@ -201,61 +284,107 @@ class RequestBuilder
      */
     protected function loadRequestBuilder(RequestBuilder $requestBuilder)
     {
-        $this->setGet($requestBuilder->getGet());
-        $this->setPost($requestBuilder->getPost());
-        $this->setRequest($requestBuilder->getRequest());
-        $this->setFiles($requestBuilder->getFiles());
-        $this->setCookie($requestBuilder->getCookie());
-        $this->setSession($requestBuilder->getSession());
-        $this->setRawData($requestBuilder->getRawData());
-        $this->setPhpSelf($requestBuilder->getPhpSelf());
-        $this->setGatewayInterface($requestBuilder->getGatewayInterface());
-        $this->setRequestMethod($requestBuilder->getRequestMethod());
-        $this->setRequestTime($requestBuilder->getRequestTime());
-        $this->setRequestTimeFloat($requestBuilder->getRequestTimeFloat());
-        $this->setRequestScheme($requestBuilder->getRequestScheme());
-        $this->setQueryString($requestBuilder->getQueryString());
-        $this->setDocumentRoot($requestBuilder->getDocumentRoot());
-        $this->setHttpAccept($requestBuilder->getHttpAccept());
-        $this->setHttpAcceptCharset($requestBuilder->getHttpAcceptCharset());
-        $this->setHttpAcceptEncoding($requestBuilder->getHttpAcceptEncoding());
-        $this->setHttpAcceptLanguage($requestBuilder->getHttpAcceptLanguage());
-        $this->setHttpConnection($requestBuilder->getHttpConnection());
-        $this->setHttpHost($requestBuilder->getHttpHost());
-        $this->setHttpReferer($requestBuilder->getHttpReferer());
-        $this->setHttpUserAgent($requestBuilder->getHttpUserAgent());
-        $this->setHttps($requestBuilder->getHttps());
-        $this->setRemoteAddr($requestBuilder->getRemoteAddr());
-        $this->setRemoteHost($requestBuilder->getRemoteHost());
-        $this->setRemotePort($requestBuilder->getRemotePort());
-        $this->setRemoteUser($requestBuilder->getRemoteUser());
-        $this->setRedirectRemoteUser($requestBuilder->getRedirectRemoteUser());
-        $this->setScriptFilename($requestBuilder->getScriptFilename());
-        $this->setServerAddr($requestBuilder->getServerAddr());
-        $this->setServerName($requestBuilder->getScriptName());
-        $this->setServerSoftware($requestBuilder->getServerSoftware());
-        $this->setServerProtocol($requestBuilder->getServerProtocol());
-        $this->setServerAdmin($requestBuilder->getServerAdmin());
-        $this->setServerPort($requestBuilder->getServerPort());
-        $this->setServerSignature($requestBuilder->getServerSignature());
-        $this->setPathTranslated($requestBuilder->getPathTranslated());
-        $this->setScriptName($requestBuilder->getScriptName());
-        $this->setRequestUri($requestBuilder->getRequestUri());
-        $this->setPhpAuthDigest($requestBuilder->getPhpAuthDigest());
-        $this->setPhpAuthUser($requestBuilder->getPhpAuthUser());
-        $this->setPhpAuthPw($requestBuilder->getPhpAuthPw());
-        $this->setAuthType($requestBuilder->getAuthType());
-        $this->setOrigPathInfo($requestBuilder->getOrigPathInfo());
-        $this->setPathInfo($requestBuilder->getPathInfo());
-        $this->setHttpClientIp($requestBuilder->getHttpClientIp());
-
-        $this->setHttpXRealIp($requestBuilder->getHttpXRealIp());
-        $this->setHttpXHost($requestBuilder->getHttpXHost());
-        $this->setHttpXForwardedFor($requestBuilder->getHttpXForwardedFor());
-
-        $this->setClientId($requestBuilder->getClientId());
-
+        $keys = [
+            'Get',
+            'Post',
+            'Request',
+            'Files',
+            'Cookie',
+            'Session',
+            'RawData',
+            'ContentLength',
+            'ContentType',
+            'PhpSelf',
+            'GatewayInterface',
+            'RequestMethod',
+            'RequestTime',
+            'RequestTimeFloat',
+            'RequestScheme',
+            'QueryString',
+            'DocumentRoot',
+            'HttpAccept',
+            'HttpAcceptCharset',
+            'HttpAcceptEncoding',
+            'HttpAcceptLanguage',
+            'HttpConnection',
+            'HttpHost',
+            'HttpReferer',
+            'HttpUserAgent',
+            'HttpUpgrade',
+            'HttpOrigin',
+            'HttpSecWebsocketVersion',
+            'HttpSecWebsocketKey',
+            'HttpSecWebsocketExtensions',
+            'Https',
+            'RemoteAddr',
+            'RemoteHost',
+            'RemotePort',
+            'RemoteUser',
+            'RedirectRemoteUser',
+            'ScriptFilename',
+            'ServerAddr',
+            'ServerName',
+            'ServerSoftware',
+            'ServerProtocol',
+            'ServerAdmin',
+            'ServerPort',
+            'ServerSignature',
+            'PathTranslated',
+            'ScriptName',
+            'RequestUri',
+            'PhpAuthDigest',
+            'PhpAuthUser',
+            'PhpAuthPw',
+            'AuthType',
+            'OrigPathInfo',
+            'PathInfo',
+            'HttpClientIp',
+            'HttpXRealIp',
+            'HttpXHost',
+            'HttpXForwardedFor',
+            'ClientId',
+        ];
+        foreach ($keys as $k) {
+            $get = "get{$k}";
+            $set = "set{$k}";
+            if (!$this->$get() && $requestBuilder->$get()) {
+                $this->$set($requestBuilder->$get());
+            }
+        }
         $this->analysisExtentSet();
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getContentLength(): int
+    {
+        return $this->content_length;
+    }
+
+    /**
+     * @param int $content_length
+     */
+    public function setContentLength(int $content_length): void
+    {
+        $this->content_length = $content_length;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContentType(): string
+    {
+        return $this->content_type;
+    }
+
+    /**
+     * @param string $content_type
+     */
+    public function setContentType(string $content_type): void
+    {
+        $this->content_type = $content_type;
     }
 
     /**
@@ -576,6 +705,86 @@ class RequestBuilder
     public function setHttpUserAgent(string $http_user_agent): void
     {
         $this->http_user_agent = $http_user_agent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpUpgrade(): string
+    {
+        return $this->http_upgrade;
+    }
+
+    /**
+     * @param string $http_upgrade
+     */
+    public function setHttpUpgrade(string $http_upgrade): void
+    {
+        $this->http_upgrade = $http_upgrade;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpOrigin(): string
+    {
+        return $this->http_origin;
+    }
+
+    /**
+     * @param string $http_origin
+     */
+    public function setHttpOrigin(string $http_origin): void
+    {
+        $this->http_origin = $http_origin;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpSecWebsocketVersion(): string
+    {
+        return $this->http_sec_websocket_version;
+    }
+
+    /**
+     * @param string $http_sec_websocket_version
+     */
+    public function setHttpSecWebsocketVersion(string $http_sec_websocket_version): void
+    {
+        $this->http_sec_websocket_version = $http_sec_websocket_version;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpSecWebsocketKey(): string
+    {
+        return $this->http_sec_websocket_key;
+    }
+
+    /**
+     * @param string $http_sec_websocket_key
+     */
+    public function setHttpSecWebsocketKey(string $http_sec_websocket_key): void
+    {
+        $this->http_sec_websocket_key = $http_sec_websocket_key;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHttpSecWebsocketExtensions(): string
+    {
+        return $this->http_sec_websocket_extensions;
+    }
+
+    /**
+     * @param string $http_sec_websocket_extensions
+     */
+    public function setHttpSecWebsocketExtensions(string $http_sec_websocket_extensions): void
+    {
+        $this->http_sec_websocket_extensions = $http_sec_websocket_extensions;
     }
 
     /**

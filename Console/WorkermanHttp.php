@@ -6,6 +6,7 @@ use Exception;
 use Workerman\Connection\TcpConnection;
 use Yonna\Core;
 use Yonna\Bootstrap\BootType;
+use Yonna\IO\RequestBuilder;
 use Yonna\Response\Collector;
 
 /**
@@ -36,6 +37,51 @@ class WorkermanHttp extends Console
         return $this;
     }
 
+    /**
+     * build a request
+     * @param mixed ...$options
+     * @return RequestBuilder
+     */
+    private function requestBuilder(...$options): RequestBuilder
+    {
+        $connection = $options[0];
+        $request = $options[1];
+        /**
+         * @var RequestBuilder $requestBuilder
+         */
+        $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setHttpXRealIp($connection->getRemoteIp());
+        $requestBuilder->setHttpClientIp($connection->getRemoteIp());
+        $requestBuilder->setGet($request['get'] ?? []);
+        $requestBuilder->setPost($request['post'] ?? []);
+        $requestBuilder->setCookie($request['cookie'] ?? []);
+        $requestBuilder->setFiles($request['files'] ?? []);
+        $requestBuilder->setRawData($GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
+        $requestBuilder->setQueryString($request['server']['QUERY_STRING'] ?? '');
+        $requestBuilder->setRequestMethod($request['server']['REQUEST_METHOD'] ?? '');
+        $requestBuilder->setRequestUri($request['server']['REQUEST_URI'] ?? '');
+        $requestBuilder->setServerProtocol($request['server']['SERVER_PROTOCOL'] ?? '');
+        $requestBuilder->setServerSoftware($request['server']['SERVER_SOFTWARE'] ?? '');
+        $requestBuilder->setServerName($request['server']['SERVER_NAME'] ?? '');
+        $requestBuilder->setServerPort($request['server']['SERVER_PORT'] ?? '');
+        $requestBuilder->setHttpHost($request['server']['HTTP_HOST'] ?? '');
+        $requestBuilder->setHttpUserAgent($request['server']['HTTP_USER_AGENT'] ?? '');
+        $requestBuilder->setHttpAccept($request['server']['HTTP_ACCEPT'] ?? '');
+        $requestBuilder->setHttpAcceptLanguage($request['server']['HTTP_ACCEPT_LANGUAGE'] ?? '');
+        $requestBuilder->setHttpAcceptEncoding($request['server']['HTTP_ACCEPT_ENCODING'] ?? '');
+        $requestBuilder->setHttpConnection($request['server']['HTTP_CONNECTION'] ?? '');
+        $requestBuilder->setContentLength($request['server']['CONTENT_LENGTH'] ?? 0);
+        $requestBuilder->setContentType($request['server']['CONTENT_TYPE'] ?? '');
+        $requestBuilder->setRemoteAddr($request['server']['REMOTE_ADDR'] ?? '');
+        $requestBuilder->setRemotePort($request['server']['REMOTE_PORT'] ?? '');
+        $requestBuilder->setRequestTime($request['server']['REQUEST_TIME'] ?? '');
+        $requestBuilder->setClientId($request['server']['HTTP_POSTMAN_TOKEN'] ?? '');
+        return $requestBuilder;
+    }
+
+    /**
+     * run
+     */
     public function run()
     {
         $this->worker = new \Workerman\Worker("http://0.0.0.0:{$this->options['p']}");
@@ -47,10 +93,7 @@ class WorkermanHttp extends Console
                 realpath($this->root_path),
                 $this->options['e'],
                 BootType::WORKERMAN_HTTP,
-                array(
-                    'connection' => $connection,
-                    'request' => $request,
-                )
+                $this->requestBuilder($connection, $request)
             );
             if ($responseCollector instanceof Collector) {
                 $responseHeader = $responseCollector->getHeader('arr');

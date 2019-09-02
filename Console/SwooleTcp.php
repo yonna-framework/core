@@ -6,6 +6,7 @@ use Exception;
 use swoole_server;
 use Yonna\Bootstrap\BootType;
 use Yonna\Core;
+use Yonna\IO\RequestBuilder;
 use Yonna\Response\Collector;
 
 /**
@@ -36,6 +37,35 @@ class SwooleTcp extends Console
         return $this;
     }
 
+
+    /**
+     * build a request
+     * @param mixed ...$options
+     * @return RequestBuilder
+     */
+    private function requestBuilder(...$options): RequestBuilder
+    {
+        $server = $options[0];
+        $task_id = $options[1];
+        $from_id = $options[2];
+        $request = $options[3];
+        $client_id = BootType::SWOOLE_TCP . '#' . $server->worker_id;
+
+        /**
+         * @var RequestBuilder $requestBuilder
+         */
+        $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setRawData($request['rawData'] ?? '');
+        $requestBuilder->setRequestMethod('STREAM');
+        $requestBuilder->setContentLength(strlen($requestBuilder->getRawData()));
+        $requestBuilder->setContentType('application/json');
+        $requestBuilder->setClientId($client_id);
+        return $requestBuilder;
+    }
+
+    /**
+     * run
+     */
     public function run()
     {
         $this->server = new swoole_server("0.0.0.0", $this->options['p']);
@@ -76,12 +106,7 @@ class SwooleTcp extends Console
                 realpath($this->root_path),
                 $this->options['e'],
                 BootType::SWOOLE_TCP,
-                array(
-                    'server' => $server,
-                    'task_id' => $task_id,
-                    'from_id' => $from_id,
-                    'request' => $request,
-                )
+                $this->requestBuilder($server, $task_id, $from_id, $request)
             );
             $this->server->finish($ResponseCollector);
         });

@@ -6,6 +6,7 @@ use Exception;
 use swoole_server;
 use Yonna\Bootstrap\BootType;
 use Yonna\Core;
+use Yonna\IO\RequestBuilder;
 use Yonna\Response\Collector;
 
 /**
@@ -36,6 +37,42 @@ class SwooleUdp extends Console
         return $this;
     }
 
+    /**
+     * build a request
+     * @param mixed ...$options
+     * @return RequestBuilder
+     */
+    private function requestBuilder(...$options): RequestBuilder
+    {
+        $server = $options[0];
+        $task_id = $options[1];
+        $from_id = $options[2];
+        $request = $options[3];
+        $client_id = BootType::SWOOLE_UDP . '#' . $server->worker_id;
+
+        /**
+         * @var RequestBuilder $requestBuilder
+         */
+        $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setRequestMethod('STREAM');
+        $requestBuilder->setContentLength(strlen($requestBuilder->getRawData()));
+        $requestBuilder->setContentType('application/json');
+        $requestBuilder->setServerPort($request['client']['server_port'] ?? '');
+        $requestBuilder->setHttpXRealIp($request['client']['address'] ?? '');
+        $requestBuilder->setHttpClientIp($request['client']['address'] ?? '');
+        $requestBuilder->setRemoteAddr($request['client']['address'] ?? '');
+        $requestBuilder->setRemotePort($request['client']['port'] ?? '');
+        $requestBuilder->setHttpXHost($request['client']['address'] . ":" . $request['client']['port']);
+        $requestBuilder->setClientId($client_id);
+        $requestBuilder->setHttpUserAgent($client_id);
+        $requestBuilder->setRawData($request['rawData'] ?? '');
+        return $requestBuilder;
+    }
+
+
+    /**
+     * run
+     */
     public function run()
     {
         $this->server = new swoole_server("0.0.0.0", $this->options['p'], SWOOLE_PROCESS, SWOOLE_SOCK_UDP);
@@ -60,15 +97,7 @@ class SwooleUdp extends Console
         });
 
         $this->server->on('packet', function ($server, $data, $clientInfo) {
-
-            var_dump($server);
-            var_dump($data);
-            var_dump($clientInfo);
-            return;
-
             $request = [];
-            $request['server'] = [];
-            $request['header'] = [];
             $request['rawData'] = $data;
             $request['client'] = $clientInfo;
             $this->server->task($request, -1, function ($server, $task_id, Collector $responseCollector) use ($clientInfo) {
@@ -86,13 +115,8 @@ class SwooleUdp extends Console
             $ResponseCollector = Core::bootstrap(
                 realpath($this->root_path),
                 $this->options['e'],
-                BootType::SWOOLE_TCP,
-                array(
-                    'server' => $server,
-                    'task_id' => $task_id,
-                    'from_id' => $from_id,
-                    'request' => $request,
-                )
+                BootType::SWOOLE_UDP,
+                $this->requestBuilder($server, $task_id, $from_id, $request)
             );
             $this->server->finish($ResponseCollector);
         });
