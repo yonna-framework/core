@@ -224,7 +224,7 @@ class RequestBuilder
         $this->setCookie($_COOKIE ?? []);
         $this->setSession($_SESSION ?? []);
         $this->setRawData(file_get_contents('php://input') ?? $GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
-        $this->setContentLength($_SERVER['CONTENT_LENGTH'] ?? 0);
+        $this->setContentLength(intval($_SERVER['CONTENT_LENGTH']) ?? 0);
         $this->setContentType($_SERVER['CONTENT_TYPE'] ?? '');
         $this->setPhpSelf($_SERVER['PHP_SELF'] ?? '');
         $this->setGatewayInterface($_SERVER['GATEWAY_INTERFACE'] ?? '');
