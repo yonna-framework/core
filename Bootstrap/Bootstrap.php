@@ -79,11 +79,15 @@ class Bootstrap
             if (!(getenv('IS_DEBUG') || getenv('IS_DEBUG') !== 'true')) {
                 $origin = false;
             }
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
             if (!empty($request)) {
+                $requestMethod = $request->getRequestMethod();
                 $userAgent = $request->getHttpUserAgent();
             }
-            if ($userAgent !== null && strpos(strtolower($userAgent), 'postman') !== false) {
+            if ($requestMethod !== 'GET') {
+                $origin = false;
+            } else if ($userAgent !== null && strpos(strtolower($userAgent), 'postman') !== false) {
                 $origin = false;
             }
             if ($origin === true) {
