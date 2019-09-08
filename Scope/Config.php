@@ -44,7 +44,7 @@ class Config
         if (!empty(self::$group)) {
             $tempGroup = self::$group;
             $tempGroup[] = $key;
-            $key = implode('.', $tempGroup);
+            $key = implode('_', $tempGroup);
         }
         // upper
         $method = strtoupper($method);
@@ -157,13 +157,17 @@ class Config
 
     /**
      * group
-     * @param string $key
+     * @param $key
      * @param Closure $closure
      * @throws null
      */
-    public static function group(string $key, Closure $closure)
+    public static function group($key, Closure $closure)
     {
-        self::$group[] = $key;
+        if (is_string($key)) {
+            self::$group[] = $key;
+        } else if (is_array($key)) {
+            self::$group = array_merge(self::$group, $key);
+        }
         $closure();
         self::$group = [];
     }
