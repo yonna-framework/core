@@ -56,11 +56,11 @@ class Crypto
     public static function input(Request $request)
     {
         if (self::isCrypto($request) === false) {
-            $request->setInput(json_decode($request->getRawData(), true));
-            return $request;
+            $input = $request->getRawData() ? json_decode($request->getRawData(), true) : [];
+        } else {
+            $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $request->getRawData()));
+            $input = $input ? json_decode($input, true) : [];
         }
-        $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $request->getRawData()));
-        $input = $input ? json_decode($input, true) : [];
         if (isset($input['client_id'])) {
             $request->setClientId($input['client_id']);
             unset($input['client_id']);
