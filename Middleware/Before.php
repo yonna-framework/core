@@ -10,6 +10,7 @@ use Yonna\IO\Request;
 class Before extends Middleware
 {
 
+    protected static $type = MiddlewareType::BEFORE;
     private static $before = [];
 
     /**
@@ -28,20 +29,19 @@ class Before extends Middleware
     }
 
     /**
+     * handle
+     * @return Request
+     */
+    public function handle(): Request
+    {
+    }
+
+    /**
      * @return Request
      */
     public function getRequest(): Request
     {
         return $this->request;
-    }
-
-    /**
-     * get middleware
-     * @return string
-     */
-    public static function type(): string
-    {
-        return MiddlewareType::BEFORE;
     }
 
     /**

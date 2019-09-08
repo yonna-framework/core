@@ -9,17 +9,15 @@ namespace Yonna\Middleware;
 abstract class Middleware implements Interfaces\Middleware
 {
 
+    protected static $type = MiddlewareType::MIDDLEWARE;
+
     /**
      * get middleware
      * @return string
      */
     public static function type(): string
     {
-        return MiddlewareType::MIDDLEWARE;
-    }
-
-    public function handle()
-    {
+        return static::$type;
     }
 
 }

@@ -11,6 +11,7 @@ use Yonna\IO\Request;
 class After extends Middleware
 {
 
+    protected static $type = MiddlewareType::AFTER;
     private static $after = [];
 
     /**
@@ -36,6 +37,14 @@ class After extends Middleware
     }
 
     /**
+     * handle
+     * @return Response
+     */
+    public function handle(): Response
+    {
+    }
+
+    /**
      * @return Request
      */
     public function getRequest(): Request
@@ -49,15 +58,6 @@ class After extends Middleware
     public function getResponse()
     {
         return $this->response;
-    }
-
-    /**
-     * get middleware
-     * @return string
-     */
-    public static function type(): string
-    {
-        return MiddlewareType::AFTER;
     }
 
     /**

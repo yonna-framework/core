@@ -11,7 +11,5 @@ interface Middleware
 
     public static function type(): string;
 
-    public function handle();
-
 }
 
