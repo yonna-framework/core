@@ -47,6 +47,7 @@ class Before extends Middleware
     /**
      * 添加 before
      * @param Closure | string $call
+     * @throws null
      */
     public static function add($call)
     {
@@ -54,12 +55,12 @@ class Before extends Middleware
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                $call = function ($request) use ($call) {
+                $call = function ($request) use ($call): Request {
                     $Before = Core::get($call, $request);
                     if (!$Before instanceof Before) {
                         Exception::throw("Class {$call} is not instanceof Middleware-Before");
                     }
-                    $Before->handle();
+                    return $Before->handle();
                 };
             }
         } // if call instanceof Closure, combine the middleware and

@@ -4,6 +4,7 @@ namespace Yonna\Middleware;
 
 use Closure;
 use Yonna\Core;
+use Yonna\Response\Response;
 use Yonna\Throwable\Exception;
 use Yonna\IO\Request;
 
@@ -62,6 +63,7 @@ class After extends Middleware
     /**
      * 添加 after
      * @param Closure | string $call
+     * @throws null
      */
     public static function add($call)
     {
@@ -69,12 +71,12 @@ class After extends Middleware
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                $call = function ($request, $response) use ($call) {
+                $call = function ($request, $response) use ($call): Response {
                     $After = Core::get($call, $request, $response);
                     if (!$After instanceof After) {
                         Exception::throw("Class {$call} is not instanceof Middleware-After");
                     }
-                    $After->handle();
+                    return $After->handle();
                 };
             }
         } // if call instanceof Closure, combine the middleware and

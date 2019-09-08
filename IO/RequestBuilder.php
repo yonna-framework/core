@@ -273,8 +273,6 @@ class RequestBuilder
         $this->setHttpXHost($_SERVER['HTTP_X_HOST'] ?? '');
         $this->setHttpXForwardedFor($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
 
-        $this->setClientId($_SERVER['HTTP_CLIENT_ID'] ?? '');
-
         $this->analysisExtentSet();
     }
 
@@ -342,7 +340,6 @@ class RequestBuilder
             'HttpXRealIp',
             'HttpXHost',
             'HttpXForwardedFor',
-            'ClientId',
         ];
         foreach ($keys as $k) {
             $get = "get{$k}";
