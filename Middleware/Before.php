@@ -39,7 +39,7 @@ class Before extends Middleware
     /**
      * @return Request
      */
-    public function getRequest(): Request
+    public function request(): Request
     {
         return $this->request;
     }
