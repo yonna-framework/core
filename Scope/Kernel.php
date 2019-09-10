@@ -36,7 +36,7 @@ abstract class Kernel implements Interfaces\Kernel
 
     /**
      * @param null $key
-     * @return false|string|null
+     * @return mixed
      */
     protected function input($key = null)
     {
