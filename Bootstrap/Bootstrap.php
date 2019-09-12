@@ -94,7 +94,9 @@ class Bootstrap
                 Exception::origin($e);
                 exit();
             } else {
-                if ($e instanceof ErrorException) {
+                if ($e instanceof Exception\PermissionException) {
+                    $collector = Response::notPermission($e->getMessage());
+                } else if ($e instanceof ErrorException) {
                     $collector = Response::error($e->getMessage());
                 } else {
                     $collector = Response::throwable($e);
