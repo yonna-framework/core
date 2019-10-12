@@ -35,11 +35,16 @@ abstract class Kernel implements Interfaces\Kernel
     }
 
     /**
-     * @return false|string|null
+     * @param null $key
+     * @return mixed
      */
-    protected function input()
+    protected function input($key = null)
     {
-        return $this->request()->getInput();
+        $input = $this->request()->getInput();
+        if (empty($key)) {
+            return $input;
+        }
+        return $input[$key] ?? null;
     }
 
 }

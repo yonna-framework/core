@@ -40,13 +40,13 @@ class IO
             $request->setScope($scopeStr);
             if ($scope['before']) {
                 foreach ($scope['before'] as $before) {
-                    $before($request);
+                    $request = $before($request);
                 }
             }
             $response = $scope['call']($request);
             if ($scope['after']) {
                 foreach ($scope['after'] as $after) {
-                    $after($request, $response);
+                    $response = $after($request, $response);
                 }
             }
             // response

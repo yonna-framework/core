@@ -16,7 +16,8 @@ use Yonna\Middleware\MiddlewareType;
 class Config
 {
 
-    protected static $config = array();
+    protected static $config = [];
+    protected static $group = [];
 
     /**
      * @return array
@@ -32,12 +33,19 @@ class Config
      * @param string $key
      * @param Closure | string $call
      * @param string $action
+     * @throws null
      */
     private static function add(string $method, string $key, $call, string $action = null)
     {
         if (empty($method)) Exception::throw('no method');
         if (empty($key)) Exception::throw('no key');
         if (empty($call)) Exception::throw('no call class');
+        // handle groups
+        if (!empty(self::$group)) {
+            $tempGroup = self::$group;
+            $tempGroup[] = $key;
+            $key = implode('_', $tempGroup);
+        }
         // upper
         $method = strtoupper($method);
         $key = strtoupper($key);
@@ -148,9 +156,27 @@ class Config
     }
 
     /**
+     * group
+     * @param $key
+     * @param Closure $closure
+     * @throws null
+     */
+    public static function group($key, Closure $closure)
+    {
+        if (is_string($key)) {
+            self::$group[] = $key;
+        } else if (is_array($key)) {
+            self::$group = array_merge(self::$group, $key);
+        }
+        $closure();
+        self::$group = [];
+    }
+
+    /**
      * middleware
      * @param $call
      * @param Closure $closure
+     * @throws null
      */
     public static function middleware($call, Closure $closure)
     {

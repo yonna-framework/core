@@ -10,6 +10,7 @@ use Yonna\IO\Request;
 class Before extends Middleware
 {
 
+    protected static $type = MiddlewareType::BEFORE;
     private static $before = [];
 
     /**
@@ -28,25 +29,25 @@ class Before extends Middleware
     }
 
     /**
+     * handle
      * @return Request
      */
-    public function getRequest(): Request
+    public function handle(): Request
+    {
+    }
+
+    /**
+     * @return Request
+     */
+    public function request(): Request
     {
         return $this->request;
     }
 
     /**
-     * get middleware
-     * @return string
-     */
-    public static function type(): string
-    {
-        return MiddlewareType::BEFORE;
-    }
-
-    /**
      * 添加 before
      * @param Closure | string $call
+     * @throws null
      */
     public static function add($call)
     {
@@ -54,12 +55,12 @@ class Before extends Middleware
         // if call instanceof string, convert it to Closure
         if (is_string($call)) {
             if (class_exists($call)) {
-                $call = function ($request) use ($call) {
+                $call = function ($request) use ($call): Request {
                     $Before = Core::get($call, $request);
                     if (!$Before instanceof Before) {
                         Exception::throw("Class {$call} is not instanceof Middleware-Before");
                     }
-                    $Before->handle();
+                    return $Before->handle();
                 };
             }
         } // if call instanceof Closure, combine the middleware and

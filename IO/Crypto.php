@@ -13,7 +13,7 @@ class Crypto
      * @param Request $request
      * @return bool
      */
-    private static function isCrypto(Request $request): bool
+    public static function isCrypto(Request $request): bool
     {
         return $request->getInputType() === InputType::RAW && strpos($request->getRawData(), Config::getCryptoProtocol()) === 0;
     }
@@ -55,21 +55,17 @@ class Crypto
      */
     public static function input(Request $request)
     {
-        $rawData = $request->getRawData();
-        if (!$rawData) {
-            $request->setInput([]);
-            return $request;
-        }
         if (self::isCrypto($request) === false) {
-            $rawData = json_decode($rawData);
-            if (!$rawData) {
-                $rawData = [];
-            }
-            $request->setInput($rawData);
-            return $request;
+            $input = $request->getRawData() ? json_decode($request->getRawData(), true) : [];
+        } else {
+            $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $request->getRawData()));
+            $input = $input ? json_decode($input, true) : [];
         }
-        $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $rawData));
-        $request->setInput(json_decode($input, true));
+        if (isset($input['client_id'])) {
+            $request->setClientId($input['client_id']);
+            unset($input['client_id']);
+        }
+        $request->setInput($input);
         return $request;
     }
 
