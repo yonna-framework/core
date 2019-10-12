@@ -55,11 +55,20 @@ class Crypto
      */
     public static function input(Request $request)
     {
-        if (self::isCrypto($request) === false) {
-            $request->setInput(json_decode($request->getRawData(), true));
+        $rawData = $request->getRawData();
+        if (!$rawData) {
+            $request->setInput([]);
             return $request;
         }
-        $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $request->getRawData()));
+        if (self::isCrypto($request) === false) {
+            $rawData = json_decode($rawData);
+            if (!$rawData) {
+                $rawData = [];
+            }
+            $request->setInput($rawData);
+            return $request;
+        }
+        $input = self::decrypt(Str::replaceFirst(Config::getCryptoProtocol(), '', $rawData));
         $request->setInput(json_decode($input, true));
         return $request;
     }

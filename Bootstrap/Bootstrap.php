@@ -79,7 +79,7 @@ class Bootstrap
             if (!(getenv('IS_DEBUG') || getenv('IS_DEBUG') !== 'true')) {
                 $origin = false;
             }
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            $userAgent = $_SERVER['HTTP_SELF_USER_AGENT'] ?? $_SERVER['HTTP_USER_AGENT'];
             if (!empty($request)) {
                 $userAgent = $request->getHttpUserAgent();
             }
