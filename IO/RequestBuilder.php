@@ -217,13 +217,19 @@ class RequestBuilder
      */
     protected function loadGlobal()
     {
+        $raw = file_get_contents('php://input');
+        !$raw && $raw = $GLOBALS['HTTP_RAW_POST_DATA'] ?? '';
+        if (strpos($_SERVER['CONTENT_TYPE'], ';') !== false) {
+            $_SERVER['CONTENT_TYPE'] = explode(';', $_SERVER['CONTENT_TYPE']);
+            $_SERVER['CONTENT_TYPE'] = current($_SERVER['CONTENT_TYPE']);
+        }
         $this->setGet($_GET ?? []);
         $this->setPost($_POST ?? []);
         $this->setRequest($_REQUEST ?? []);
         $this->setFiles($_FILES ?? []);
         $this->setCookie($_COOKIE ?? []);
         $this->setSession($_SESSION ?? []);
-        $this->setRawData(file_get_contents('php://input') ?? $GLOBALS['HTTP_RAW_POST_DATA'] ?? '');
+        $this->setRawData($raw);
         $this->setContentLength(intval($_SERVER['CONTENT_LENGTH'] ?? 0));
         $this->setContentType($_SERVER['CONTENT_TYPE'] ?? '');
         $this->setPhpSelf($_SERVER['PHP_SELF'] ?? '');
