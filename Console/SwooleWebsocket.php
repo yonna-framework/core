@@ -55,6 +55,7 @@ class SwooleWebsocket extends Console
          * @var RequestBuilder $requestBuilder
          */
         $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setSwoole($server);
         $requestBuilder->setHttpXRealIp($request['server']['remote_addr']);
         $requestBuilder->setHttpClientIp($request['server']['remote_addr']);
         $requestBuilder->setRemoteAddr($request['server']['remote_addr']);

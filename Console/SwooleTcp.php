@@ -55,6 +55,7 @@ class SwooleTcp extends Console
          * @var RequestBuilder $requestBuilder
          */
         $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setSwoole($server);
         $requestBuilder->setRawData($request['rawData'] ?? '');
         $requestBuilder->setRequestMethod('STREAM');
         $requestBuilder->setContentLength(strlen($requestBuilder->getRawData()));

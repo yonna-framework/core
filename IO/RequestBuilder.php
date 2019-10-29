@@ -19,6 +19,16 @@ class RequestBuilder
 {
 
     /**
+     * @var null | \swoole_websocket_server | \swoole_http_server | \swoole_server
+     */
+    protected $swoole = null;
+
+    /**
+     * @var null | \Workerman\Connection\TcpConnection  | \Workerman\Connection\UdpConnection
+     */
+    protected $workerman = null;
+
+    /**
      * @var Cargo
      */
     protected $cargo = null;
@@ -357,6 +367,37 @@ class RequestBuilder
         $this->analysisExtentSet();
     }
 
+    /**
+     * @return \swoole_http_server|\swoole_server|\swoole_websocket_server|null
+     */
+    public function getSwoole()
+    {
+        return $this->swoole;
+    }
+
+    /**
+     * @param \swoole_http_server|\swoole_server|\swoole_websocket_server|null $swoole
+     */
+    public function setSwoole($swoole): void
+    {
+        $this->swoole = $swoole;
+    }
+
+    /**
+     * @return \Workerman\Connection\TcpConnection|\Workerman\Connection\UdpConnection|null
+     */
+    public function getWorkerman()
+    {
+        return $this->workerman;
+    }
+
+    /**
+     * @param \Workerman\Connection\TcpConnection|\Workerman\Connection\UdpConnection|null $workerman
+     */
+    public function setWorkerman($workerman): void
+    {
+        $this->workerman = $workerman;
+    }
 
     /**
      * @return int

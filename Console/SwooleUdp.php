@@ -54,6 +54,7 @@ class SwooleUdp extends Console
          * @var RequestBuilder $requestBuilder
          */
         $requestBuilder = Core::get(RequestBuilder::class);
+        $requestBuilder->setSwoole($server);
         $requestBuilder->setRequestMethod('STREAM');
         $requestBuilder->setContentLength(strlen($requestBuilder->getRawData()));
         $requestBuilder->setContentType('application/json');
