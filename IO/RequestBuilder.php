@@ -300,6 +300,8 @@ class RequestBuilder
     protected function loadRequestBuilder(RequestBuilder $requestBuilder)
     {
         $keys = [
+            'Swoole',
+            'Workerman',
             'Get',
             'Post',
             'Request',
