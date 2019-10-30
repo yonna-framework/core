@@ -31,7 +31,8 @@ class Env
         }
         // check php version
         if (version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '<')) {
-            exit('Need PHP >= ' . self::MINIMUM_PHP_VERSION);
+            echo 'Need PHP >= ' . self::MINIMUM_PHP_VERSION;
+            exit;
         }
         // timezone
         if (!defined('TIMEZONE')) {

@@ -229,6 +229,7 @@ class RequestBuilder
     {
         $raw = file_get_contents('php://input');
         !$raw && $raw = $GLOBALS['HTTP_RAW_POST_DATA'] ?? '';
+        $_SERVER['CONTENT_TYPE'] = $_SERVER['CONTENT_TYPE'] ?? '';
         if (strpos($_SERVER['CONTENT_TYPE'], ';') !== false) {
             $_SERVER['CONTENT_TYPE'] = explode(';', $_SERVER['CONTENT_TYPE']);
             $_SERVER['CONTENT_TYPE'] = current($_SERVER['CONTENT_TYPE']);
