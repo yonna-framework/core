@@ -50,7 +50,9 @@ class IO
                 }
             }
             // response
-            if (is_array($response)) {
+            if ($response === null) {
+                $response = Response::notFound('You should return some response but not null');
+            } else if (is_array($response)) {
                 $response = Response::success('fetch array success', $response);
             } else if (is_string($response)) {
                 $response = Response::success('fetch string success', ['string' => $response]);

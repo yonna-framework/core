@@ -352,7 +352,7 @@ class RequestBuilder
             'PhpAuthDigest',
             'PhpAuthUser',
             'PhpAuthPw',
-            'AuthType',
+            'AccountType',
             'OrigPathInfo',
             'PathInfo',
             'HttpClientIp',
